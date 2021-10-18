@@ -52,7 +52,7 @@ This is where an user accesses and runs the model. Detailed instructions are sho
 
 ## User Procedure
 - Preparation
-  1. Store the Google Colab notebook, python files, and data in the same directory in your Google Drive
+  1. Download the Google Colab notebook, Google Sheet, python files, data from Github and store them in the same directory in your Google Drive
   2. Ensure the formated Google Sheet has a sharable link
 - Fill in the yellow cells in the Google Sheet
 - Open the Google Colab notebook
