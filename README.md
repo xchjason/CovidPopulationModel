@@ -3,13 +3,13 @@ The COVID Population Model is used to predict the COVID patients admitted to hos
 
 ## Overview
 The Model consists of 3 parts: Google Sheet, Google Drive, and Google Colab.
-- Google Sheet:
+- [Google Sheet](https://docs.google.com/spreadsheets/d/1nLvScw4k2d79L1Rc2NxHFOupuqiEurLsqwWNtaRZB50/edit#gid=0):
   - First Sheet: Setting 
   - Second Sheet: InfluxCountsByCompartment
 - Google Drive:
   - Python files
   - CSV data
-- Google Colab:
+- [Google Colab](https://github.com/xchjason/CovidPopulationModel/blob/main/Model_Notebook.ipynb):
   - a notebook that runs the model
 
 ## Google Sheet
