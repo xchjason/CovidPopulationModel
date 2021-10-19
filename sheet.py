@@ -187,7 +187,7 @@ def run_sheetModel(sheetData, link, gc):
          np.asarray([warmup_mild[0]]), np.asarray([warmup_mild[1]]),
          np.asarray([warmup_extreme[0]]), np.asarray([warmup_extreme[1]])),
                y=np.asarray([training_general_ward]),
-           epochs=50, batch_size=0, callbacks=callbacks)
+           epochs=200, batch_size=0, callbacks=callbacks)
 
   """## Get predictions for train and test"""
 
