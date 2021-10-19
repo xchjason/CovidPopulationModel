@@ -52,7 +52,7 @@ This is where an user accesses and runs the model. Detailed instructions are sho
 
 ## User Procedure
 - Preparation
-  1. Download the Google Colab notebook, Google Sheet, python files, data from Github and store them in the same directory in your Google Drive
+  1. Download the Google Colab notebook, Google Sheet, python files, data from Github and store them in the same directory in your Google Drive. Please remember the name and location of the directory in your Google Drive. You will need it when edit the second cell of the notebook.
   2. Ensure the formated Google Sheet has a sharable link. The template Google Sheet link is at https://docs.google.com/spreadsheets/d/1nLvScw4k2d79L1Rc2NxHFOupuqiEurLsqwWNtaRZB50/edit#gid=0. You can save it as your own Google Sheet and make sure it has a sharable link. 
 - Fill in the yellow cells in the Google Sheet
 - Open the Google Colab notebook in Google Drive
