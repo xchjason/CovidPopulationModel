@@ -55,7 +55,7 @@ This is where an user accesses and runs the model. Detailed instructions are sho
   1. Download the Google Colab notebook, Google Sheet, python files, data from Github and store them in the same directory in your Google Drive
   2. Ensure the formated Google Sheet has a sharable link. The template Google Sheet link is at https://docs.google.com/spreadsheets/d/1nLvScw4k2d79L1Rc2NxHFOupuqiEurLsqwWNtaRZB50/edit#gid=0. You can save it as your own Google Sheet and make sure it has a sharable link. 
 - Fill in the yellow cells in the Google Sheet
-- Open the Google Colab notebook
+- Open the Google Colab notebook in Google Drive
   1. run the first cell: authorize Google Colab notebook to access the Google Drive directory
   2. run the second cell: access the Google Drive directory from Google Colab notebook. (To see the location of the directorry, check "Files" on the left side of the notebook)
   3. run the third cell: load in the model modules to the notebook
