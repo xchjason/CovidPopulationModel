@@ -178,7 +178,7 @@ def run_sheetModel(sheetData, link, gc):
   loss = LogPoissonProb()
 
   model.compile(loss=loss, optimizer=optimizer, run_eagerly=True)
-  callbacks = get_logging_callbacks(log_dir)
+  callbacks = []
 
   # Awkwardly stuff everything into an array
 
