@@ -100,7 +100,7 @@ For the in-browser workflow, users will interact with 3 parts:
   - data.py (read in and store all the data)
   - plots.py (plot the results)
   - model.py (contain model functionalities)
-  - sheet.py (integrates Google Sheet functionalities)
+  - sheet.py (integrate Google Sheet functionalities)
 - data (to acquire the latest data, click download links below):
   - [covidestim]([download link](https://covidestim.s3.us-east-2.amazonaws.com/latest/state/estimates.csv)): Estimates from the [CovidEstim project](https://covidestim.org/) about the effective reproduction number in each state over time
   - [hhs]([download link](https://healthdata.gov/api/views/g62h-syeh/rows.csv?accessType=DOWNLOAD)): Daily hospital admissions for all 50 states from [Healthdata.gov](https://healthdata.gov/)
