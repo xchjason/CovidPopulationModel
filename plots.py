@@ -182,8 +182,8 @@ def make_all_plots(df, model,
                  oos_preds=(all_days, forecasted_fluxes[Compartments.extreme.value][1].stack()))
 
     plot_beta_prior('Rho M', model.rho_M, alpha_bar_M, beta_bar_M, ax=ax_rho_M)
-    plot_beta_prior('Rho X', model.rho_X, alpha_bar_X, beta_bar_X, ax=ax_rho_G)
-    plot_beta_prior('Rho G', model.rho_G, alpha_bar_G, beta_bar_G, ax=ax_rho_X)
+    plot_beta_prior('Rho X', model.rho_X, alpha_bar_X, beta_bar_X, ax=ax_rho_X)
+    plot_beta_prior('Rho G', model.rho_G, alpha_bar_G, beta_bar_G, ax=ax_rho_G)
     plot_pi_prior('pi_M', model.pi_M, ax=ax_pi_M)
     plot_pi_prior('pi_X', model.pi_X, ax=ax_pi_X)
     plot_pi_prior('pi_G', model.pi_G, ax=ax_pi_G)
