@@ -83,7 +83,7 @@ For the in-browser workflow, users will interact with 3 parts:
     1. M: infected -> symptoms
     2. X: symptoms -> severe
     3. G: severe -> death
-  - Priors(duration probability distribution of beliefs before evidence) in lambda, sigma, nu, tau:
+  - Priors(duration probability distribution of beliefs before evidence) in (lambda, sigma), (nu, tau), which represent the paramters (mean, variance) of Normal Distribution. Particularly, lambda is mode number of days until transition to the next compartment:
     1. M: infected -> symptoms
     2. X: symptoms -> severe
     3. G: severe -> death
