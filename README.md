@@ -70,6 +70,8 @@ For the in-browser workflow, users will interact with 3 parts:
   - The provided example finishes in about 5-10 minutes
    - After finishing, a diagnostic plot of the forecasted daily hospital admissions over time (as well as other quantities) is displayed
    - Check the InfluxCountsByCompartment sheet in Google Sheet to inspect detailed values produced by the forecast and displayed in the plot
+ 
+To check out the live demonstration of how to use the model, click [here](https://tufts.zoom.us/rec/share/ML_Lrut3BxHqDcE5dTWMe16hYtQC_82c3f2uvUWRcXT_LGOdmhlDlJTAwF9AMb-.5u4RwunOERbZTuLt?startTime=1635196884000).
 
 ## Detailed Guide to Google Sheet
 - Setting. User enters necessary information in the yellow cells. The grey cells are determined by yellow cells. The yellow cells are listed below:
