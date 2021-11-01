@@ -242,10 +242,10 @@ def run_sheetModel(sheetData, link, gc):
   cell_list[0].value = 'PERIOD'
   cell_list[1].value = 'TIMESTEP'
   cell_list[2].value = 'DATE'
-  cell_list[3].value = 'NUM_TRANS_TO_INFECTED'
-  cell_list[4].value = 'NUM_TRANS_TO_SYMPTOMATIC'
-  cell_list[5].value = 'NUM_TRANS_TO_SEVERE'
-  cell_list[6].value = 'NUM_ADMIT_TO_HOSPITAL'
+  cell_list[3].value = 'NUM_TRANS_TO_INFECTED (IA)'
+  cell_list[4].value = 'NUM_TRANS_TO_SYMPTOMATIC (IM)'
+  cell_list[5].value = 'NUM_TRANS_TO_SEVERE (IX)'
+  cell_list[6].value = 'NUM_ADMIT_TO_HOSPITAL (HG)'
   worksheet.update_cells(cell_list)
 
   #Set the period column
