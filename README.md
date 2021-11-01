@@ -74,7 +74,7 @@ For the in-browser workflow, users will interact with 3 parts:
 To check out the live demonstration of how to use the model, click [here](https://tufts.zoom.us/rec/play/8cnfGGrCikacz9boe7J0LJscb-l0bPEWpJ_PtjspE_FFqFDlSYpU0Q5DKTQYVKPwThy5-FCKmAJ-B0c.xYlcBrGFy_1h4fRh?startTime=1635196884000&_x_zm_rtaid=ZQh25DiZR6yOoO9LRqf2WA.1635540729327.765d58128a32b7d816120015f364ee25&_x_zm_rhtaid=195).
 
 ## Detailed Guide to Google Sheet
-- Setting. User enters necessary information in the yellow cells. The grey cells are determined by yellow cells. The yellow cells are listed below:
+- **Setting**. User enters necessary information in the yellow cells. The grey cells are determined by yellow cells. The yellow cells are listed below:
   - Number of Warmup days
   - Number of Train days
   - Number of Test days
@@ -85,7 +85,7 @@ To check out the live demonstration of how to use the model, click [here](https:
     1. M: infected -> symptoms
     2. X: symptoms -> severe
     3. G: severe -> death
-  - Priors(duration probability distribution of beliefs before evidence) in (lambda, sigma), (nu, tau), which represent the paramters (mean, variance) of Normal Distribution. Particularly, lambda is mode number of days until transition to the next compartment:
+  - Priors(duration probability distribution of beliefs before evidence) in (lambda, sigma), (nu, tau), which represent the paramters (mean, variance) of Normal Distribution. Firstly, lambda is mode number of days until transition to the next compartment and tau is its variance. Secondly, nu is the mode uncertainty :
     1. M: infected -> symptoms
     2. X: symptoms -> severe
     3. G: severe -> death
@@ -95,7 +95,7 @@ To check out the live demonstration of how to use the model, click [here](https:
   - vax_asymp_risk: effective percentage of vaccines at preventing infection
   - vax_mild_risk: effective percentage of vaccines at preventing symptomatic
   - vax_extreme_risk: effective percentage of vaccines at preventing hospitalization
-
+- **InfluxCountsByCompartment**. The result sheet.
 
 ## Detailed Guide to Google Drive shared folder
 - Python files:
