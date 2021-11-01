@@ -178,7 +178,7 @@ def run_sheetModel(sheetData, link, gc):
   loss = LogPoissonProb()
 
   model.compile(loss=loss, optimizer=optimizer, run_eagerly=True)
-  callbacks = []
+  callbacks = get_logging_callbacks(log_dir)
 
   # Awkwardly stuff everything into an array
 
@@ -187,7 +187,7 @@ def run_sheetModel(sheetData, link, gc):
          np.asarray([warmup_mild[0]]), np.asarray([warmup_mild[1]]),
          np.asarray([warmup_extreme[0]]), np.asarray([warmup_extreme[1]])),
                y=np.asarray([training_general_ward]),
-           epochs=200, batch_size=0, callbacks=callbacks)
+           epochs=50, batch_size=0, callbacks=callbacks)
 
   """## Get predictions for train and test"""
 
@@ -242,10 +242,10 @@ def run_sheetModel(sheetData, link, gc):
   cell_list[0].value = 'PERIOD'
   cell_list[1].value = 'TIMESTEP'
   cell_list[2].value = 'DATE'
-  cell_list[3].value = 'IA'
-  cell_list[4].value = 'IM'
-  cell_list[5].value = 'IX'
-  cell_list[6].value = 'HG'
+  cell_list[3].value = 'NUM_TRANS_TO_INFECTED'
+  cell_list[4].value = 'NUM_TRANS_TO_SYMPTOMATIC'
+  cell_list[5].value = 'NUM_TRANS_TO_SEVERE'
+  cell_list[6].value = 'NUM_ADMIT_TO_HOSPITAL'
   worksheet.update_cells(cell_list)
 
   #Set the period column
