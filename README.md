@@ -81,11 +81,11 @@ To check out the live demonstration of how to use the model, click [here](https:
   - Start date of Test days
   - Name of the state of interest
   - Abbreviate of the state of interest
-  - Priors(transition probability distribution of beliefs before evidence) in alpha and beta values (alpha and beta are the two parameters that determine the shape of Beta Distributions below):
+  - Priors(transition probability distribution of beliefs before evidence) in alpha and beta values (alpha and beta are the two parameters that determine the shape of Beta Distributions below). We have transition priors for 3 stages below:
     1. M: infected -> symptoms
     2. X: symptoms -> severe
     3. G: severe -> death
-  - Priors(duration probability distribution of beliefs before evidence) in (lambda, sigma), (nu, tau), which represent the paramters (mean, variance) of Normal Distribution. Firstly, lambda is mode number of days until transition to the next compartment and tau is its variance. Secondly, nu is the mode uncertainty :
+  - Priors(duration probability distribution of beliefs before evidence) in (lambda, sigma), (nu, tau), which represent the paramters (mean, variance) of Normal Distribution. We use 2-parameter formulation for all duration distributions, where two values mode lamda and temperature nu determine how probability mass is spread over J days. Firstly, lambda is mode number of days until transition to the next compartment and tau is its variance. Secondly, nu is the mode uncertainty and tau is its variance. We have duration priors for 3 stages below:
     1. M: infected -> symptoms
     2. X: symptoms -> severe
     3. G: severe -> death
@@ -96,6 +96,13 @@ To check out the live demonstration of how to use the model, click [here](https:
   - vax_mild_risk: effective percentage of vaccines at preventing symptomatic
   - vax_extreme_risk: effective percentage of vaccines at preventing hospitalization
 - **InfluxCountsByCompartment**. The result sheet.
+  - PERIOD: distinguish warmup, training, and testing period
+  - TIMESTEP: 0 is the beginning of traning period and any negative timestep refers to warmup period
+  - DATE
+  - NUM_TRANS_TO_INFECTED (IA): number of people become infected on the given day
+  - NUM_TRANS_TO_SYMPTOMATIC (IM): number of people become symptomatic on the given day
+  - NUM_TRANS_TO_SEVERE (IX): number of people become severely symptomatic on the given day
+  - NUM_ADMIT_TO_HOSPITAL (HG): number of people admitted to hospitals on the given day due to COVID-19
 
 ## Detailed Guide to Google Drive shared folder
 - Python files:
