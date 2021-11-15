@@ -62,7 +62,8 @@ For the in-browser workflow, users will interact with 3 parts:
   - run the first cell: authorize Google Colab notebook to access the Google Drive directory
   - run the second cell: access the Google Drive directory from Google Colab notebook. (To see the location of the directory, check "Files" on the left side of the notebook)
   - run the third cell: load in the model modules to the notebook
-  - run the fourth cell:
+  - run the fourth cell: enter the link of the selected Google Sheet, load the default Rt and Vaccination Rate to Google Sheet so that user can edit.
+  - run the fifth cell:
     - enter the link of the sharable Google Sheet
     - authorize access to Google Sheet
     - After all authorization is approved, the model should run and display progress iteration-by-iteration as its fitting procedure runs 
