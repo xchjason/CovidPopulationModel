@@ -40,8 +40,132 @@ def concatenate_list_data(list):
 
 ### Data details
 """
-def run_sheetModel(sheetData, link, gc):
 
+#Prep data: Rt and Vax_Pct. load default
+#load in data from default and put on Google Sheet. reload new data from Google Sheet
+def load_default_data():
+  link = input("Enter Your Google Sheet Link: ")
+  auth.authenticate_user()
+  gc = gspread.authorize(GoogleCredentials.get_application_default())
+
+  #read in the date setting
+  wb = gc.open_by_url(link)
+  wks = wb.sheet1
+  sheetData = wks.get_all_values()
+
+  warmup_start = convert_date(sheetData[2][2])
+  warmup_end = convert_date(sheetData[2][3])
+  train_start = convert_date(sheetData[3][2])
+  train_end = convert_date(sheetData[3][3])
+  test_start = convert_date(sheetData[4][2])
+  test_end = convert_date(sheetData[4][3])
+
+  state = sheetData[5][1]
+  state_abbrev = sheetData[6][1]
+
+  data_dir = './data'
+  covid_estim_date = '20210901'
+  hhs_date = '20210903'
+  owid_date = '20210903'
+
+  log_dir = './logs/test_run_1'
+
+  """## Read data"""
+
+  df = read_data(data_dir=data_dir,
+                 covid_estim_date=covid_estim_date,
+                 hhs_date=hhs_date,
+                 owid_date=owid_date,
+                 state=state, state_abbrev=state_abbrev)
+
+  all_days = df.loc[warmup_start:test_end].index.values
+  warmup_days = df.loc[warmup_start:warmup_end].index.values
+  train_days = df.loc[train_start:train_end].index.values
+  test_days = df.loc[test_start:test_end].index.values
+  train_test_days = df.loc[train_start:test_end].index.values
+
+  all_days = np.datetime_as_string(all_days, unit='D')
+
+  size_all_days = all_days.size
+  size_warmup_days = warmup_days.size 
+  size_train_days = train_days.size 
+  size_test_days = test_days.size 
+  size_train_test_days = train_test_days.size
+
+  rt_total = df.loc[warmup_start:test_end,'Rt'].values
+  vax_pct_total = df.loc[warmup_start:warmup_end,'vax_pct'].values
+
+  worksheet = gc.open_by_url(link).get_worksheet(2)
+
+  #set up top row (period, timestep, date, ANY_to_HG)
+  worksheet.clear()
+
+  cell_list = worksheet.range('A1:E1')
+  cell_list[0].value = 'PERIOD'
+  cell_list[1].value = 'TIMESTEP'
+  cell_list[2].value = 'DATE'
+  cell_list[3].value = 'Rt'
+  cell_list[4].value = 'Vax_Pct'
+  worksheet.update_cells(cell_list)
+
+  #Set the period column
+  end_warm = str(size_warmup_days + 1)
+  warmup_range = 'A2:A' + end_warm
+  warmup_list = worksheet.range(warmup_range)
+  for cell in warmup_list:
+    cell.value = 'WARMUP'
+  worksheet.update_cells(warmup_list)
+
+  start_train = str(int(end_warm)+1)
+  end_train = str(int(start_train) + size_train_days-1)
+  train_range = 'A'+ start_train + ':' +'A' +end_train
+  train_list = worksheet.range(train_range)
+  for cell in train_list:
+    cell.value = 'TRAIN'
+  worksheet.update_cells(train_list)
+
+  start_test = str(int(end_train)+1)
+  end_test = str(int(start_test)+ size_test_days-1)
+  test_range = 'A'+ start_test + ':' +'A' +end_test
+  test_list = worksheet.range(test_range)
+  for cell in test_list:
+    cell.value = 'TEST'
+  worksheet.update_cells(test_list)
+
+  #Set the timestep column
+  t_list = list(range(-size_warmup_days, size_train_test_days))
+  end_timestep = str(size_all_days+1)
+  timestep_range = 'B2:B' + end_timestep
+  timestep_list = worksheet.range(timestep_range)
+  for i, cell in enumerate(timestep_list):
+    cell.value = t_list[i]
+  worksheet.update_cells(timestep_list)
+
+  #Set the date column
+  date_range = 'C2:C' + end_timestep
+  date_list = worksheet.range(date_range)
+  for i, cell in enumerate(date_list):
+    cell.value = all_days[i]
+  worksheet.update_cells(date_list)
+
+  rt_data = rt_total.tolist()
+  rt_range = 'D2' + ':D' + end_timestep
+  rt_list = worksheet.range(rt_range)
+  for i, cell in enumerate(rt_list):
+    cell.value = rt_data[i]
+  worksheet.update_cells(rt_list)
+
+  vax_pct_data = vax_pct_total.tolist()
+  vax_pct_range = 'E2' + ':E' + end_warm
+  vax_pct_list = worksheet.range(vax_pct_range)
+  for i, cell in enumerate(vax_pct_list):
+    cell.value = vax_pct_data[i]
+  worksheet.update_cells(vax_pct_list)
+
+  print("Successfully load in the default data. Check the specfics in GoogleSheet")
+
+
+def run_sheetModel(sheetData, worksheet2, link, gc):
   warmup_start = convert_date(sheetData[2][2])
   warmup_end = convert_date(sheetData[2][3])
   train_start = convert_date(sheetData[3][2])
@@ -130,7 +254,13 @@ def run_sheetModel(sheetData, link, gc):
   # Learning rate
   learning_rate = float(sheetData[19][1])
 
+
+  #worksheet2
+  #first_column = wroksheet2.get_col()
+  rt_column = (worksheet2.col_values(4))[1:]
+  vax_column = (worksheet2.col_values(5))[1:]
   """## Read data"""
+
 
   df = read_data(data_dir=data_dir,
                  covid_estim_date=covid_estim_date,
@@ -143,6 +273,13 @@ def run_sheetModel(sheetData, link, gc):
   #df.loc[:,'mild'] = 10*df.loc[:,'extreme']
   #df.loc[:,'asymp'] = 1.5*df.loc[:,'mild']
 
+  #update df
+  for count, value in enumerate(rt_column):
+    df.loc[warmup_start:test_end,'Rt'][count] = rt_column[count]
+
+  for count, value in enumerate(vax_column):
+    df.loc[warmup_start:warmup_end,'Rt'][count] = vax_column[count]
+
   """## Create warmup using incorrect efficacy assumption"""
 
   warmup_asymp, warmup_mild, warmup_extreme = create_warmup(df, 
@@ -152,7 +289,9 @@ def run_sheetModel(sheetData, link, gc):
                                                             vax_mild_risk,
                                                             vax_extreme_risk)
 
+
   """## Create training Rt and outcome"""
+
 
   training_rt = df.loc[train_start:train_end,'Rt'].values
   training_general_ward = df.loc[train_start:train_end,'general_ward'].values
@@ -333,7 +472,7 @@ def run_sheetModel(sheetData, link, gc):
                      vax_asymp_risk, vax_mild_risk, vax_extreme_risk,
                      forecasted_fluxes)
 
-def RunModel():
+def run_model():
   link = input("Enter Your Google Sheet Link: ")
   auth.authenticate_user()
   gc = gspread.authorize(GoogleCredentials.get_application_default())
@@ -342,4 +481,7 @@ def RunModel():
   wb = gc.open_by_url(link)
   worksheet = wb.sheet1
   sheetData = worksheet.get_all_values()
-  run_sheetModel(sheetData, link, gc)
+
+  worksheet2 = gc.open_by_url(link).get_worksheet(2)
+
+  run_sheetModel(sheetData, worksheet2, link, gc)
