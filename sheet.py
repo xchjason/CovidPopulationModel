@@ -43,8 +43,13 @@ def concatenate_list_data(list):
 
 #Prep data: Rt and Vax_Pct. load default
 #load in data from default and put on Google Sheet. reload new data from Google Sheet
-def load_default_data():
+
+def read_sheet_link():
   link = input("Enter Your Google Sheet Link: ")
+  return link
+
+
+def load_default_data(link):
   auth.authenticate_user()
   gc = gspread.authorize(GoogleCredentials.get_application_default())
 
@@ -278,7 +283,7 @@ def run_sheetModel(sheetData, worksheet2, link, gc):
     df.loc[warmup_start:test_end,'Rt'][count] = rt_column[count]
 
   for count, value in enumerate(vax_column):
-    df.loc[warmup_start:warmup_end,'Rt'][count] = vax_column[count]
+    df.loc[warmup_start:warmup_end,'vax_pct'][count] = vax_column[count]
 
   """## Create warmup using incorrect efficacy assumption"""
 
@@ -472,8 +477,7 @@ def run_sheetModel(sheetData, worksheet2, link, gc):
                      vax_asymp_risk, vax_mild_risk, vax_extreme_risk,
                      forecasted_fluxes)
 
-def run_model():
-  link = input("Enter Your Google Sheet Link: ")
+def run_model(link):
   auth.authenticate_user()
   gc = gspread.authorize(GoogleCredentials.get_application_default())
 
