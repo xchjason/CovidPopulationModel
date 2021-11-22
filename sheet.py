@@ -338,12 +338,12 @@ def run_sheetModel(sheetData, worksheet2, link, gc):
   train_preds = model((training_rt,
          warmup_asymp[0], warmup_asymp[1],
          warmup_mild[0], warmup_mild[1],
-         warmup_extreme[0], warmup_extreme[1]))
+         warmup_extreme[0], warmup_extreme[1]), False)
 
   test_preds = model((testing_rt,
          warmup_asymp[0], warmup_asymp[1],
          warmup_mild[0], warmup_mild[1],
-         warmup_extreme[0], warmup_extreme[1]))
+         warmup_extreme[0], warmup_extreme[1]), False)
       
   test_loss = loss(tf.convert_to_tensor(testing_general_ward, dtype=tf.float32), test_preds)
 
@@ -352,7 +352,7 @@ def run_sheetModel(sheetData, worksheet2, link, gc):
   forecasted_fluxes = model((testing_rt,
          warmup_asymp[0], warmup_asymp[1],
          warmup_mild[0], warmup_mild[1],
-         warmup_extreme[0], warmup_extreme[1]), return_all=True)
+         warmup_extreme[0], warmup_extreme[1]), False, return_all=True)
 
   all_days = df.loc[warmup_start:test_end].index.values
   warmup_days = df.loc[warmup_start:warmup_end].index.values
@@ -367,6 +367,31 @@ def run_sheetModel(sheetData, worksheet2, link, gc):
   size_train_test_days = train_test_days.size
   #auth.authenticate_user()
   #gc = gspread.authorize(GoogleCredentials.get_application_default())
+
+  # update param sheet
+  param_worksheet = gc.open_by_url(link).get_worksheet(3)
+
+  param_worksheet.update_cell(2, 2, str(model.rho_M[1].numpy()))
+  param_worksheet.update_cell(3, 2, str(model.rho_X[1].numpy()))
+  param_worksheet.update_cell(4, 2, str(model.rho_G[1].numpy()))
+
+  param_worksheet.update_cell(6, 2, str(model.lambda_M[1].numpy()))
+  param_worksheet.update_cell(7, 2, str(model.lambda_X[1].numpy()))
+  param_worksheet.update_cell(8, 2, str(model.lambda_G[1].numpy()))
+  param_worksheet.update_cell(6, 3, str(model.nu_M[1].numpy()))
+  param_worksheet.update_cell(7, 3, str(model.nu_X[1].numpy()))
+  param_worksheet.update_cell(8, 3, str(model.nu_G[1].numpy()))
+
+  param_worksheet.update_cell(11, 2, str(model.rho_M[0].numpy()))
+  param_worksheet.update_cell(12, 2, str(model.rho_X[0].numpy()))
+  param_worksheet.update_cell(13, 2, str(model.rho_G[0].numpy()))
+
+  param_worksheet.update_cell(15, 2, str(model.lambda_M[0].numpy()))
+  param_worksheet.update_cell(16, 2, str(model.lambda_X[0].numpy()))
+  param_worksheet.update_cell(17, 2, str(model.lambda_G[0].numpy()))
+  param_worksheet.update_cell(15, 3, str(model.nu_M[0].numpy()))
+  param_worksheet.update_cell(16, 3, str(model.nu_X[0].numpy()))
+  param_worksheet.update_cell(17, 3, str(model.nu_G[0].numpy()))
 
   #link = 'https://docs.google.com/spreadsheets/d/15kwp_4nn-o1r2wW7IuXLsqDSoZYc1OxG46hB4HfeCDY/edit#gid=0'
   #link2= 'https://docs.google.com/spreadsheets/d/15kwp_4nn-o1r2wW7IuXLsqDSoZYc1OxG46hB4HfeCDY/edit#gid=167636255'
@@ -464,7 +489,6 @@ def run_sheetModel(sheetData, worksheet2, link, gc):
     cell.value = HG_data[i]
   worksheet.update_cells(HG_list)
 
-  print("COVID MODEL SHEET on INFLUXES is UPDATED!")
 
   make_all_plots(df, model,
                  alpha_bar_M, beta_bar_M,
@@ -477,6 +501,8 @@ def run_sheetModel(sheetData, worksheet2, link, gc):
                      vax_asymp_risk, vax_mild_risk, vax_extreme_risk,
                      forecasted_fluxes)
 
+  return model
+
 def run_model(link):
   auth.authenticate_user()
   gc = gspread.authorize(GoogleCredentials.get_application_default())
@@ -488,4 +514,308 @@ def run_model(link):
 
   worksheet2 = gc.open_by_url(link).get_worksheet(2)
 
-  run_sheetModel(sheetData, worksheet2, link, gc)
+  return run_sheetModel(sheetData, worksheet2, link, gc)
+
+def run_trained_model(link, model):
+  auth.authenticate_user()
+  gc = gspread.authorize(GoogleCredentials.get_application_default())
+  wb = gc.open_by_url(link)
+  wks = wb.sheet1
+  sheetData = wks.get_all_values()
+  worksheet2 = gc.open_by_url(link).get_worksheet(2)
+  return run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model)
+
+
+def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model):
+  warmup_start = convert_date(sheetData[2][2])
+  warmup_end = convert_date(sheetData[2][3])
+  train_start = convert_date(sheetData[3][2])
+  train_end = convert_date(sheetData[3][3])
+  test_start = convert_date(sheetData[4][2])
+  test_end = convert_date(sheetData[4][3])
+
+  state = sheetData[5][1]
+  state_abbrev = sheetData[6][1]
+
+  data_dir = './data'
+  covid_estim_date = '20210901'
+  hhs_date = '20210903'
+  owid_date = '20210903'
+
+  log_dir = './logs/test_run_1'
+
+  """### Model Settings"""
+
+  # How long can a person take to progress?
+  transition_window = int(sheetData[17][1])
+
+  # CovidEstim Hyper param
+  T_serial = float(sheetData[18][1])
+
+  """### Vaccine efficacy for incorrect warmup data split"""
+
+  # Vaccines are 90% effective at preventing infection
+  # according to a study of 4000 healthcare workers in early 2021
+  # https://www.cdc.gov/mmwr/volumes/70/wr/mm7013e3.htm
+  vax_asymp_risk = float(sheetData[21][1])
+  # Vaccines are 94% effective at preventing symptomatic
+  # according to a study of healthcare workers in early 2021
+  # https://www.cdc.gov/mmwr/volumes/70/wr/mm7020e2.htm
+  vax_mild_risk = float(sheetData[22][1])
+  vax_extreme_risk = float(sheetData[23][1])
+  # Vaccines are 94% effective at preventing hospitalization
+  # according to a study of adults over 65 early 2021
+  # https://www.cdc.gov/mmwr/volumes/70/wr/mm7018e1.htm?s_cid=mm7018e1_w
+  vax_general_ward_risk = 0.94 # not used
+
+  """### Model prior parameters"""
+
+  # Copied from covid estim
+  # covidestim infected -> symptoms
+  alpha_bar_M = float(sheetData[9][1])
+  beta_bar_M = float(sheetData[9][2])
+  # covidestim symptoms -> severe
+  alpha_bar_X = float(sheetData[10][1])
+  beta_bar_X = float(sheetData[10][2])
+  # covid estim severe -> death
+  alpha_bar_G = float(sheetData[11][1])
+  beta_bar_G = float(sheetData[11][2])
+
+  lambda_bar_M = float(sheetData[13][1])
+  sigma_bar_M = float(sheetData[13][2])
+  nu_bar_M = float(sheetData[13][3])
+  tau_bar_M = float(sheetData[13][4])
+
+  # Covidestim Symptoms -> severe = Gamma(1.72, 0.22)
+  lambda_bar_X = float(sheetData[14][1])
+  sigma_bar_X = float(sheetData[14][2])
+  nu_bar_X = float(sheetData[14][3])
+  tau_bar_X = float(sheetData[14][4])
+
+  # Covidestim severe -> death = Gamma(2.10, 0.23)
+  lambda_bar_G = float(sheetData[15][1])
+  sigma_bar_G = float(sheetData[15][2])
+  nu_bar_G = float(sheetData[15][3])
+  tau_bar_G = float(sheetData[15][4])
+
+
+  # Learning rate
+  learning_rate = float(sheetData[19][1])
+
+
+  #worksheet2
+  #first_column = wroksheet2.get_col()
+  rt_column = (worksheet2.col_values(4))[1:]
+  vax_column = (worksheet2.col_values(5))[1:]
+  """## Read data"""
+
+
+  df = read_data(data_dir=data_dir,
+                 covid_estim_date=covid_estim_date,
+                 hhs_date=hhs_date,
+                 owid_date=owid_date,
+                 state=state, state_abbrev=state_abbrev)
+
+  # Optional, replace covidestim warmup data with fixed constants
+  #df.loc[:,'extreme'] = 7*df.loc[:,'general_ward']
+  #df.loc[:,'mild'] = 10*df.loc[:,'extreme']
+  #df.loc[:,'asymp'] = 1.5*df.loc[:,'mild']
+
+  #update df
+  for count, value in enumerate(rt_column):
+    df.loc[warmup_start:test_end,'Rt'][count] = rt_column[count]
+
+  for count, value in enumerate(vax_column):
+    df.loc[warmup_start:warmup_end,'vax_pct'][count] = vax_column[count]
+
+  """## Create warmup using incorrect efficacy assumption"""
+
+  warmup_asymp, warmup_mild, warmup_extreme = create_warmup(df, 
+                                                            warmup_start, 
+                                                            warmup_end,
+                                                            vax_asymp_risk,
+                                                            vax_mild_risk,
+                                                            vax_extreme_risk)
+
+
+  """## Create training Rt and outcome"""
+
+
+  training_rt = df.loc[train_start:train_end,'Rt'].values
+  training_general_ward = df.loc[train_start:train_end,'general_ward'].values
+
+  # Start the model from the training period so we are continuous
+  testing_rt = df.loc[train_start:test_end,'Rt'].values
+  testing_general_ward = df.loc[train_start:test_end,'general_ward'].values
+
+  """## Build Model"""
+  print("before: ")
+  print(model.rho_M)
+
+  param_wks = gc.open_by_url(link).get_worksheet(3)
+  param_data = param_wks.get_all_values()
+  model.rho_M[1] = tf.cast(float(param_data[1][1]),dtype=tf.float32)
+  model.rho_X[1] = tf.cast(float(param_data[2][1]),dtype=tf.float32)
+  model.rho_G[1] = tf.cast(float(param_data[3][1]),dtype=tf.float32)
+
+  model.lambda_M[1] = tf.cast(float(param_data[5][1]),dtype=tf.float32)
+  model.lambda_X[1] = tf.cast(float(param_data[6][1]),dtype=tf.float32)
+  model.lambda_G[1] = tf.cast(float(param_data[7][1]),dtype=tf.float32)
+
+  model.nu_M[1] = tf.cast(float(param_data[5][2]),dtype=tf.float32)
+  model.nu_X[1] = tf.cast(float(param_data[6][2]),dtype=tf.float32)
+  model.nu_G[1] = tf.cast(float(param_data[7][2]),dtype=tf.float32)
+
+  model.rho_M[0] = tf.cast(float(param_data[10][1]),dtype=tf.float32)
+  model.rho_X[0] = tf.cast(float(param_data[11][1]),dtype=tf.float32)
+  model.rho_G[0] = tf.cast(float(param_data[12][1]),dtype=tf.float32)
+
+  model.lambda_M[0] = tf.cast(float(param_data[14][1]),dtype=tf.float32)
+  model.lambda_X[0] = tf.cast(float(param_data[15][1]),dtype=tf.float32)
+  model.lambda_G[0] = tf.cast(float(param_data[16][1]),dtype=tf.float32)
+
+  model.nu_M[0] = tf.cast(float(param_data[14][2]),dtype=tf.float32)
+  model.nu_X[0] = tf.cast(float(param_data[15][2]),dtype=tf.float32)
+  model.nu_G[0] = tf.cast(float(param_data[16][2]),dtype=tf.float32)
+
+  print("after: ")
+  print(model.rho_M)
+
+  """## Get predictions for train and test"""
+
+  train_preds = model((training_rt,
+         warmup_asymp[0], warmup_asymp[1],
+         warmup_mild[0], warmup_mild[1],
+         warmup_extreme[0], warmup_extreme[1]), True)
+
+
+  test_preds = model((testing_rt,
+         warmup_asymp[0], warmup_asymp[1],
+         warmup_mild[0], warmup_mild[1],
+         warmup_extreme[0], warmup_extreme[1]), True)
+      
+  """## Call model with special flag to get values of all internal compartments"""
+  forecasted_fluxes = model((testing_rt,
+         warmup_asymp[0], warmup_asymp[1],
+         warmup_mild[0], warmup_mild[1],
+         warmup_extreme[0], warmup_extreme[1]), True, return_all=True)
+
+
+  all_days = df.loc[warmup_start:test_end].index.values
+  warmup_days = df.loc[warmup_start:warmup_end].index.values
+  train_days = df.loc[train_start:train_end].index.values
+  test_days = df.loc[test_start:test_end].index.values
+  train_test_days = df.loc[train_start:test_end].index.values
+
+  size_all_days = all_days.size
+  size_warmup_days = warmup_days.size 
+  size_train_days = train_days.size 
+  size_test_days = test_days.size 
+  size_train_test_days = train_test_days.size
+
+  worksheet = gc.open_by_url(link).get_worksheet(1)
+  #set cell_list for each column and iterate to fill up with values
+  all_days = np.datetime_as_string(all_days, unit='D')
+  #clear sheet
+  clear_range = 'A1' + ':G' + str(2000)
+  clear_list = worksheet.range(clear_range)
+  for cell in clear_list:
+    cell.value = ''
+  worksheet.update_cells(clear_list)
+  #set up top row (period, timestep, date, ANY_to_HG)
+  cell_list = worksheet.range('A1:G1')
+  cell_list[0].value = 'PERIOD'
+  cell_list[1].value = 'TIMESTEP'
+  cell_list[2].value = 'DATE'
+  cell_list[3].value = 'NUM_TRANS_TO_INFECTED (IA)'
+  cell_list[4].value = 'NUM_TRANS_TO_SYMPTOMATIC (IM)'
+  cell_list[5].value = 'NUM_TRANS_TO_SEVERE (IX)'
+  cell_list[6].value = 'NUM_ADMIT_TO_HOSPITAL (HG)'
+  worksheet.update_cells(cell_list)
+
+  #Set the period column
+  end_warm = str(size_warmup_days + 1)
+  warmup_range = 'A2:A' + end_warm
+  warmup_list = worksheet.range(warmup_range)
+  for cell in warmup_list:
+    cell.value = 'WARMUP'
+  worksheet.update_cells(warmup_list)
+
+  start_train = str(int(end_warm)+1)
+  end_train = str(int(start_train) + size_train_days-1)
+  train_range = 'A'+ start_train + ':' +'A' +end_train
+  train_list = worksheet.range(train_range)
+  for cell in train_list:
+    cell.value = 'TRAIN'
+  worksheet.update_cells(train_list)
+
+  start_test = str(int(end_train)+1)
+  end_test = str(int(start_test)+ size_test_days-1)
+  test_range = 'A'+ start_test + ':' +'A' +end_test
+  test_list = worksheet.range(test_range)
+  for cell in test_list:
+    cell.value = 'TEST'
+  worksheet.update_cells(test_list)
+
+  #Set the timestep column
+  t_list = list(range(-size_warmup_days, size_train_test_days))
+  end_timestep = str(size_all_days+1)
+  timestep_range = 'B2:B' + end_timestep
+  timestep_list = worksheet.range(timestep_range)
+  for i, cell in enumerate(timestep_list):
+    cell.value = t_list[i]
+  worksheet.update_cells(timestep_list)
+
+  #Set the date column
+  date_range = 'C2:C' + end_timestep
+  date_list = worksheet.range(date_range)
+  for i, cell in enumerate(date_list):
+    cell.value = all_days[i]
+  worksheet.update_cells(date_list)
+
+  #IA
+  IA_data = (forecasted_fluxes[0][0].stack() + forecasted_fluxes[0][1].stack()).numpy().tolist()
+  IA_range = 'D2' + ':D' + end_timestep
+  IA_list = worksheet.range(IA_range)
+  for i, cell in enumerate(IA_list):
+    cell.value = IA_data[i]
+  worksheet.update_cells(IA_list)
+
+  #IM
+  IM_data = (forecasted_fluxes[1][0].stack() + forecasted_fluxes[1][1].stack()).numpy().tolist()
+  IM_range = 'E2' + ':E' + end_timestep
+  IM_list = worksheet.range(IM_range)
+  for i, cell in enumerate(IM_list):
+    cell.value = IM_data[i]
+  worksheet.update_cells(IM_list)
+
+  #IX
+  IX_data = (forecasted_fluxes[2][0].stack() + forecasted_fluxes[2][1].stack()).numpy().tolist()
+  IX_range = 'F2' + ':F' + end_timestep
+  IX_list = worksheet.range(IX_range)
+  for i, cell in enumerate(IX_list):
+    cell.value = IX_data[i]
+  worksheet.update_cells(IX_list)
+
+  #HG
+  HG_data = (forecasted_fluxes[3][0].stack() + forecasted_fluxes[3][1].stack()).numpy().tolist()
+  HG_range = 'G' + start_train + ':G' + end_timestep
+  HG_list = worksheet.range(HG_range)
+  for i, cell in enumerate(HG_list):
+    cell.value = HG_data[i]
+  worksheet.update_cells(HG_list)
+
+
+  make_all_plots(df, model,
+                 alpha_bar_M, beta_bar_M,
+                 alpha_bar_X, beta_bar_X,
+                 alpha_bar_G, beta_bar_G,
+                     warmup_start, warmup_end,
+                     train_start, train_end,
+                     test_start, test_end,
+                     train_preds, test_preds,
+                     vax_asymp_risk, vax_mild_risk, vax_extreme_risk,
+                     forecasted_fluxes)
+
+
+  return model
