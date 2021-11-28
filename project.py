@@ -14,7 +14,7 @@ class Compartments(Enum):
     general_ward = 3
 
 
-class CovidModel(tf.keras.Model):
+class CovidModel_Project(tf.keras.Model):
 
     def __init__(self, transition_window, T_serial,
                  alpha_bar_M, beta_bar_M, alpha_bar_X, beta_bar_X, alpha_bar_G, beta_bar_G,
@@ -63,7 +63,17 @@ class CovidModel(tf.keras.Model):
             tau_bar_G (float): The standard deviation of a strictly-positive Normal distribution prior over nu_G,
                 which scales the poisson PMF used to determine progression to the next state
         """
-        super(CovidModel, self).__init__()
+        super(CovidModel_Project, self).__init__()
+
+        self.rho_M = {}
+        self.rho_X = {}
+        self.rho_G = {}
+        self.lambda_M = {}
+        self.lambda_X = {}
+        self.lambda_G = {}
+        self.nu_M = {}
+        self.nu_X = {}
+        self.nu_G = {}
 
         self.transition_window = transition_window
         self.T_serial = T_serial
@@ -127,8 +137,7 @@ class CovidModel(tf.keras.Model):
         #     poisson_M, poisson_X, poisson_G: dictionaries of probability distribution objects keyed on vaccine status
         #     pi_M, pi_X, pi_G: dictionaries of tensor arrays with 1 element for each of the past J days
         #     previously_asymptomatic, previously_mild, previously_extreme: dictionaries of tensor arrays with 1 element for each of the past J days
-
-        self._constrain_parameters()
+        self._prep_parameters()
 
         if not debug_disable_prior:
             self._add_prior_loss()
@@ -383,99 +392,6 @@ class CovidModel(tf.keras.Model):
 
         return forecasted_fluxes
 
-    def _constrain_parameters(self):
-        """Helper function to hide the plumbing of creating the constrained parameters and other model TensorArrays"""
-
-        # Must be 0-1
-        self.epsilon = tf.math.sigmoid(self.unconstrained_eps)
-
-        self.delta = {}
-        for vax_status in range(2):
-            self.delta[vax_status] = tf.squeeze(tf.math.sigmoid(self.unconstrained_delta[vax_status]))
-
-        # Initialize dictionaries keyed on vax status
-        self.rho_M = {}
-        self.rho_X = {}
-        self.rho_G = {}
-        self.lambda_M = {}
-        self.lambda_X = {}
-        self.lambda_G = {}
-        self.nu_M = {}
-        self.nu_X = {}
-        self.nu_G = {}
-        self.poisson_M = {}
-        self.poisson_X = {}
-        self.poisson_G = {}
-        self.pi_M = {}
-        self.pi_X = {}
-        self.pi_G = {}
-
-        self.previously_asymptomatic = {}
-        self.previously_mild = {}
-        self.previously_extreme = {}
-
-        for vax_status in range(2):
-
-            # Rho must be 0-1, so use sigmoid
-            # lambda and nu must be positive, so use softplus
-            self.rho_M[vax_status] = tf.squeeze(
-                tf.math.sigmoid(self.model_params[Compartments.mild.value][vax_status]['unconstrained_rho']))
-            self.lambda_M[vax_status] = tf.squeeze(
-                tf.math.softplus(self.model_params[Compartments.mild.value][vax_status]['unconstrained_lambda']))
-            self.nu_M[vax_status] = tf.squeeze(
-                tf.math.softplus(self.model_params[Compartments.mild.value][vax_status]['unconstrained_nu']))
-
-            self.rho_X[vax_status] = tf.squeeze(
-                tf.math.sigmoid(self.model_params[Compartments.extreme.value][vax_status]['unconstrained_rho']))
-            self.lambda_X[vax_status] = tf.squeeze(
-                tf.math.softplus(self.model_params[Compartments.extreme.value][vax_status]['unconstrained_lambda']))
-            self.nu_X[vax_status] = tf.squeeze(
-                tf.math.softplus(self.model_params[Compartments.extreme.value][vax_status]['unconstrained_nu']))
-
-            self.rho_G[vax_status] = tf.squeeze(
-                tf.math.sigmoid(self.model_params[Compartments.general_ward.value][vax_status]['unconstrained_rho']))
-            self.lambda_G[vax_status] = tf.squeeze(
-                tf.math.softplus(self.model_params[Compartments.general_ward.value][vax_status]['unconstrained_lambda']))
-            self.nu_G[vax_status] = tf.squeeze(
-                tf.math.softplus(self.model_params[Compartments.general_ward.value][vax_status]['unconstrained_nu']))
-
-            # Create the distributions for each compartment
-            self.poisson_M[vax_status] = tfp.distributions.Poisson(rate=self.lambda_M[vax_status])
-            self.poisson_X[vax_status] = tfp.distributions.Poisson(rate=self.lambda_X[vax_status])
-            self.poisson_G[vax_status] = tfp.distributions.Poisson(rate=self.lambda_G[vax_status])
-
-            # pi is fixed while we forecast so we can create that now
-            self.pi_M[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window, clear_after_read=False,
-                                                   name='self.pi_M')
-            self.pi_X[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window, clear_after_read=False,
-                                                   name='self.pi_X')
-            self.pi_G[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window, clear_after_read=False,
-                                                   name='self.pi_G')
-            for j in range(self.transition_window):
-                self.pi_M[vax_status] = self.pi_M[vax_status].write(j, self.poisson_M[vax_status].log_prob(j + 1) /
-                                                                    self.nu_M[vax_status])
-                self.pi_X[vax_status] = self.pi_X[vax_status].write(j, self.poisson_X[vax_status].log_prob(j + 1) /
-                                                                    self.nu_X[vax_status])
-                self.pi_G[vax_status] = self.pi_G[vax_status].write(j, self.poisson_G[vax_status].log_prob(j + 1) /
-                                                                    self.nu_G[vax_status])
-
-            # stacking the TensorArray makes it a tensor again
-            self.pi_M[vax_status] = tf.transpose(self.pi_M[vax_status].stack())
-            # Softmax so it sums to 1
-            self.pi_M[vax_status] = tf.nn.softmax(self.pi_M[vax_status])
-
-            self.pi_X[vax_status] = tf.transpose(self.pi_X[vax_status].stack())
-            self.pi_X[vax_status] = tf.nn.softmax(self.pi_X[vax_status])
-            self.pi_G[vax_status] = tf.transpose(self.pi_G[vax_status].stack())
-            self.pi_G[vax_status] = tf.nn.softmax(self.pi_G[vax_status])
-
-            # Initialize tensor arrays for storing these values
-            self.previously_asymptomatic[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window,
-                                                                      clear_after_read=False, name=f'prev_asymp')
-            self.previously_mild[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window,
-                                                              clear_after_read=False, name=f'prev_mild')
-            self.previously_extreme[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window,
-                                                                 clear_after_read=False, name=f'prev_extreme')
     def _prep_parameters(self):
         self.epsilon = tf.math.sigmoid(self.unconstrained_eps)
         self.delta = {}

@@ -20,6 +20,7 @@ import tensorflow as tf
 from model import CovidModel, Compartments, LogPoissonProb, get_logging_callbacks
 from data import read_data, create_warmup
 from plots import make_all_plots
+from project import CovidModel_Project, Compartments, LogPoissonProb, get_logging_callbacks
 import pandas as pd
 from google.colab import auth
 import gspread
@@ -307,10 +308,7 @@ def run_sheetModel(sheetData, worksheet2, link, gc):
 
   """## Build Model"""
 
-  model = CovidModel(transition_window, T_serial,
-                       alpha_bar_M, beta_bar_M, alpha_bar_X, beta_bar_X, alpha_bar_G, beta_bar_G,
-                   lambda_bar_M, sigma_bar_M, lambda_bar_X, sigma_bar_X, lambda_bar_G, sigma_bar_G,
-                   nu_bar_M, tau_bar_M, nu_bar_X, tau_bar_X, nu_bar_G, tau_bar_G)
+  model = CovidModel(transition_window, T_serial, alpha_bar_M, beta_bar_M, alpha_bar_X, beta_bar_X,alpha_bar_G, beta_bar_G,lambda_bar_M, sigma_bar_M, lambda_bar_X, sigma_bar_X, lambda_bar_G, sigma_bar_G, nu_bar_M, tau_bar_M, nu_bar_X, tau_bar_X, nu_bar_G, tau_bar_G)
 
   """## Fit model"""
 
@@ -338,12 +336,12 @@ def run_sheetModel(sheetData, worksheet2, link, gc):
   train_preds = model((training_rt,
          warmup_asymp[0], warmup_asymp[1],
          warmup_mild[0], warmup_mild[1],
-         warmup_extreme[0], warmup_extreme[1]), False)
+         warmup_extreme[0], warmup_extreme[1]))
 
   test_preds = model((testing_rt,
          warmup_asymp[0], warmup_asymp[1],
          warmup_mild[0], warmup_mild[1],
-         warmup_extreme[0], warmup_extreme[1]), False)
+         warmup_extreme[0], warmup_extreme[1]))
       
   test_loss = loss(tf.convert_to_tensor(testing_general_ward, dtype=tf.float32), test_preds)
 
@@ -352,7 +350,7 @@ def run_sheetModel(sheetData, worksheet2, link, gc):
   forecasted_fluxes = model((testing_rt,
          warmup_asymp[0], warmup_asymp[1],
          warmup_mild[0], warmup_mild[1],
-         warmup_extreme[0], warmup_extreme[1]), False, return_all=True)
+         warmup_extreme[0], warmup_extreme[1]), return_all=True)
 
   all_days = df.loc[warmup_start:test_end].index.values
   warmup_days = df.loc[warmup_start:warmup_end].index.values
@@ -503,7 +501,7 @@ def run_sheetModel(sheetData, worksheet2, link, gc):
 
   return model
 
-def run_model(link):
+def train_and_project(link):
   auth.authenticate_user()
   gc = gspread.authorize(GoogleCredentials.get_application_default())
 
@@ -516,17 +514,17 @@ def run_model(link):
 
   return run_sheetModel(sheetData, worksheet2, link, gc)
 
-def run_trained_model(link, model):
+def project_only(link):
   auth.authenticate_user()
   gc = gspread.authorize(GoogleCredentials.get_application_default())
   wb = gc.open_by_url(link)
   wks = wb.sheet1
   sheetData = wks.get_all_values()
   worksheet2 = gc.open_by_url(link).get_worksheet(2)
-  return run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model)
+  return run_sheetModel_noTrain(sheetData, worksheet2, link, gc)
 
 
-def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model):
+def run_sheetModel_noTrain(sheetData, worksheet2, link, gc):
   warmup_start = convert_date(sheetData[2][2])
   warmup_end = convert_date(sheetData[2][3])
   train_start = convert_date(sheetData[3][2])
@@ -545,27 +543,12 @@ def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model):
   log_dir = './logs/test_run_1'
 
   """### Model Settings"""
-
-  # How long can a person take to progress?
   transition_window = int(sheetData[17][1])
-
-  # CovidEstim Hyper param
   T_serial = float(sheetData[18][1])
-
-  """### Vaccine efficacy for incorrect warmup data split"""
-
-  # Vaccines are 90% effective at preventing infection
-  # according to a study of 4000 healthcare workers in early 2021
-  # https://www.cdc.gov/mmwr/volumes/70/wr/mm7013e3.htm
   vax_asymp_risk = float(sheetData[21][1])
-  # Vaccines are 94% effective at preventing symptomatic
-  # according to a study of healthcare workers in early 2021
-  # https://www.cdc.gov/mmwr/volumes/70/wr/mm7020e2.htm
   vax_mild_risk = float(sheetData[22][1])
   vax_extreme_risk = float(sheetData[23][1])
-  # Vaccines are 94% effective at preventing hospitalization
-  # according to a study of adults over 65 early 2021
-  # https://www.cdc.gov/mmwr/volumes/70/wr/mm7018e1.htm?s_cid=mm7018e1_w
+
   vax_general_ward_risk = 0.94 # not used
 
   """### Model prior parameters"""
@@ -586,20 +569,16 @@ def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model):
   nu_bar_M = float(sheetData[13][3])
   tau_bar_M = float(sheetData[13][4])
 
-  # Covidestim Symptoms -> severe = Gamma(1.72, 0.22)
   lambda_bar_X = float(sheetData[14][1])
   sigma_bar_X = float(sheetData[14][2])
   nu_bar_X = float(sheetData[14][3])
   tau_bar_X = float(sheetData[14][4])
 
-  # Covidestim severe -> death = Gamma(2.10, 0.23)
   lambda_bar_G = float(sheetData[15][1])
   sigma_bar_G = float(sheetData[15][2])
   nu_bar_G = float(sheetData[15][3])
   tau_bar_G = float(sheetData[15][4])
 
-
-  # Learning rate
   learning_rate = float(sheetData[19][1])
 
 
@@ -648,9 +627,12 @@ def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model):
   testing_rt = df.loc[train_start:test_end,'Rt'].values
   testing_general_ward = df.loc[train_start:test_end,'general_ward'].values
 
+
+  model = CovidModel_Project(transition_window, T_serial, alpha_bar_M, beta_bar_M, alpha_bar_X, beta_bar_X,alpha_bar_G, beta_bar_G,lambda_bar_M, sigma_bar_M, lambda_bar_X, sigma_bar_X, lambda_bar_G, sigma_bar_G, nu_bar_M, tau_bar_M, nu_bar_X, tau_bar_X, nu_bar_G, tau_bar_G)
+
+
   """## Build Model"""
-  print("before: ")
-  print(model.rho_M)
+
 
   param_wks = gc.open_by_url(link).get_worksheet(3)
   param_data = param_wks.get_all_values()
@@ -678,27 +660,25 @@ def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model):
   model.nu_X[0] = tf.cast(float(param_data[15][2]),dtype=tf.float32)
   model.nu_G[0] = tf.cast(float(param_data[16][2]),dtype=tf.float32)
 
-  print("after: ")
-  print(model.rho_M)
 
   """## Get predictions for train and test"""
 
   train_preds = model((training_rt,
          warmup_asymp[0], warmup_asymp[1],
          warmup_mild[0], warmup_mild[1],
-         warmup_extreme[0], warmup_extreme[1]), True)
+         warmup_extreme[0], warmup_extreme[1]))
 
 
   test_preds = model((testing_rt,
          warmup_asymp[0], warmup_asymp[1],
          warmup_mild[0], warmup_mild[1],
-         warmup_extreme[0], warmup_extreme[1]), True)
+         warmup_extreme[0], warmup_extreme[1]))
       
   """## Call model with special flag to get values of all internal compartments"""
   forecasted_fluxes = model((testing_rt,
          warmup_asymp[0], warmup_asymp[1],
          warmup_mild[0], warmup_mild[1],
-         warmup_extreme[0], warmup_extreme[1]), True, return_all=True)
+         warmup_extreme[0], warmup_extreme[1]), return_all=True)
 
 
   all_days = df.loc[warmup_start:test_end].index.values
