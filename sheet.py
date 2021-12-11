@@ -70,9 +70,9 @@ def load_default_data(link):
   state_abbrev = sheetData[6][1]
 
   data_dir = './data'
-  covid_estim_date = '20210901'
-  hhs_date = '20210903'
-  owid_date = '20210903'
+  covid_estim_date = '20211201'
+  hhs_date = '20211201'
+  owid_date = '20211201'
 
   log_dir = './logs/test_run_1'
 
