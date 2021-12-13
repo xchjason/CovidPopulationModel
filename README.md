@@ -30,7 +30,6 @@ Lead personnel:
 
 For general questions, please email mhughes@cs.tufts.edu.
 
-
 ## Overview: Using the Model from your browser
 For the in-browser workflow, users will interact with 3 parts: 
 - A shared workbook on Google Sheet containing multiple sheets (tabs):
@@ -39,6 +38,10 @@ For the in-browser workflow, users will interact with 3 parts:
     - where we define the desired assumptions (see below)
   - Second Sheet: ***InfluxCountsByCompartment***
     - where results of the daily forecast are written to (see below)
+  - Third Sheet: ***Context(Rt, Vax_Pct)***
+    - where default Rt(viral reproductive constant which determines how fast the virus spreads) and Vaccination Percentage of the given state are shown. Can be modified by users and project under different context.
+  - Fourth Sheet: ***Param (Transition, Duration)***
+    - where learned transition and duration parameters are shown. Can be modified by users to project under different paramters.
   - A shared folder on Google Drive, containing:Python files defining the model itself (users should not need to edit these)
   - CSV files defining observed data that can be used for training the model. Contains:
     - [Daily hospital admissions for all 50 states](https://healthdata.gov/api/views/g62h-syeh/rows.csv?accessType=DOWNLOAD)
@@ -51,7 +54,6 @@ For the in-browser workflow, users will interact with 3 parts:
 ## Step-by-Step Guide to Producing your own forecasts 
 - Prepare a shared folder in Google Drive 
   - Download all the files from this Github ( the Google Colab notebook, Google Sheet, python files, data from Github and store them in the same directory in your Google Drive. Please remember the name and location of the directory in your Google Drive. You will need it when edit the second cell of the notebook.
-
 - Within this folder, create a  Google Sheet
   - You should copy the template Google Sheet link is at https://docs.google.com/spreadsheets/d/1nLvScw4k2d79L1Rc2NxHFOupuqiEurLsqwWNtaRZB50/edit#gid=0. You can save it as your own Google Sheet and make sure it has a sharable link.
 - Edit the Google Sheet
@@ -62,15 +64,14 @@ For the in-browser workflow, users will interact with 3 parts:
   - run the first cell: authorize Google Colab notebook to access the Google Drive directory
   - run the second cell: access the Google Drive directory from Google Colab notebook. (To see the location of the directory, check "Files" on the left side of the notebook)
   - run the third cell: load in the model modules to the notebook
-  - run the fourth cell: enter the link of the selected Google Sheet, load the default Rt and Vaccination Rate to Google Sheet so that user can edit.
-  - run the fifth cell:
-    - enter the link of the sharable Google Sheet
-    - authorize access to Google Sheet
-    - After all authorization is approved, the model should run and display progress iteration-by-iteration as its fitting procedure runs 
-- Monitor the progress and verify expected output
-  - The provided example finishes in about 5-10 minutes
-   - After finishing, a diagnostic plot of the forecasted daily hospital admissions over time (as well as other quantities) is displayed
-   - Check the InfluxCountsByCompartment sheet in Google Sheet to inspect detailed values produced by the forecast and displayed in the plot
+  - run the fourth cell: enter the link of the sharable Google Sheet
+  - run the fifth cell: load the default Rt and Vaccination Rate to Google Sheet so that user can edit.
+  - run the sixth cell: train the model and make the prediction
+    - Monitor the progress and verify expected output
+    - The provided example finishes in about 5-10 minutes
+    - After finishing, a diagnostic plot of the forecasted daily hospital admissions over time (as well as other quantities) is displayed
+    - Check the InfluxCountsByCompartment sheet in Google Sheet to inspect detailed values produced by the forecast and displayed in the plot. Check the Param sheet to inspect exact values of learned parameters.
+   - run the seventh cell: Make projections using users' own parameters or context without retraining the model
  
 To check out the live demonstration of how to use the model, click [here](https://tufts.zoom.us/rec/play/8cnfGGrCikacz9boe7J0LJscb-l0bPEWpJ_PtjspE_FFqFDlSYpU0Q5DKTQYVKPwThy5-FCKmAJ-B0c.xYlcBrGFy_1h4fRh?startTime=1635196884000&_x_zm_rtaid=ZQh25DiZR6yOoO9LRqf2WA.1635540729327.765d58128a32b7d816120015f364ee25&_x_zm_rhtaid=195).
 
@@ -82,7 +83,7 @@ To check out the live demonstration of how to use the model, click [here](https:
   - Start date of Test days
   - Name of the state of interest
   - Abbreviate of the state of interest
-  - Priors(transition probability distribution of beliefs before evidence) in alpha and beta values (alpha and beta are the two parameters that determine the shape of Beta Distributions below). We have transition priors for 3 stages below:
+  - Priors(transition probability distribution of beliefs before evidence) in alpha and beta values (alpha and beta are the two parameters that determine the shape of Beta Distributions below). In beta distribution, the mode transition probability (peak of the distribution) is equal to (alpha-1)/(alpha+beta-2) for alpha, beta >1. We have transition priors for 3 stages below:
     1. M: infected -> symptoms
     2. X: symptoms -> severe
     3. G: severe -> death
@@ -104,7 +105,18 @@ To check out the live demonstration of how to use the model, click [here](https:
   - NUM_TRANS_TO_SYMPTOMATIC (IM): number of people become symptomatic on the given day
   - NUM_TRANS_TO_SEVERE (IX): number of people become severely symptomatic on the given day
   - NUM_ADMIT_TO_HOSPITAL (HG): number of people admitted to hospitals on the given day due to COVID-19
-
+- **Context(Rt, Vax_Pct)**. The context sheet.
+  - Rt: viral reproductive constant which determines how fast the virus spreads
+  - Vax_Pct: Vaccination Rate of the given state on the given day.
+- **Param (Transition, Duration)**. The parameter sheet.
+  - rho: the probability of transitioning from one stage to the next.
+    1. M: infected -> symptoms
+    2. X: symptoms -> severe
+    3. G: severe -> hospitalized
+  - lambda: the mode number of days of staying in one stage before transitioning to another stage. nu: the mode uncertainty
+    1. M: stay in infected before transition
+    2. X: stay in symptoms before transition
+    3. G: stay in severe before transition
 ## Detailed Guide to Google Drive shared folder
 - Python files:
   - data.py (read in and store all the data)
