@@ -71,7 +71,7 @@ For the in-browser workflow, users will interact with 3 parts:
     - The provided example finishes in about 5-10 minutes
     - After finishing, a diagnostic plot of the forecasted daily hospital admissions over time (as well as other quantities) is displayed
     - Check the InfluxCountsByCompartment sheet in Google Sheet to inspect detailed values produced by the forecast and displayed in the plot. Check the Param sheet to inspect exact values of learned parameters.
-   - run the seventh cell: Make projections using users' own parameters or context without retraining the model
+   - run the seventh cell: make projections using users' own parameters or context without retraining the model
  
 To check out the live demonstration of how to use the model, click [here](https://tufts.zoom.us/rec/play/8cnfGGrCikacz9boe7J0LJscb-l0bPEWpJ_PtjspE_FFqFDlSYpU0Q5DKTQYVKPwThy5-FCKmAJ-B0c.xYlcBrGFy_1h4fRh?startTime=1635196884000&_x_zm_rtaid=ZQh25DiZR6yOoO9LRqf2WA.1635540729327.765d58128a32b7d816120015f364ee25&_x_zm_rhtaid=195).
 
