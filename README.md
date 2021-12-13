@@ -42,7 +42,7 @@ For the in-browser workflow, users will interact with 3 parts:
     - where default Rt(viral reproductive constant which determines how fast the virus spreads) and Vaccination Percentage of the given state are shown. Can be modified by users and project under different context.
   - Fourth Sheet: ***Param (Transition, Duration)***
     - where learned transition and duration parameters are shown. Can be modified by users to project under different paramters.
-  - A shared folder on Google Drive, containing:Python files defining the model itself (users should not need to edit these)
+  - A shared folder on Google Drive, containing: Python files defining the model itself (users should not need to edit these)
   - CSV files defining observed data that can be used for training the model. Contains:
     - [Daily hospital admissions for all 50 states](https://healthdata.gov/api/views/g62h-syeh/rows.csv?accessType=DOWNLOAD)
     - [Daily vaccination information for all 50 states](https://data.cdc.gov/api/views/unsk-b7fc/rows.csv?accessType=DOWNLOAD)
