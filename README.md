@@ -66,7 +66,7 @@ For the in-browser workflow, users will interact with 3 parts:
   - run the third cell: load in the model modules to the notebook
   - run the fourth cell: enter the link of the sharable Google Sheet
   - run the fifth cell: load the default Rt and Vaccination Rate to Google Sheet so that user can edit.
-  - run the sixth cell: train the model and make the prediction
+  - run the sixth cell: train the model and make the prediction (point-wise estimate)
     - Monitor the progress and verify expected output
     - The provided example finishes in about 5-10 minutes
     - After finishing, a diagnostic plot of the forecasted daily hospital admissions over time (as well as other quantities) is displayed
