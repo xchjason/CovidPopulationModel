@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-def read_data(data_dir='./data', covid_estim_date='20210901', hhs_date='20210903', owid_date='20210903',
+def read_data(data_dir='./data', covid_estim_date='20211201', hhs_date='20211201', owid_date='20211201',
               state='Massachusetts', state_abbrev='MA'):
     """Read in HHS, OWID, and CovidEstim datasets. Return a single dataframe with a DatetimeIndex and all columns.
 
