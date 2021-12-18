@@ -70,9 +70,9 @@ def load_default_data(link):
   state_abbrev = sheetData[6][1]
 
   data_dir = './data'
-  covid_estim_date = '20211201'
-  hhs_date = '20211201'
-  owid_date = '20211201'
+  covid_estim_date = '20211210'
+  hhs_date = '20211210'
+  owid_date = '20211210'
 
   log_dir = './logs/test_run_1'
 
@@ -183,9 +183,9 @@ def run_sheetModel(sheetData, worksheet2, link, gc):
   state_abbrev = sheetData[6][1]
 
   data_dir = './data'
-  covid_estim_date = '20211211'
-  hhs_date = '20211211'
-  owid_date = '20211211'
+  covid_estim_date = '20211210'
+  hhs_date = '20211210'
+  owid_date = '20211210'
 
   log_dir = './logs/test_run_1'
 
@@ -536,9 +536,9 @@ def run_sheetModel_noTrain(sheetData, worksheet2, link, gc):
   state_abbrev = sheetData[6][1]
 
   data_dir = './data'
-  covid_estim_date = '20210901'
-  hhs_date = '20210903'
-  owid_date = '20210903'
+  covid_estim_date = '20211210'
+  hhs_date = '20211210'
+  owid_date = '20211210'
 
   log_dir = './logs/test_run_1'
 
