@@ -1,4 +1,6 @@
 # Covid Population Model
+# new spreadsheet link
+https://docs.google.com/spreadsheets/d/130-vXn_6q8IWQUCcizFukW8fTPwt2oOPtx4w3zMNS04/edit#gid=0
 This repository contains code for a preliminary version of the Tufts Susceptible-to-Hospital Forecasting Model for COVID-19. This mechanistic probabilistic model describes how COVID-19 might spread in the broader population of a target region and produce daily hospital admissions. A key feature of the model is that it can account for vaccination and its impact on disease spread and need for hospital resources.
 
 We hope this codebase can help users answer questions like:
@@ -55,7 +57,7 @@ For the in-browser workflow, users will interact with 3 parts:
 - Prepare a shared folder in Google Drive 
   - Download all the files from this Github ( the Google Colab notebook, Google Sheet, python files, data from Github and store them in the same directory in your Google Drive. Please remember the name and location of the directory in your Google Drive. You will need it when edit the second cell of the notebook.
 - Within this folder, create a  Google Sheet
-  - You should copy the template Google Sheet link is at https://docs.google.com/spreadsheets/d/1nLvScw4k2d79L1Rc2NxHFOupuqiEurLsqwWNtaRZB50/edit#gid=0. You can save it as your own Google Sheet and make sure it has a sharable link.
+  - You should copy the template Google Sheet link is at https://docs.google.com/spreadsheets/d/130-vXn_6q8IWQUCcizFukW8fTPwt2oOPtx4w3zMNS04/edit#gid=0. You can save it as your own Google Sheet and make sure it has a sharable link.
 - Edit the Google Sheet
   - Fill in the yellow cells to specify the desired US state and training period and test period
   - Adjust any a priori assumptions as needed
