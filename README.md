@@ -1,6 +1,6 @@
 # Covid Population Model
-# new spreadsheet link
-https://docs.google.com/spreadsheets/d/130-vXn_6q8IWQUCcizFukW8fTPwt2oOPtx4w3zMNS04/edit#gid=0
+**NEW SPREADSHEET FOR TOTAL COUNT MODEL: https://docs.google.com/spreadsheets/d/130-vXn_6q8IWQUCcizFukW8fTPwt2oOPtx4w3zMNS04/edit#gid=0 **
+
 This repository contains code for a preliminary version of the Tufts Susceptible-to-Hospital Forecasting Model for COVID-19. This mechanistic probabilistic model describes how COVID-19 might spread in the broader population of a target region and produce daily hospital admissions. A key feature of the model is that it can account for vaccination and its impact on disease spread and need for hospital resources.
 
 We hope this codebase can help users answer questions like:
