@@ -145,14 +145,14 @@ def spreadsheet_to_json(link):
 
 	init_count_stages = ['G', 'I']
 	jdata['init_count'] = {}
-	for i, s in enumerate(nu_stages):
+	for i, s in enumerate(init_count_stages):
 		jdata['init_count'][s] = {}
 		jdata['init_count'][s]['prior'] =  {'0': {'loc': data[80+i*4][4], 'scale': data[80+i*4][5]},'1': {'loc': data[81+i*4][4], 'scale': data[81+i*4][5]}}
 		jdata['init_count'][s]['value'] =  {'0': {'loc': data[82+i*4][4], 'scale': data[82+i*4][5]},'1': {'loc': data[83+i*4][4], 'scale': data[83+i*4][5]}}
 
 	warmup_stages = ['A', 'M', 'G', 'GR', 'I', 'IR']
 	jdata['warmup'] = {}
-	for i, s in enumerate(nu_stages):
+	for i, s in enumerate(warmup_stages):
 		jdata['warmup'][s] = {}
 		jdata['warmup'][s]['prior'] =  {'0': {'slope': data[89+i*4][4], 'intercept': data[89+i*4][5],'scale': data[89+i*4][6]},'1': {'slope': data[90+i*4][4], 'intercept': data[90+i*4][5],'scale': data[90+i*4][6]}}
 		jdata['warmup'][s]['value'] =  {'0': {'slope': data[91+i*4][4], 'intercept': data[91+i*4][5],'scale': data[91+i*4][6]},'1': {'slope': data[92+i*4][4], 'intercept': data[92+i*4][5],'scale': data[92+i*4][6]}}
@@ -160,5 +160,5 @@ def spreadsheet_to_json(link):
 	jdata = replace_keys(jdata, str, from_tensor=True)
 
 	out_file = open("model_config.json", "w")
-	json.dump(jdata, out_file)
+	json.dump(jdata, out_file, indent = 4)
 	out_file.close()
