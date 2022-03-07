@@ -33,18 +33,9 @@ class CovidModel(tf.keras.Model):
 
     def __init__(self,
                  vax_statuses, compartments,
-                 transition_window, T_serial, epsilon, delta,
-                 rho_M, lambda_M, nu_M,
-                 rho_G, lambda_G, nu_G,
-                 rho_I, lambda_I, nu_I,
-                 lambda_I_bar, nu_I_bar,
-                 rho_D, lambda_D, nu_D,
-                 lambda_D_bar, nu_D_bar,
-                 warmup_A_params,
-                 warmup_M_params,
-                 warmup_G_params, warmup_GR_params, init_count_G,
-                 warmup_I_params, warmup_IR_params, init_count_I,
-                 posterior_samples=1000, debug_disable_theta=False):
+                 transition_window, config,
+                 posterior_samples=1000, debug_disable_theta=False,
+                 fix_variance=False):
         """Covid Model 1.5
 
         Args:
@@ -55,6 +46,7 @@ class CovidModel(tf.keras.Model):
                 Posterior initializations are given in the modeling (unconstrained) domain
             posterior_samples (int): How many samples to take
             debug_disable_theta (bool): Optional, will disable prior losses if True
+            fix_variance (bool): Optional, will not learn variance parameters if True
         """
         super(CovidModel, self).__init__()
 
@@ -62,32 +54,15 @@ class CovidModel(tf.keras.Model):
         self.vax_statuses = vax_statuses
         self.compartments = compartments
         self.posterior_samples = posterior_samples
+        
+        self.config = config
+
+        self.scale_transform = tfp.bijectors.Softplus()
 
         # create dictionaries to store model parameters / prior distributions
-        self._initialize_parameters(T_serial, epsilon, delta,
-                                    rho_M, lambda_M, nu_M,
-                                    rho_G, lambda_G, nu_G,
-                                    rho_I, lambda_I, nu_I,
-                                    lambda_I_bar, nu_I_bar,
-                                    rho_D, lambda_D, nu_D,
-                                    lambda_D_bar, nu_D_bar,
-                                    warmup_A_params,
-                                    warmup_M_params,
-                                    warmup_G_params, warmup_GR_params, init_count_G,
-                                    warmup_I_params, warmup_IR_params, init_count_I,
-                                    debug_disable_theta)
+        self._initialize_parameters(config, debug_disable_theta, fix_variance)
 
-        self._initialize_priors(T_serial, epsilon, delta,
-                                rho_M, lambda_M, nu_M,
-                                rho_G, lambda_G, nu_G,
-                                rho_I, lambda_I, nu_I,
-                                lambda_I_bar, nu_I_bar,
-                                rho_D, lambda_D, nu_D,
-                                lambda_D_bar, nu_D_bar,
-                                warmup_A_params,
-                                warmup_M_params,
-                                warmup_G_params, warmup_GR_params, init_count_G,
-                                warmup_I_params, warmup_IR_params, init_count_I,)
+        self._initialize_priors(config)
 
     def call(self, r_t, debug_disable_prior=False, return_all=False):
         """Run covid model 1.5
@@ -249,18 +224,8 @@ class CovidModel(tf.keras.Model):
 
         return result
 
-    def _initialize_parameters(self, T_serial, epsilon, delta,
-                                    rho_M, lambda_M, nu_M,
-                                    rho_G, lambda_G, nu_G,
-                                    rho_I, lambda_I, nu_I,
-                                    lambda_I_bar, nu_I_bar,
-                                    rho_D, lambda_D, nu_D,
-                                    lambda_D_bar, nu_D_bar,
-                                    warmup_A_params,
-                                    warmup_M_params,
-                               warmup_G_params, warmup_GR_params, init_count_G,
-                               warmup_I_params, warmup_IR_params, init_count_I,
-                               debug_disable_theta=False):
+    def _initialize_parameters(self, config,
+                               debug_disable_theta=False, fix_variance=False):
         """Helper function to hide the book-keeping behind initializing model parameters
 
         TODO: Replace with better/random initializations
@@ -307,161 +272,162 @@ class CovidModel(tf.keras.Model):
         self.previously_icu = {}
 
         train_theta = not debug_disable_theta
+        train_variance = not (debug_disable_theta or fix_variance)
 
         # T_serial, Delta and epsilon dont vary by vaccination status
         self.unconstrained_T_serial = {}
         self.unconstrained_T_serial['loc'] = \
-            tf.Variable(T_serial['posterior_init']['loc'], dtype=tf.float32,
+            tf.Variable(config.T_serial.mean_transform.inverse(config.T_serial.value['loc']), dtype=tf.float32,
                         name=f'T_serial_A_loc', trainable=train_theta)
         self.unconstrained_T_serial['scale'] = \
-            tf.Variable(T_serial['posterior_init']['scale'], dtype=tf.float32,
-                        name=f'T_serial_A_scale', trainable=train_theta)
+            tf.Variable(config.T_serial.scale_transform.inverse(config.T_serial.value['scale']), dtype=tf.float32,
+                        name=f'T_serial_A_scale', trainable=train_variance)
 
         self.unconstrained_epsilon = {}
         self.unconstrained_epsilon['loc'] = \
-            tf.Variable(epsilon['posterior_init']['loc'], dtype=tf.float32,
+            tf.Variable(config.epsilon.mean_transform.inverse(config.epsilon.value['loc']), dtype=tf.float32,
                         name=f'epsilon_A_loc', trainable=train_theta)
         self.unconstrained_epsilon['scale'] = \
-            tf.Variable(epsilon['posterior_init']['scale'], dtype=tf.float32,
-                        name=f'epsilon_A_scale', trainable=train_theta)
+            tf.Variable(config.epsilon.scale_transform.inverse(config.epsilon.value['scale']), dtype=tf.float32,
+                        name=f'epsilon_A_scale', trainable=train_variance)
 
         self.unconstrained_delta = {}
         self.unconstrained_delta['loc'] = \
-            tf.Variable(delta['posterior_init']['loc'], dtype=tf.float32,
+            tf.Variable(config.delta.mean_transform.inverse(config.delta.value['loc']), dtype=tf.float32,
                         name=f'delta_A_loc', trainable=train_theta)
         self.unconstrained_delta['scale'] = \
-            tf.Variable(delta['posterior_init']['scale'], dtype=tf.float32,
-                        name=f'delta_A_scale', trainable=train_theta)
+            tf.Variable(config.delta.scale_transform.inverse(config.delta.value['scale']), dtype=tf.float32,
+                        name=f'delta_A_scale', trainable=train_variance)
 
         for vax_status in [status.value for status in self.vax_statuses]:
 
             self.unconstrained_rho_M[vax_status] = {}
             self.unconstrained_rho_M[vax_status]['loc'] = \
-                tf.Variable(rho_M[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.rho_M.mean_transform.inverse(config.rho_M.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'rho_M_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_rho_M[vax_status]['scale'] = \
-                tf.Variable(rho_M[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'rho_M_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.rho_M.scale_transform.inverse(config.rho_M.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'rho_M_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_rho_G[vax_status] = {}
             self.unconstrained_rho_G[vax_status]['loc'] = \
-                tf.Variable(rho_G[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.rho_G.mean_transform.inverse(config.rho_G.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'rho_G_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_rho_G[vax_status]['scale'] = \
-                tf.Variable(rho_G[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'rho_G_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.rho_G.scale_transform.inverse(config.rho_G.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'rho_G_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_rho_I[vax_status] = {}
             self.unconstrained_rho_I[vax_status]['loc'] = \
-                tf.Variable(rho_I[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.rho_I.mean_transform.inverse(config.rho_I.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'rho_I_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_rho_I[vax_status]['scale'] = \
-                tf.Variable(rho_I[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'rho_I_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.rho_I.scale_transform.inverse(config.rho_I.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'rho_I_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_rho_D[vax_status] = {}
             self.unconstrained_rho_D[vax_status]['loc'] = \
-                tf.Variable(rho_D[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.rho_D.mean_transform.inverse(config.rho_D.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'rho_D_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_rho_D[vax_status]['scale'] = \
-                tf.Variable(rho_D[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'rho_D_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.rho_D.scale_transform.inverse(config.rho_D.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'rho_D_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_lambda_M[vax_status] = {}
             self.unconstrained_lambda_M[vax_status]['loc'] = \
-                tf.Variable(lambda_M[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.lambda_M.mean_transform.inverse(config.lambda_M.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'lambda_M_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_lambda_M[vax_status]['scale'] = \
-                tf.Variable(lambda_M[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'lambda_M_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.lambda_M.scale_transform.inverse(config.lambda_M.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'lambda_M_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_lambda_G[vax_status] = {}
             self.unconstrained_lambda_G[vax_status]['loc'] = \
-                tf.Variable(lambda_G[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.lambda_G.mean_transform.inverse(config.lambda_G.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'lambda_G_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_lambda_G[vax_status]['scale'] = \
-                tf.Variable(lambda_G[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'lambda_G_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.lambda_G.scale_transform.inverse(config.lambda_G.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'lambda_G_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_lambda_I[vax_status] = {}
             self.unconstrained_lambda_I[vax_status]['loc'] = \
-                tf.Variable(lambda_I[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.lambda_I.mean_transform.inverse(config.lambda_I.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'lambda_I_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_lambda_I[vax_status]['scale'] = \
-                tf.Variable(lambda_I[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'lambda_I_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.lambda_I.scale_transform.inverse(config.lambda_I.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'lambda_I_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_lambda_I_bar[vax_status] = {}
             self.unconstrained_lambda_I_bar[vax_status]['loc'] = \
-                tf.Variable(lambda_I_bar[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.lambda_I_bar.mean_transform.inverse(config.lambda_I_bar.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'lambda_I_bar_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_lambda_I_bar[vax_status]['scale'] = \
-                tf.Variable(lambda_I_bar[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'lambda_I_bar_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.lambda_I_bar.scale_transform.inverse(config.lambda_I_bar.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'lambda_I_bar_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_lambda_D[vax_status] = {}
             self.unconstrained_lambda_D[vax_status]['loc'] = \
-                tf.Variable(lambda_D[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.lambda_D.mean_transform.inverse(config.lambda_D.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'lambda_D_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_lambda_D[vax_status]['scale'] = \
-                tf.Variable(lambda_D[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'lambda_D_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.lambda_D.scale_transform.inverse(config.lambda_D.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'lambda_D_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_lambda_D_bar[vax_status] = {}
             self.unconstrained_lambda_D_bar[vax_status]['loc'] = \
-                tf.Variable(lambda_D_bar[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.lambda_D_bar.mean_transform.inverse(config.lambda_D_bar.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'lambda_D_bar_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_lambda_D_bar[vax_status]['scale'] = \
-                tf.Variable(lambda_D_bar[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'lambda_D_bar_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.lambda_D_bar.scale_transform.inverse(config.lambda_D_bar.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'lambda_D_bar_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_nu_M[vax_status] = {}
             self.unconstrained_nu_M[vax_status]['loc'] = \
-                tf.Variable(nu_M[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.nu_M.mean_transform.inverse(config.nu_M.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'nu_M_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_nu_M[vax_status]['scale'] = \
-                tf.Variable(nu_M[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'nu_M_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.nu_M.scale_transform.inverse(config.nu_M.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'nu_M_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_nu_G[vax_status] = {}
             self.unconstrained_nu_G[vax_status]['loc'] = \
-                tf.Variable(nu_G[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.nu_G.mean_transform.inverse(config.nu_G.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'nu_G_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_nu_G[vax_status]['scale'] = \
-                tf.Variable(nu_G[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'nu_G_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.nu_G.scale_transform.inverse(config.nu_G.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'nu_G_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_nu_I[vax_status] = {}
             self.unconstrained_nu_I[vax_status]['loc'] = \
-                tf.Variable(nu_I[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.nu_I.mean_transform.inverse(config.nu_I.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'nu_I_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_nu_I[vax_status]['scale'] = \
-                tf.Variable(nu_I[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'nu_I_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.nu_I.scale_transform.inverse(config.nu_I.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'nu_I_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_nu_I_bar[vax_status] = {}
             self.unconstrained_nu_I_bar[vax_status]['loc'] = \
-                tf.Variable(nu_I_bar[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.nu_I_bar.mean_transform.inverse(config.nu_I_bar.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'nu_I_bar_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_nu_I_bar[vax_status]['scale'] = \
-                tf.Variable(nu_I_bar[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'nu_I_bar_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.nu_I_bar.scale_transform.inverse(config.nu_I_bar.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'nu_I_bar_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_nu_D[vax_status] = {}
             self.unconstrained_nu_D[vax_status]['loc'] = \
-                tf.Variable(nu_D[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.nu_D.mean_transform.inverse(config.nu_D.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'nu_D_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_nu_D[vax_status]['scale'] = \
-                tf.Variable(nu_D[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'nu_D_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.nu_D.scale_transform.inverse(config.nu_D.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'nu_D_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_nu_D_bar[vax_status] = {}
             self.unconstrained_nu_D_bar[vax_status]['loc'] = \
-                tf.Variable(nu_D_bar[vax_status]['posterior_init']['loc'], dtype=tf.float32,
+                tf.Variable(config.nu_D_bar.mean_transform.inverse(config.nu_D_bar.value[vax_status]['loc']), dtype=tf.float32,
                             name=f'nu_D_bar_loc_{vax_status}', trainable=train_theta)
             self.unconstrained_nu_D_bar[vax_status]['scale'] = \
-                tf.Variable(nu_D_bar[vax_status]['posterior_init']['scale'], dtype=tf.float32,
-                            name=f'nu_D_bar_scale_{vax_status}', trainable=train_theta)
+                tf.Variable(config.nu_D_bar.scale_transform.inverse(config.nu_D_bar.value[vax_status]['scale']), dtype=tf.float32,
+                            name=f'nu_D_bar_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_warmup_A_params[vax_status] = {}
             self.unconstrained_warmup_M_params[vax_status] = {}
@@ -473,100 +439,100 @@ class CovidModel(tf.keras.Model):
             self.unconstrained_init_count_I_params[vax_status] = {}
 
             self.unconstrained_warmup_A_params[vax_status]['slope'] = \
-                tf.Variable(tf.cast(warmup_A_params[vax_status]['posterior_init']['slope'],
+                tf.Variable(tf.cast(config.warmup_A.value[vax_status]['slope'],
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'warmup_A_slope_{vax_status}')
             self.unconstrained_warmup_A_params[vax_status]['intercept'] = \
-                tf.Variable(tf.cast(warmup_A_params[vax_status]['posterior_init']['intercept'],
+                tf.Variable(tf.cast(config.warmup_A.mean_transform.inverse(config.warmup_A.value[vax_status]['intercept']),
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'warmup_A_intercept_{vax_status}')
             self.unconstrained_warmup_A_params[vax_status]['scale'] = \
-                tf.Variable(tf.cast(warmup_A_params[vax_status]['posterior_init']['scale'],
+                tf.Variable(tf.cast(config.warmup_A.scale_transform.inverse(config.warmup_A.value[vax_status]['scale']),
                                     dtype=tf.float32), dtype=tf.float32,
-                            name=f'warmup_A_scale_{vax_status}')
+                            name=f'warmup_A_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_warmup_M_params[vax_status]['slope'] = \
-                tf.Variable(tf.cast(warmup_M_params[vax_status]['posterior_init']['slope'],
+                tf.Variable(tf.cast(config.warmup_M.value[vax_status]['slope'],
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'warmup_M_slope_{vax_status}')
             self.unconstrained_warmup_M_params[vax_status]['intercept'] = \
-                tf.Variable(tf.cast(warmup_M_params[vax_status]['posterior_init']['intercept'],
+                tf.Variable(tf.cast(config.warmup_M.mean_transform.inverse(config.warmup_M.value[vax_status]['intercept']),
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'warmup_M_intercept_{vax_status}')
             self.unconstrained_warmup_M_params[vax_status]['scale'] = \
-                tf.Variable(tf.cast(warmup_M_params[vax_status]['posterior_init']['scale'],
+                tf.Variable(tf.cast(config.warmup_M.scale_transform.inverse(config.warmup_M.value[vax_status]['scale']),
                                     dtype=tf.float32), dtype=tf.float32,
-                            name=f'warmup_M_scale_{vax_status}')
+                            name=f'warmup_M_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_warmup_G_params[vax_status]['slope'] = \
-                tf.Variable(tf.cast(warmup_G_params[vax_status]['posterior_init']['slope'],
+                tf.Variable(tf.cast(config.warmup_G.value[vax_status]['slope'],
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'warmup_G_slope_{vax_status}')
             self.unconstrained_warmup_G_params[vax_status]['intercept'] = \
-                tf.Variable(tf.cast(warmup_G_params[vax_status]['posterior_init']['intercept'],
+                tf.Variable(tf.cast(config.warmup_G.mean_transform.inverse(config.warmup_G.value[vax_status]['intercept']),
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'warmup_G_intercept_{vax_status}')
             self.unconstrained_warmup_G_params[vax_status]['scale'] = \
-                tf.Variable(tf.cast(warmup_G_params[vax_status]['posterior_init']['scale'],
+                tf.Variable(tf.cast(config.warmup_G.scale_transform.inverse(config.warmup_G.value[vax_status]['scale']),
                                     dtype=tf.float32), dtype=tf.float32,
-                            name=f'warmup_G_scale_{vax_status}')
+                            name=f'warmup_G_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_warmup_GR_params[vax_status]['slope'] = \
-                tf.Variable(tf.cast(warmup_GR_params[vax_status]['posterior_init']['slope'],
+                tf.Variable(tf.cast(config.warmup_GR.value[vax_status]['slope'],
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'warmup_GR_slope_{vax_status}')
             self.unconstrained_warmup_GR_params[vax_status]['intercept'] = \
-                tf.Variable(tf.cast(warmup_GR_params[vax_status]['posterior_init']['intercept'],
+                tf.Variable(tf.cast(config.warmup_GR.mean_transform.inverse(config.warmup_GR.value[vax_status]['intercept']),
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'warmup_GR_intercept_{vax_status}')
             self.unconstrained_warmup_GR_params[vax_status]['scale'] = \
-                tf.Variable(tf.cast(warmup_GR_params[vax_status]['posterior_init']['scale'],
+                tf.Variable(tf.cast(config.warmup_GR.scale_transform.inverse(config.warmup_GR.value[vax_status]['scale']),
                                     dtype=tf.float32), dtype=tf.float32,
-                            name=f'warmup_GR_scale_{vax_status}')
+                            name=f'warmup_GR_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_warmup_I_params[vax_status]['slope'] = \
-                tf.Variable(tf.cast(warmup_I_params[vax_status]['posterior_init']['slope'],
+                tf.Variable(tf.cast(config.warmup_I.value[vax_status]['slope'],
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'warmup_I_slope_{vax_status}')
             self.unconstrained_warmup_I_params[vax_status]['intercept'] = \
-                tf.Variable(tf.cast(warmup_I_params[vax_status]['posterior_init']['intercept'],
+                tf.Variable(tf.cast(config.warmup_I.mean_transform.inverse(config.warmup_I.value[vax_status]['intercept']),
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'warmup_I_intercept_{vax_status}')
             self.unconstrained_warmup_I_params[vax_status]['scale'] = \
-                tf.Variable(tf.cast(warmup_I_params[vax_status]['posterior_init']['scale'],
+                tf.Variable(tf.cast(config.warmup_I.scale_transform.inverse(config.warmup_I.value[vax_status]['scale']),
                                     dtype=tf.float32), dtype=tf.float32,
-                            name=f'warmup_I_scale_{vax_status}')
+                            name=f'warmup_I_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_warmup_IR_params[vax_status]['slope'] = \
-                tf.Variable(tf.cast(warmup_IR_params[vax_status]['posterior_init']['slope'],
+                tf.Variable(tf.cast(config.warmup_IR.value[vax_status]['slope'],
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'warmup_IR_slope_{vax_status}')
             self.unconstrained_warmup_IR_params[vax_status]['intercept'] = \
-                tf.Variable(tf.cast(warmup_IR_params[vax_status]['posterior_init']['intercept'],
+                tf.Variable(tf.cast(config.warmup_IR.mean_transform.inverse(config.warmup_IR.value[vax_status]['intercept']),
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'warmup_IR_intercept_{vax_status}')
             self.unconstrained_warmup_IR_params[vax_status]['scale'] = \
-                tf.Variable(tf.cast(warmup_IR_params[vax_status]['posterior_init']['scale'],
+                tf.Variable(tf.cast(config.warmup_IR.mean_transform.inverse(config.warmup_IR.value[vax_status]['scale']),
                                     dtype=tf.float32), dtype=tf.float32,
-                            name=f'warmup_IR_scale_{vax_status}')
+                            name=f'warmup_IR_scale_{vax_status}', trainable=train_variance)
                 
             self.unconstrained_init_count_G_params[vax_status]['loc'] = \
-                tf.Variable(tf.cast(init_count_G[vax_status]['posterior_init']['loc'],
+                tf.Variable(tf.cast(config.init_count_G.mean_transform.inverse(config.init_count_G.value[vax_status]['loc']),
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'init_count_G_loc_{vax_status}')
             self.unconstrained_init_count_G_params[vax_status]['scale'] = \
-                tf.Variable(tf.cast(init_count_G[vax_status]['posterior_init']['scale'],
+                tf.Variable(tf.cast(config.init_count_G.scale_transform.inverse(config.init_count_G.value[vax_status]['scale']),
                                     dtype=tf.float32), dtype=tf.float32,
-                            name=f'init_count_G_scale_{vax_status}')
+                            name=f'init_count_G_scale_{vax_status}', trainable=train_variance)
 
             self.unconstrained_init_count_I_params[vax_status]['loc'] = \
-                tf.Variable(tf.cast(init_count_I[vax_status]['posterior_init']['loc'],
+                tf.Variable(tf.cast(config.init_count_I.mean_transform.inverse(config.init_count_I.value[vax_status]['loc']),
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'init_count_I_loc_{vax_status}')
             self.unconstrained_init_count_I_params[vax_status]['scale'] = \
-                tf.Variable(tf.cast(init_count_I[vax_status]['posterior_init']['scale'],
+                tf.Variable(tf.cast(config.init_count_I.scale_transform.inverse(config.init_count_I.value[vax_status]['scale']),
                                     dtype=tf.float32), dtype=tf.float32,
-                            name=f'init_count_I_scale_{vax_status}')
+                            name=f'init_count_I_scale_{vax_status}', trainable=train_variance)
 
             self.previously_asymptomatic[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window,
                                                                       clear_after_read=False, name=f'prev_asymp')
@@ -579,17 +545,7 @@ class CovidModel(tf.keras.Model):
 
         return
 
-    def _initialize_priors(self, T_serial, epsilon, delta,
-                                rho_M, lambda_M, nu_M,
-                                rho_G, lambda_G, nu_G,
-                                rho_I, lambda_I, nu_I,
-                                lambda_I_bar, nu_I_bar,
-                                rho_D, lambda_D, nu_D,
-                                lambda_D_bar, nu_D_bar,
-                                warmup_A_params,
-                                warmup_M_params,
-                                warmup_G_params, warmup_GR_params, init_count_G,
-                                warmup_I_params, warmup_IR_params, init_count_I):
+    def _initialize_priors(self, config):
         """Helper function to hide the book-keeping behind initializing model priors"""
 
         self.prior_distros = {}
@@ -604,23 +560,23 @@ class CovidModel(tf.keras.Model):
         # T serial must be positive
         self.prior_distros[Comp.A.value][Vax.total.value]['T_serial'] = tfp.distributions.TransformedDistribution(
             tfp.distributions.TruncatedNormal(
-                T_serial['prior']['loc'],
-                T_serial['prior']['scale'],
+                config.T_serial.prior['loc'],
+                config.T_serial.prior['scale'],
                 0, np.inf),
             bijector=tfp.bijectors.Invert(tfp.bijectors.Softplus())
         )
 
         self.prior_distros[Comp.A.value][Vax.total.value]['epsilon'] = tfp.distributions.TransformedDistribution(
             tfp.distributions.Beta(
-                epsilon['prior']['a'],
-                epsilon['prior']['b']),
+                config.epsilon.prior['a'],
+                config.epsilon.prior['b']),
             bijector=tfp.bijectors.Invert(tfp.bijectors.Sigmoid())
         )
 
         self.prior_distros[Comp.A.value][Vax.yes.value]['delta'] = tfp.distributions.TransformedDistribution(
             tfp.distributions.Beta(
-                delta['prior']['a'],
-                delta['prior']['b']),
+                config.delta.prior['a'],
+                config.delta.prior['b']),
             bijector=tfp.bijectors.Invert(tfp.bijectors.Sigmoid())
         )
 
@@ -629,120 +585,120 @@ class CovidModel(tf.keras.Model):
 
             self.prior_distros[Comp.M.value][vax_status]['rho_M'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.Beta(
-                    rho_M[vax_status]['prior']['a'],
-                    rho_M[vax_status]['prior']['b']),
+                    config.rho_M.prior[vax_status]['a'],
+                    config.rho_M.prior[vax_status]['b']),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Sigmoid())
             )
 
             self.prior_distros[Comp.G.value][vax_status]['rho_G'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.Beta(
-                    rho_G[vax_status]['prior']['a'],
-                    rho_G[vax_status]['prior']['b']),
+                    config.rho_G.prior[vax_status]['a'],
+                    config.rho_G.prior[vax_status]['b']),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Sigmoid())
             )
             self.prior_distros[Comp.I.value][vax_status]['rho_I'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.Beta(
-                    rho_I[vax_status]['prior']['a'],
-                    rho_I[vax_status]['prior']['b']),
+                    config.rho_I.prior[vax_status]['a'],
+                    config.rho_I.prior[vax_status]['b']),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Sigmoid())
             )
 
             self.prior_distros[Comp.D.value][vax_status]['rho_D'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.Beta(
-                    rho_D[vax_status]['prior']['a'],
-                    rho_D[vax_status]['prior']['b']),
+                    config.rho_D.prior[vax_status]['a'],
+                    config.rho_D.prior[vax_status]['b']),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Sigmoid())
             )
 
             #  must be positive
             self.prior_distros[Comp.M.value][vax_status]['lambda_M'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
-                    lambda_M[vax_status]['prior']['loc'],
-                    lambda_M[vax_status]['prior']['scale'],
+                    config.lambda_M.prior[vax_status]['loc'],
+                    config.lambda_M.prior[vax_status]['scale'],
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Softplus())
             )
 
             self.prior_distros[Comp.G.value][vax_status]['lambda_G'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
-                    lambda_G[vax_status]['prior']['loc'],
-                    lambda_G[vax_status]['prior']['scale'],
+                    config.lambda_G.prior[vax_status]['loc'],
+                    config.lambda_G.prior[vax_status]['scale'],
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Softplus())
             )
             
             self.prior_distros[Comp.I.value][vax_status]['lambda_I'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
-                    lambda_I[vax_status]['prior']['loc'],
-                    lambda_I[vax_status]['prior']['scale'],
+                    config.lambda_I.prior[vax_status]['loc'],
+                    config.lambda_I.prior[vax_status]['scale'],
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Softplus())
             )
 
             self.prior_distros[Comp.IR.value][vax_status]['lambda_I_bar'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
-                    lambda_I_bar[vax_status]['prior']['loc'],
-                    lambda_I_bar[vax_status]['prior']['scale'],
+                    config.lambda_I_bar.prior[vax_status]['loc'],
+                    config.lambda_I_bar.prior[vax_status]['scale'],
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Softplus())
             )
             
             self.prior_distros[Comp.D.value][vax_status]['lambda_D'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
-                    lambda_D[vax_status]['prior']['loc'],
-                    lambda_D[vax_status]['prior']['scale'],
+                    config.lambda_D.prior[vax_status]['loc'],
+                    config.lambda_D.prior[vax_status]['scale'],
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Softplus())
             )
 
             self.prior_distros[Comp.D.value][vax_status]['lambda_D_bar'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
-                    lambda_D_bar[vax_status]['prior']['loc'],
-                    lambda_D_bar[vax_status]['prior']['scale'],
+                    config.lambda_D_bar.prior[vax_status]['loc'],
+                    config.lambda_D_bar.prior[vax_status]['scale'],
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Softplus())
             )
 
             self.prior_distros[Comp.M.value][vax_status]['nu_M'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
-                    nu_M[vax_status]['prior']['loc'],
-                    nu_M[vax_status]['prior']['scale'],
+                    config.nu_M.prior[vax_status]['loc'],
+                    config.nu_M.prior[vax_status]['scale'],
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Softplus())
             )
             
             self.prior_distros[Comp.G.value][vax_status]['nu_G'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
-                    nu_G[vax_status]['prior']['loc'],
-                    nu_G[vax_status]['prior']['scale'],
+                    config.nu_G.prior[vax_status]['loc'],
+                    config.nu_G.prior[vax_status]['scale'],
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Softplus())
             )
             self.prior_distros[Comp.I.value][vax_status]['nu_I'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
-                    nu_I[vax_status]['prior']['loc'],
-                    nu_I[vax_status]['prior']['scale'],
+                    config.nu_I.prior[vax_status]['loc'],
+                    config.nu_I.prior[vax_status]['scale'],
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Softplus())
             )
             self.prior_distros[Comp.IR.value][vax_status]['nu_I_bar'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
-                    nu_I_bar[vax_status]['prior']['loc'],
-                    nu_I_bar[vax_status]['prior']['scale'],
+                    config.nu_I_bar.prior[vax_status]['loc'],
+                    config.nu_I_bar.prior[vax_status]['scale'],
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Softplus())
             )
             self.prior_distros[Comp.D.value][vax_status]['nu_D'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
-                    nu_D[vax_status]['prior']['loc'],
-                    nu_D[vax_status]['prior']['scale'],
+                    config.nu_D.prior[vax_status]['loc'],
+                    config.nu_D.prior[vax_status]['scale'],
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Softplus())
             )
             self.prior_distros[Comp.D.value][vax_status]['nu_D_bar'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
-                    nu_D_bar[vax_status]['prior']['loc'],
-                    nu_D_bar[vax_status]['prior']['scale'],
+                    config.nu_D_bar.prior[vax_status]['loc'],
+                    config.nu_D_bar.prior[vax_status]['scale'],
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(tfp.bijectors.Softplus())
             )
@@ -757,9 +713,9 @@ class CovidModel(tf.keras.Model):
                 self.prior_distros[Comp.A.value][vax_status]['warmup_A'].append(
                     tfp.distributions.TransformedDistribution(
                         tfp.distributions.TruncatedNormal(
-                            tf.cast(warmup_A_params[vax_status]['prior']['intercept'],dtype=tf.float32) +
-                            tf.cast(day * warmup_A_params[vax_status]['prior']['slope'],dtype=tf.float32),
-                            tf.cast(warmup_A_params[vax_status]['prior']['scale'],dtype=tf.float32),
+                            tf.cast(config.warmup_A.prior[vax_status]['intercept'],dtype=tf.float32) +
+                            tf.cast(day * config.warmup_A.prior[vax_status]['slope'],dtype=tf.float32),
+                            tf.cast(config.warmup_A.prior[vax_status]['scale'],dtype=tf.float32),
                             0, tf.float32.max),
                         bijector=tfp.bijectors.Invert(tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]))
                     )
@@ -767,9 +723,9 @@ class CovidModel(tf.keras.Model):
                 self.prior_distros[Comp.M.value][vax_status]['warmup_M'].append(
                     tfp.distributions.TransformedDistribution(
                         tfp.distributions.TruncatedNormal(
-                            tf.cast(warmup_M_params[vax_status]['prior']['intercept'], dtype=tf.float32) +
-                            tf.cast(day * warmup_M_params[vax_status]['prior']['slope'], dtype=tf.float32),
-                            tf.cast(warmup_M_params[vax_status]['prior']['scale'], dtype=tf.float32),
+                            tf.cast(config.warmup_M.prior[vax_status]['intercept'], dtype=tf.float32) +
+                            tf.cast(day * config.warmup_M.prior[vax_status]['slope'], dtype=tf.float32),
+                            tf.cast(config.warmup_M.prior[vax_status]['scale'], dtype=tf.float32),
                             0, tf.float32.max),
                         bijector=tfp.bijectors.Invert(tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]))
                     )
@@ -777,9 +733,9 @@ class CovidModel(tf.keras.Model):
                 self.prior_distros[Comp.G.value][vax_status]['warmup_G'].append(
                     tfp.distributions.TransformedDistribution(
                         tfp.distributions.TruncatedNormal(
-                            tf.cast(warmup_G_params[vax_status]['prior']['intercept'], dtype=tf.float32) +
-                            tf.cast(day * warmup_G_params[vax_status]['prior']['slope'], dtype=tf.float32),
-                            tf.cast(warmup_G_params[vax_status]['prior']['scale'], dtype=tf.float32),
+                            tf.cast(config.warmup_G.prior[vax_status]['intercept'], dtype=tf.float32) +
+                            tf.cast(day * config.warmup_G.prior[vax_status]['slope'], dtype=tf.float32),
+                            tf.cast(config.warmup_G.prior[vax_status]['scale'], dtype=tf.float32),
                             0, tf.float32.max),
                         bijector=tfp.bijectors.Invert(
                             tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]))
@@ -788,9 +744,9 @@ class CovidModel(tf.keras.Model):
                 self.prior_distros[Comp.GR.value][vax_status]['warmup_GR'].append(
                     tfp.distributions.TransformedDistribution(
                         tfp.distributions.TruncatedNormal(
-                            tf.cast(warmup_GR_params[vax_status]['prior']['intercept'], dtype=tf.float32) +
-                            tf.cast(day * warmup_GR_params[vax_status]['prior']['slope'], dtype=tf.float32),
-                            tf.cast(warmup_GR_params[vax_status]['prior']['scale'], dtype=tf.float32),
+                            tf.cast(config.warmup_GR.prior[vax_status]['intercept'], dtype=tf.float32) +
+                            tf.cast(day * config.warmup_GR.prior[vax_status]['slope'], dtype=tf.float32),
+                            tf.cast(config.warmup_GR.prior[vax_status]['scale'], dtype=tf.float32),
                             0, tf.float32.max),
                         bijector=tfp.bijectors.Invert(
                             tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]))
@@ -799,9 +755,9 @@ class CovidModel(tf.keras.Model):
                 self.prior_distros[Comp.I.value][vax_status]['warmup_I'].append(
                     tfp.distributions.TransformedDistribution(
                         tfp.distributions.TruncatedNormal(
-                            tf.cast(warmup_I_params[vax_status]['prior']['intercept'], dtype=tf.float32) +
-                            tf.cast(day * warmup_I_params[vax_status]['prior']['slope'], dtype=tf.float32),
-                            tf.cast(warmup_I_params[vax_status]['prior']['scale'], dtype=tf.float32),
+                            tf.cast(config.warmup_I.prior[vax_status]['intercept'], dtype=tf.float32) +
+                            tf.cast(day * config.warmup_I.prior[vax_status]['slope'], dtype=tf.float32),
+                            tf.cast(config.warmup_I.prior[vax_status]['scale'], dtype=tf.float32),
                             0, tf.float32.max),
                         bijector=tfp.bijectors.Invert(
                             tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]))
@@ -810,9 +766,9 @@ class CovidModel(tf.keras.Model):
                 self.prior_distros[Comp.IR.value][vax_status]['warmup_IR'].append(
                     tfp.distributions.TransformedDistribution(
                         tfp.distributions.TruncatedNormal(
-                            tf.cast(warmup_IR_params[vax_status]['prior']['intercept'], dtype=tf.float32) +
-                            tf.cast(day * warmup_IR_params[vax_status]['prior']['slope'], dtype=tf.float32),
-                            tf.cast(warmup_IR_params[vax_status]['prior']['scale'], dtype=tf.float32),
+                            tf.cast(config.warmup_IR.prior[vax_status]['intercept'], dtype=tf.float32) +
+                            tf.cast(day * config.warmup_IR.prior[vax_status]['slope'], dtype=tf.float32),
+                            tf.cast(config.warmup_IR.prior[vax_status]['scale'], dtype=tf.float32),
                             0, tf.float32.max),
                         bijector=tfp.bijectors.Invert(
                             tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]))
@@ -821,8 +777,8 @@ class CovidModel(tf.keras.Model):
             self.prior_distros[Comp.G.value][vax_status]['init_count_G'] = (
                 tfp.distributions.TransformedDistribution(
                     tfp.distributions.TruncatedNormal(
-                        tf.cast(init_count_G[vax_status]['prior']['loc'], dtype=tf.float32),
-                        tf.cast(init_count_G[vax_status]['prior']['scale'], dtype=tf.float32),
+                        tf.cast(config.init_count_G.prior[vax_status]['loc'], dtype=tf.float32),
+                        tf.cast(config.init_count_G.prior[vax_status]['scale'], dtype=tf.float32),
                         0, tf.float32.max),
                     bijector=tfp.bijectors.Invert(
                         tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]))
@@ -831,8 +787,8 @@ class CovidModel(tf.keras.Model):
             self.prior_distros[Comp.I.value][vax_status]['init_count_I'] = (
                 tfp.distributions.TransformedDistribution(
                     tfp.distributions.TruncatedNormal(
-                        tf.cast(init_count_I[vax_status]['prior']['loc'], dtype=tf.float32),
-                        tf.cast(init_count_I[vax_status]['prior']['scale'], dtype=tf.float32),
+                        tf.cast(config.init_count_I.prior[vax_status]['loc'], dtype=tf.float32),
+                        tf.cast(config.init_count_I.prior[vax_status]['scale'], dtype=tf.float32),
                         0, tf.float32.max),
                     bijector=tfp.bijectors.Invert(
                         tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]))
@@ -880,13 +836,13 @@ class CovidModel(tf.keras.Model):
         self.delta_params[Vax.yes.value] = {}
 
         self.T_serial_params[Vax.total.value]['loc'] = self.unconstrained_T_serial['loc']
-        self.T_serial_params[Vax.total.value]['scale'] = tf.math.softplus(self.unconstrained_T_serial['scale'])
+        self.T_serial_params[Vax.total.value]['scale'] = self.scale_transform.forward(self.unconstrained_T_serial['scale'])
 
         self.epsilon_params[Vax.total.value]['loc'] = self.unconstrained_epsilon['loc']
-        self.epsilon_params[Vax.total.value]['scale'] = tf.math.softplus(self.unconstrained_epsilon['scale'])
+        self.epsilon_params[Vax.total.value]['scale'] = self.scale_transform.forward(self.unconstrained_epsilon['scale'])
 
         self.delta_params[Vax.yes.value]['loc'] = self.unconstrained_delta['loc']
-        self.delta_params[Vax.yes.value]['scale'] = tf.math.softplus(self.unconstrained_delta['scale'])
+        self.delta_params[Vax.yes.value]['scale'] = self.scale_transform.forward(self.unconstrained_delta['scale'])
 
         for vax_status in [status.value for status in self.vax_statuses]:
 
@@ -917,108 +873,108 @@ class CovidModel(tf.keras.Model):
 
 
             self.rho_M_params[vax_status]['loc'] = self.unconstrained_rho_M[vax_status]['loc']
-            self.rho_M_params[vax_status]['scale'] = tf.math.softplus(self.unconstrained_rho_M[vax_status]['scale'])
+            self.rho_M_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_rho_M[vax_status]['scale'])
 
             self.lambda_M_params[vax_status]['loc'] = self.unconstrained_lambda_M[vax_status]['loc']
-            self.lambda_M_params[vax_status]['scale'] = tf.math.softplus(self.unconstrained_lambda_M[vax_status]['scale'])
+            self.lambda_M_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_lambda_M[vax_status]['scale'])
 
             self.nu_M_params[vax_status]['loc'] = self.unconstrained_nu_M[vax_status]['loc']
-            self.nu_M_params[vax_status]['scale'] = tf.math.softplus(self.unconstrained_nu_M[vax_status]['scale'])
+            self.nu_M_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_nu_M[vax_status]['scale'])
 
             self.rho_G_params[vax_status]['loc'] = self.unconstrained_rho_G[vax_status]['loc']
-            self.rho_G_params[vax_status]['scale'] = tf.math.softplus(self.unconstrained_rho_G[vax_status]['scale'])
+            self.rho_G_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_rho_G[vax_status]['scale'])
 
             self.lambda_G_params[vax_status]['loc'] = self.unconstrained_lambda_G[vax_status]['loc']
-            self.lambda_G_params[vax_status]['scale'] = tf.math.softplus(self.unconstrained_lambda_G[vax_status]['scale'])
+            self.lambda_G_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_lambda_G[vax_status]['scale'])
 
             self.nu_G_params[vax_status]['loc'] = self.unconstrained_nu_G[vax_status]['loc']
-            self.nu_G_params[vax_status]['scale'] = tf.math.softplus(self.unconstrained_nu_G[vax_status]['scale'])
+            self.nu_G_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_nu_G[vax_status]['scale'])
 
             self.rho_I_params[vax_status]['loc'] = self.unconstrained_rho_I[vax_status]['loc']
-            self.rho_I_params[vax_status]['scale'] = tf.math.softplus(self.unconstrained_rho_I[vax_status]['scale'])
+            self.rho_I_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_rho_I[vax_status]['scale'])
 
             self.lambda_I_params[vax_status]['loc'] = self.unconstrained_lambda_I[vax_status]['loc']
-            self.lambda_I_params[vax_status]['scale'] = tf.math.softplus(
+            self.lambda_I_params[vax_status]['scale'] = self.scale_transform.forward(
                 self.unconstrained_lambda_I[vax_status]['scale'])
 
             self.lambda_I_bar_params[vax_status]['loc'] = self.unconstrained_lambda_I_bar[vax_status]['loc']
-            self.lambda_I_bar_params[vax_status]['scale'] = tf.math.softplus(
+            self.lambda_I_bar_params[vax_status]['scale'] = self.scale_transform.forward(
                 self.unconstrained_lambda_I_bar[vax_status]['scale'])
 
             self.nu_I_params[vax_status]['loc'] = self.unconstrained_nu_I[vax_status]['loc']
-            self.nu_I_params[vax_status]['scale'] = tf.math.softplus(self.unconstrained_nu_I[vax_status]['scale'])
+            self.nu_I_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_nu_I[vax_status]['scale'])
 
             self.nu_I_bar_params[vax_status]['loc'] = self.unconstrained_nu_I_bar[vax_status]['loc']
-            self.nu_I_bar_params[vax_status]['scale'] = tf.math.softplus(self.unconstrained_nu_I_bar[vax_status]['scale'])
+            self.nu_I_bar_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_nu_I_bar[vax_status]['scale'])
 
             self.rho_D_params[vax_status]['loc'] = self.unconstrained_rho_D[vax_status]['loc']
-            self.rho_D_params[vax_status]['scale'] = tf.math.softplus(self.unconstrained_rho_D[vax_status]['scale'])
+            self.rho_D_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_rho_D[vax_status]['scale'])
 
             self.lambda_D_params[vax_status]['loc'] = self.unconstrained_lambda_D[vax_status]['loc']
-            self.lambda_D_params[vax_status]['scale'] = tf.math.softplus(
+            self.lambda_D_params[vax_status]['scale'] = self.scale_transform.forward(
                 self.unconstrained_lambda_D[vax_status]['scale'])
 
             self.lambda_D_bar_params[vax_status]['loc'] = self.unconstrained_lambda_D_bar[vax_status]['loc']
-            self.lambda_D_bar_params[vax_status]['scale'] = tf.math.softplus(
+            self.lambda_D_bar_params[vax_status]['scale'] = self.scale_transform.forward(
                 self.unconstrained_lambda_D_bar[vax_status]['scale'])
 
             self.nu_D_params[vax_status]['loc'] = self.unconstrained_nu_D[vax_status]['loc']
-            self.nu_D_params[vax_status]['scale'] = tf.math.softplus(self.unconstrained_nu_D[vax_status]['scale'])
+            self.nu_D_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_nu_D[vax_status]['scale'])
 
             self.nu_D_bar_params[vax_status]['loc'] = self.unconstrained_nu_D_bar[vax_status]['loc']
-            self.nu_D_bar_params[vax_status]['scale'] = tf.math.softplus(self.unconstrained_nu_D_bar[vax_status]['scale'])
+            self.nu_D_bar_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_nu_D_bar[vax_status]['scale'])
 
             self.warmup_A_params[vax_status]['slope'] = \
                 self.unconstrained_warmup_A_params[vax_status]['slope']
             self.warmup_A_params[vax_status]['intercept'] = \
                 self.unconstrained_warmup_A_params[vax_status]['intercept']
             self.warmup_A_params[vax_status]['scale'] = \
-                tf.math.softplus(self.unconstrained_warmup_A_params[vax_status]['scale'])
+                self.scale_transform.forward(self.unconstrained_warmup_A_params[vax_status]['scale'])
 
             self.warmup_M_params[vax_status]['slope'] = \
                 self.unconstrained_warmup_M_params[vax_status]['slope']
             self.warmup_M_params[vax_status]['intercept'] = \
                 self.unconstrained_warmup_M_params[vax_status]['intercept']
             self.warmup_M_params[vax_status]['scale'] = \
-                tf.math.softplus(self.unconstrained_warmup_M_params[vax_status]['scale'])
+                self.scale_transform.forward(self.unconstrained_warmup_M_params[vax_status]['scale'])
 
             self.warmup_G_params[vax_status]['slope'] = \
                 self.unconstrained_warmup_G_params[vax_status]['slope']
             self.warmup_G_params[vax_status]['intercept'] = \
                 self.unconstrained_warmup_G_params[vax_status]['intercept']
             self.warmup_G_params[vax_status]['scale'] = \
-                tf.math.softplus(self.unconstrained_warmup_G_params[vax_status]['scale'])
+                self.scale_transform.forward(self.unconstrained_warmup_G_params[vax_status]['scale'])
 
             self.warmup_GR_params[vax_status]['slope'] = \
                 self.unconstrained_warmup_GR_params[vax_status]['slope']
             self.warmup_GR_params[vax_status]['intercept'] = \
                 self.unconstrained_warmup_GR_params[vax_status]['intercept']
             self.warmup_GR_params[vax_status]['scale'] = \
-                tf.math.softplus(self.unconstrained_warmup_GR_params[vax_status]['scale'])
+                self.scale_transform.forward(self.unconstrained_warmup_GR_params[vax_status]['scale'])
 
             self.warmup_I_params[vax_status]['slope'] = \
                 self.unconstrained_warmup_I_params[vax_status]['slope']
             self.warmup_I_params[vax_status]['intercept'] = \
                 self.unconstrained_warmup_I_params[vax_status]['intercept']
             self.warmup_I_params[vax_status]['scale'] = \
-                tf.math.softplus(self.unconstrained_warmup_I_params[vax_status]['scale'])
+                self.scale_transform.forward(self.unconstrained_warmup_I_params[vax_status]['scale'])
 
             self.warmup_IR_params[vax_status]['slope'] = \
                 self.unconstrained_warmup_IR_params[vax_status]['slope']
             self.warmup_IR_params[vax_status]['intercept'] = \
                 self.unconstrained_warmup_IR_params[vax_status]['intercept']
             self.warmup_IR_params[vax_status]['scale'] = \
-                tf.math.softplus(self.unconstrained_warmup_IR_params[vax_status]['scale'])
+                self.scale_transform.forward(self.unconstrained_warmup_IR_params[vax_status]['scale'])
 
             self.init_count_G_params[vax_status]['loc'] = \
                 self.unconstrained_init_count_G_params[vax_status]['loc']
             self.init_count_G_params[vax_status]['scale'] = \
-                tf.math.softplus(self.unconstrained_init_count_G_params[vax_status]['scale'])
+                self.scale_transform.forward(self.unconstrained_init_count_G_params[vax_status]['scale'])
 
             self.init_count_I_params[vax_status]['loc'] = \
                 self.unconstrained_init_count_I_params[vax_status]['loc']
             self.init_count_I_params[vax_status]['scale'] = \
-                tf.math.softplus(self.unconstrained_init_count_I_params[vax_status]['scale'])
+                self.scale_transform.forward(self.unconstrained_init_count_I_params[vax_status]['scale'])
 
         return
 
@@ -1832,6 +1788,19 @@ class LogPoissonProb(tf.keras.losses.Loss):
                -I_count_log_likelihood + \
                -D_in_log_likelihood
 
+class ConfigCallback(tf.keras.callbacks.Callback):
+
+    def __init__(self, config_outpath, every_nth_epoch=10):
+        self.every_nth_epoch = every_nth_epoch
+        self.config_outpath = config_outpath
+
+    def on_epoch_end(self, epoch, logs):
+
+        if epoch % self.every_nth_epoch != 0:
+            return
+
+        self.model.config = self.model.config.update_from_model(self.model)
+        self.model.config.to_json(self.config_outpath)
 
 class VarLogCallback(tf.keras.callbacks.Callback):
     """Logs all our model parameters"""
@@ -1936,6 +1905,24 @@ class VarLogCallback(tf.keras.callbacks.Callback):
             tf.summary.scalar(f'nu_I_scale_{vax_status}',
                               data=tf.squeeze(tf.math.softplus(self.model.unconstrained_nu_I[vax_status]['scale'])),
                               step=epoch)
+            tf.summary.scalar(f'rho_D_mean_{vax_status}',
+                              data=tf.squeeze(tf.math.sigmoid(self.model.unconstrained_rho_D[vax_status]['loc'])),
+                              step=epoch)
+            tf.summary.scalar(f'rho_D_scale_{vax_status}',
+                              data=tf.squeeze(tf.math.softplus(self.model.unconstrained_rho_D[vax_status]['scale'])),
+                              step=epoch)
+            tf.summary.scalar(f'lambda_D_mean_{vax_status}',
+                              data=tf.squeeze(tf.math.softplus(self.model.unconstrained_lambda_D[vax_status]['loc'])),
+                              step=epoch)
+            tf.summary.scalar(f'lambda_D_scale_{vax_status}',
+                              data=tf.squeeze(tf.math.softplus(self.model.unconstrained_lambda_D[vax_status]['scale'])),
+                              step=epoch)
+            tf.summary.scalar(f'nu_D_mean_{vax_status}',
+                              data=tf.squeeze(tf.math.softplus(self.model.unconstrained_nu_D[vax_status]['loc'])),
+                              step=epoch)
+            tf.summary.scalar(f'nu_D_scale_{vax_status}',
+                              data=tf.squeeze(tf.math.softplus(self.model.unconstrained_nu_D[vax_status]['scale'])),
+                              step=epoch)
             tf.summary.scalar(f'lambda_D_bar_mean_{vax_status}',
                               data=tf.squeeze(
                                   tf.math.softplus(self.model.unconstrained_lambda_D_bar[vax_status]['loc'])),
@@ -2019,5 +2006,6 @@ def get_logging_callbacks(log_dir):
     file_writer.set_as_default()
     logging_callback = VarLogCallback()
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
-    return [logging_callback, tensorboard_callback]
+    config_callback = ConfigCallback(log_dir + "/saved_config.json")
+    return [logging_callback, tensorboard_callback, config_callback]
 

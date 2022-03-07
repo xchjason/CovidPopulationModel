@@ -13,7 +13,8 @@ import tensorflow_probability as tfp
 # Local imports from model.py, data.py
 from model import CovidModel, LogPoissonProb, get_logging_callbacks, Comp, Vax
 from data import read_data, create_warmup
-
+from convert import *
+from model_config import ModelConfig
 
 import scipy
 from scipy.special import logit
@@ -784,7 +785,7 @@ def train_and_project(link):
 
   return run_sheetModel(sheetData, worksheet2, link, gc)
 
-def run_sheetModel_noTrain(model, sheetData, worksheet2, link, gc):
+def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model_config_path=None):
 	warmup_start = convert_date(sheetData[2][2])
 	warmup_end = convert_date(sheetData[2][3])
 	train_start = convert_date(sheetData[3][2])
@@ -834,392 +835,29 @@ def run_sheetModel_noTrain(model, sheetData, worksheet2, link, gc):
 	                                                      warmup_start, 
 	                                                      warmup_end,
 	                                                      0,0,0,0)
-	print(f'Approximately {warmup_asymp[0][0]} asymptomatic people, total')
-	print(f'Approximately {warmup_mild[0][0]} mild people, total')
 
 	vax_statuses = [Vax.yes, Vax.no]
-
-  # Set warmup priors/initializations
-
-	warmup_A_params = {}
-	warmup_M_params = {}
-	warmup_G_params = {}
-	warmup_GR_params = {}
-	init_count_G = {}
-	warmup_I_params = {}
-	warmup_IR_params = {}
-	init_count_I = {}
-
-	for vax_status in [status.value for status in vax_statuses]:
-	                
-	    
-	    warmup_A_params[vax_status] = {}
-	    warmup_A_params[vax_status]['prior'] = []
-	    warmup_A_params[vax_status]['posterior_init'] = []
-
-	    warmup_M_params[vax_status] = {}
-	    warmup_M_params[vax_status]['prior'] = []
-	    warmup_M_params[vax_status]['posterior_init'] = []
-
-	    warmup_G_params[vax_status] = {}
-	    warmup_G_params[vax_status]['prior'] = []
-	    warmup_G_params[vax_status]['posterior_init'] = []
-	    warmup_GR_params[vax_status] = {}
-	    warmup_GR_params[vax_status]['prior'] = []
-	    warmup_GR_params[vax_status]['posterior_init'] = []
-	    
-	    warmup_I_params[vax_status] = {}
-	    warmup_I_params[vax_status]['prior'] = []
-	    warmup_I_params[vax_status]['posterior_init'] = []
-	    warmup_IR_params[vax_status] = {}
-	    warmup_IR_params[vax_status]['prior'] = []
-	    warmup_IR_params[vax_status]['posterior_init'] = []
-	    
-	    init_count_G[vax_status] = {}
-	    init_count_G[vax_status]['prior'] ={}
-	    init_count_G[vax_status]['posterior_init'] ={}
-	    
-	    init_count_I[vax_status] = {}
-	    init_count_I[vax_status]['prior'] ={}
-	    init_count_I[vax_status]['posterior_init'] ={}
-
-	#print(df['general_ward_count'])
-
-	#x_train = tf.cast(df.loc[train_start:train_end,'Rt'].values, dtype=tf.float32)
-	#x_test = tf.cast(df.loc[train_start:test_end,'Rt'].values, dtype=tf.float32)
-
-	#y_train = tf.cast(df.loc[train_start:train_end,'general_ward'], dtype=tf.float32)
-	#y_test = tf.cast(df.loc[train_start:test_end,'general_ward'], dtype=tf.float32)
-
-	# Set priors
-
-	T_serial = {}
-	T_serial['prior'] ={'loc':5.8, 'scale':1}
-
-	# Go flat so we have some flexibility
-	epsilon = {}
-	epsilon['prior'] ={'a':1, 'b':1}
-
-	delta = {}
-	delta['prior'] ={'a':1, 'b':1}
-
-
-	for vax_status in [status.value for status in vax_statuses]:
-
-	    # Use HHS number number of total Gen/ICU people on day 0 with large variance
-	    init_count_G[vax_status]['prior'] = {'loc':count_gen[vax_status], 'scale':count_gen[vax_status]/4}
-	    init_count_I[vax_status]['prior'] = {'loc':count_icu[vax_status], 'scale':count_icu[vax_status]/4}
-	   
-	    # warmup_asymp doesn't have vaccine-status specific numbers
-	    # so here we divide total in half for our estimate
-	    # with a large variance
-	    warmup_A_params[vax_status]['prior'] = {'intercept': warmup_asymp[vax_status][0]/2,
-	                                            'slope': 0,
-	                                                'scale': warmup_asymp[vax_status][0]/2/4}
-
-	    warmup_M_params[vax_status]['prior'] = {'intercept': warmup_mild[vax_status][0]/2,
-	                                            'slope': 0,
-	                                                'scale': warmup_mild[vax_status][0]/2/4}
-
-
-	    # Assume new entries to hospital = 10% of total population (because you spend 10 days there max)
-	    warmup_G_params[vax_status]['prior'] = {'intercept': count_gen[vax_status]/10,
-	                                            'slope': 0,
-	                                                'scale': count_gen[vax_status]/4}
-	    warmup_I_params[vax_status]['prior'] = {'intercept': count_icu[vax_status]/10,
-	                                            'slope': 0,
-	                                                'scale': count_icu[vax_status]/10}
-
-	    # assume half of the total recover, and 10% recover each day
-	    warmup_GR_params[vax_status]['prior'] = {'intercept': count_gen[vax_status]/2/10,
-	                                            'slope': 0,
-	                                                'scale': count_gen[vax_status]/2/10/2}
-	    warmup_IR_params[vax_status]['prior'] = {'intercept': count_icu[vax_status]/2/10,
-	                                            'slope': 0,
-	                                                'scale': count_icu[vax_status]/2/10/2}
-
-
-	rho_M = {}
-	lambda_M = {}
-	nu_M = {}
-	rho_G = {}
-	lambda_G = {}
-	nu_G = {}
-	###new addition
-	rho_I = {}
-	lambda_I = {}
-	nu_I = {}
-	lambda_I_bar = {}
-	nu_I_bar = {}
-
-	rho_D = {}
-	lambda_D = {}
-	nu_D = {}
-	lambda_D_bar = {}
-	nu_D_bar = {}
-
-	  
-	rho_M[0] = {}
-	rho_M[0]['prior'] = {'a': float(sheetData[9][1]), 'b': float(sheetData[9][2])}
-	rho_M[1] = {}
-	rho_M[1]['prior'] = {'a': float(sheetData[10][1]), 'b': float(sheetData[10][2])}
-
-	rho_G[0] = {}
-	rho_G[0]['prior'] = {'a': float(sheetData[11][1]), 'b': float(sheetData[11][2])}
-	rho_G[1] = {}
-	rho_G[1]['prior'] = {'a': float(sheetData[12][1]), 'b': float(sheetData[12][2])}
-
-	rho_I[0] = {}
-	rho_I[0]['prior'] = {'a': float(sheetData[13][1]), 'b': float(sheetData[13][2])}
-	rho_I[1] = {}
-	rho_I[1]['prior'] = {'a': float(sheetData[14][1]), 'b': float(sheetData[14][2])}
-
-	rho_D[0] = {}
-	rho_D[0]['prior'] = {'a': float(sheetData[15][1]), 'b': float(sheetData[15][2])}
-	rho_D[1] = {}
-	rho_D[1]['prior'] = {'a': float(sheetData[16][1]), 'b': float(sheetData[16][2])}
-
-	lambda_M[0] = {}
-	lambda_M[0]['prior'] = {'loc': float(sheetData[18][1]), 'scale': float(sheetData[18][2])}
-	lambda_M[1] = {}
-	lambda_M[1]['prior'] = {'loc': float(sheetData[19][1]), 'scale': float(sheetData[19][2])}
-
-	lambda_G[0] = {}
-	lambda_G[0]['prior'] = {'loc': float(sheetData[20][1]), 'scale': float(sheetData[20][2])}
-	lambda_G[1] = {}
-	lambda_G[1]['prior'] = {'loc': float(sheetData[21][1]), 'scale': float(sheetData[21][2])}
-
-	lambda_I[0] = {}
-	lambda_I[0]['prior'] = {'loc': float(sheetData[22][1]), 'scale': float(sheetData[22][2])}
-	lambda_I[1] = {}
-	lambda_I[1]['prior'] = {'loc': float(sheetData[23][1]), 'scale': float(sheetData[23][2])}
-
-	lambda_I_bar[0] = {}
-	lambda_I_bar[0]['prior'] = {'loc': float(sheetData[24][1]), 'scale': float(sheetData[24][2])}
-	lambda_I_bar[1] = {}
-	lambda_I_bar[1]['prior'] = {'loc': float(sheetData[25][1]), 'scale': float(sheetData[25][2])}
-
-	lambda_D[0] = {}
-	lambda_D[0]['prior'] = {'loc': float(sheetData[26][1]), 'scale': float(sheetData[26][2])}
-	lambda_D[1] = {}
-	lambda_D[1]['prior'] = {'loc': float(sheetData[27][1]), 'scale': float(sheetData[27][2])}
-
-	lambda_D_bar[0] = {}
-	lambda_D_bar[0]['prior'] = {'loc': float(sheetData[28][1]), 'scale': float(sheetData[28][2])}
-	lambda_D_bar[1] = {}
-	lambda_D_bar[1]['prior'] = {'loc': float(sheetData[29][1]), 'scale': float(sheetData[29][2])}
-
-
-	nu_M[0] = {}
-	nu_M[0]['prior'] = {'loc': float(sheetData[18][3]), 'scale': float(sheetData[18][4])}
-	nu_M[1] = {}
-	nu_M[1]['prior'] = {'loc': float(sheetData[19][3]), 'scale': float(sheetData[19][4])}
-
-
-	nu_G[0] = {}
-	nu_G[0]['prior'] = {'loc': float(sheetData[20][3]), 'scale': float(sheetData[20][4])}
-	nu_G[1] = {}
-	nu_G[1]['prior'] = {'loc': float(sheetData[21][3]), 'scale': float(sheetData[21][4])}
-
-	nu_I[0] = {}
-	nu_I[0]['prior'] = {'loc': float(sheetData[22][3]), 'scale': float(sheetData[22][4])}
-	nu_I[1] = {}
-	nu_I[1]['prior'] = {'loc': float(sheetData[23][3]), 'scale': float(sheetData[23][4])}
-
-	nu_I_bar[0] = {}
-	nu_I_bar[0]['prior'] = {'loc': float(sheetData[24][3]), 'scale': float(sheetData[24][4])}
-	nu_I_bar[1] = {}
-	nu_I_bar[1]['prior'] = {'loc': float(sheetData[25][3]), 'scale': float(sheetData[25][4])}
-
-	nu_D[0] = {}
-	nu_D[0]['prior'] = {'loc': float(sheetData[26][3]), 'scale': float(sheetData[26][4])}
-	nu_D[1] = {}
-	nu_D[1]['prior'] = {'loc': float(sheetData[27][3]), 'scale': float(sheetData[27][4])}
-
-	nu_D_bar[0] = {}
-	nu_D_bar[0]['prior'] = {'loc': float(sheetData[28][3]), 'scale': float(sheetData[28][4])}
-	nu_D_bar[1] = {}
-	nu_D_bar[1]['prior'] = {'loc': float(sheetData[28][3]), 'scale': float(sheetData[28][4])}
-
-
-	# Set posteriors
-	T_serial_scale = 1.0
-	delta_scale = 0.2
-	epsilon_scale = 0.3
-
-
-	rho_M_scale = 0.1
-	lambda_M_scale = 1.0
-	nu_M_scale = 1.2
-
-	rho_G_scale = 0.1
-	lambda_G_scale = 1.0
-	nu_G_scale = 0.2
-
-	rho_I_scale = 0.1
-	lambda_I_scale = 1.0
-	nu_I_scale = 0.2
-	lambda_I_bar_scale = 1.0
-	nu_I_bar_scale = 0.2
-
-	rho_D_scale = 0.1
-	lambda_D_scale = 1.0
-	nu_D_scale = 0.2
-	lambda_D_bar_scale = 1.0
-	nu_D_bar_scale = 0.2
-
-	T_serial['posterior_init'] = {'loc': tfp.math.softplus_inverse(4.0),
-	                                     'scale':tf.cast(tfp.math.softplus_inverse(T_serial_scale),dtype=tf.float32)}
-	delta['posterior_init'] = {'loc':  tf.cast(np.log(0.1/(1-0.1)),dtype=tf.float32),
-	                                     'scale':tf.cast(tfp.math.softplus_inverse(delta_scale),dtype=tf.float32)}
-	epsilon['posterior_init'] = {'loc':  tf.cast(np.log(0.5/(1-0.5)),dtype=tf.float32),
-	                                     'scale':tf.cast(tfp.math.softplus_inverse(epsilon_scale),dtype=tf.float32)}
-
-	for vax_status in [status.value for status in vax_statuses]:
-	    
-		rho_M[vax_status]['posterior_init'] = {'loc': tf.cast(np.log(0.5/(1-0.5)),dtype=tf.float32),
-		                                      'scale':tf.cast(tfp.math.softplus_inverse(rho_M_scale),dtype=tf.float32)}
-
-		lambda_M[vax_status]['posterior_init'] = {'loc': tf.cast(tfp.math.softplus_inverse(3.0),dtype=tf.float32),
-		                                         'scale':tf.cast(tfp.math.softplus_inverse(lambda_M_scale),dtype=tf.float32)}
-
-		nu_M[vax_status]['posterior_init'] = {'loc': tf.cast(tfp.math.softplus_inverse(5.0),dtype=tf.float32),
-		                                     'scale':tf.cast(tfp.math.softplus_inverse(nu_M_scale),dtype=tf.float32)}
-
-		rho_G[vax_status]['posterior_init'] = {'loc': tf.cast(np.log(0.1/(1-0.1)),dtype=tf.float32),
-		                                      'scale':tf.cast(tfp.math.softplus_inverse(rho_G_scale),dtype=tf.float32)}
-
-		lambda_G[vax_status]['posterior_init'] = {'loc': tf.cast(tfp.math.softplus_inverse(3.3),dtype=tf.float32),
-		                                         'scale':tf.cast(tfp.math.softplus_inverse(lambda_G_scale),dtype=tf.float32)}
-
-		nu_G[vax_status]['posterior_init'] = {'loc': tf.cast(tfp.math.softplus_inverse(9.0),dtype=tf.float32),
-		                                     'scale':tf.cast(tfp.math.softplus_inverse(nu_G_scale),dtype=tf.float32)}
-
-		rho_I[vax_status]['posterior_init'] = {'loc': tf.cast(np.log(0.1/(1-0.1)),dtype=tf.float32),
-		                                      'scale':tf.cast(tfp.math.softplus_inverse(rho_I_scale),dtype=tf.float32)}
-		lambda_I[vax_status]['posterior_init'] = {'loc': tf.cast(tfp.math.softplus_inverse(3.3),dtype=tf.float32),
-		                                         'scale':tf.cast(tfp.math.softplus_inverse(lambda_I_scale),dtype=tf.float32)}
-		nu_I[vax_status]['posterior_init'] = {'loc': tf.cast(tfp.math.softplus_inverse(9.0),dtype=tf.float32),
-		                                     'scale':tf.cast(tfp.math.softplus_inverse(nu_I_scale),dtype=tf.float32)}
-		lambda_I_bar[vax_status]['posterior_init'] = {'loc': tf.cast(tfp.math.softplus_inverse(3.3),dtype=tf.float32),
-		                                         'scale':tf.cast(tfp.math.softplus_inverse(lambda_I_bar_scale),dtype=tf.float32)}
-		nu_I_bar[vax_status]['posterior_init'] = {'loc': tf.cast(tfp.math.softplus_inverse(9.0),dtype=tf.float32),
-		                                     'scale':tf.cast(tfp.math.softplus_inverse(nu_I_bar_scale),dtype=tf.float32)}
-
-		rho_D[vax_status]['posterior_init'] = {'loc': tf.cast(np.log(0.1/(1-0.1)),dtype=tf.float32),
-		                                      'scale':tf.cast(tfp.math.softplus_inverse(rho_D_scale),dtype=tf.float32)}
-		lambda_D[vax_status]['posterior_init'] = {'loc': tf.cast(tfp.math.softplus_inverse(3.3),dtype=tf.float32),
-		                                         'scale':tf.cast(tfp.math.softplus_inverse(lambda_D_scale),dtype=tf.float32)}
-		nu_D[vax_status]['posterior_init'] = {'loc': tf.cast(tfp.math.softplus_inverse(9.0),dtype=tf.float32),
-		                                     'scale':tf.cast(tfp.math.softplus_inverse(nu_D_scale),dtype=tf.float32)}
-		lambda_D_bar[vax_status]['posterior_init'] = {'loc': tf.cast(tfp.math.softplus_inverse(3.3),dtype=tf.float32),
-		                                         'scale':tf.cast(tfp.math.softplus_inverse(lambda_D_bar_scale),dtype=tf.float32)}
-		nu_D_bar[vax_status]['posterior_init'] = {'loc': tf.cast(tfp.math.softplus_inverse(9.0),dtype=tf.float32),
-		                                     'scale':tf.cast(tfp.math.softplus_inverse(nu_D_bar_scale),dtype=tf.float32)}
-
-		init_count_G[vax_status]['posterior_init'] = {'loc':tf.cast(tfp.math.softplus_inverse(count_gen[vax_status]/100),dtype=tf.float32),
-		                                              'scale': tf.cast(tfp.math.softplus_inverse(count_gen[vax_status]/100/10),dtype=tf.float32)}
-		init_count_I[vax_status]['posterior_init'] = {'loc':tf.cast(tfp.math.softplus_inverse(count_icu[vax_status]/100),dtype=tf.float32),
-		                                              'scale': tf.cast(tfp.math.softplus_inverse(count_icu[vax_status]/100/10),dtype=tf.float32)}
-
-
-
-		# must be positive so reverse softplus the mean
-		warmup_A_params[vax_status]['posterior_init'] = {'intercept': tf.cast(tfp.math.softplus_inverse(2000.0/100/2),dtype=tf.float32),
-		                                                      'slope': tf.cast(0.0, dtype=tf.float32),
-		                                                     'scale': tf.cast(tfp.math.softplus_inverse(500.0/100/2),dtype=tf.float32)}
-		warmup_M_params[vax_status]['posterior_init'] = {'intercept': tf.cast(tfp.math.softplus_inverse(1000.0/100/2),dtype=tf.float32),
-		                                                      'slope': tf.cast(0.0, dtype=tf.float32),
-		                                                     'scale': tf.cast(tfp.math.softplus_inverse(100.0/100/2),dtype=tf.float32)}
-
-		warmup_G_params[vax_status]['posterior_init'] = {'intercept': tf.cast(tfp.math.softplus_inverse(500.0/100/2),dtype=tf.float32),
-		                                                      'slope': tf.cast(0.0, dtype=tf.float32),
-		                                                     'scale': tf.cast(tfp.math.softplus_inverse(50.0/100/2),dtype=tf.float32)}
-		warmup_GR_params[vax_status]['posterior_init']= {'intercept': tf.cast(tfp.math.softplus_inverse(400.0/100/2),dtype=tf.float32),
-		                                                      'slope': tf.cast(0.0, dtype=tf.float32),
-		                                                     'scale': tf.cast(tfp.math.softplus_inverse(50.0/100/2),dtype=tf.float32)}
-		warmup_I_params[vax_status]['posterior_init'] = {'intercept': tf.cast(tfp.math.softplus_inverse(100.0/100/2),dtype=tf.float32),
-		                                                      'slope': tf.cast(0.0, dtype=tf.float32),
-		                                                     'scale': tf.cast(tfp.math.softplus_inverse(30.0/100/2),dtype=tf.float32)}
-		warmup_IR_params[vax_status]['posterior_init']= {'intercept': tf.cast(tfp.math.softplus_inverse(90.0/100/2),dtype=tf.float32),
-		                                                      'slope': tf.cast(0.0, dtype=tf.float32),
-		                                                     'scale': tf.cast(tfp.math.softplus_inverse(30.0/100/2),dtype=tf.float32)}
-    # Make data
-
-	x_train = tf.cast(df.loc[train_start:train_end,'Rt'].values, dtype=tf.float32)
-	x_test = tf.cast(df.loc[train_start:test_end,'Rt'].values, dtype=tf.float32)
+	x_train = tf.cast(df.loc[train_start:train_end, 'Rt'].values, dtype=tf.float32)
+	x_test = tf.cast(df.loc[train_start:test_end, 'Rt'].values, dtype=tf.float32)
 
 	y_train = {}
-	y_train['G_in'] = tf.cast(df.loc[train_start:train_end,'general_ward_in'], dtype=tf.float32)
-	y_train['G_count'] = tf.cast(df.loc[train_start:train_end,'general_ward_count'], dtype=tf.float32)
-	y_train['I_count'] = tf.cast(df.loc[train_start:train_end,'icu_count'], dtype=tf.float32)
-	y_train['D_in'] = tf.cast(df.loc[train_start:train_end,'deaths_covid'], dtype=tf.float32) 
+	y_train['G_in'] = tf.cast(df.loc[train_start:train_end, 'general_ward_in'], dtype=tf.float32)
+	y_train['G_count'] = tf.cast(df.loc[train_start:train_end, 'general_ward_count'], dtype=tf.float32)
+	y_train['I_count'] = tf.cast(df.loc[train_start:train_end, 'icu_count'], dtype=tf.float32)
+	y_train['D_in'] = tf.cast(df.loc[train_start:train_end, 'deaths_covid'], dtype=tf.float32)
 
 	y_test = {}
-	y_test['G_in'] = tf.cast(df.loc[train_start:test_end,'general_ward_in'], dtype=tf.float32)
-	y_test['G_count'] = tf.cast(df.loc[train_start:test_end,'general_ward_count'], dtype=tf.float32)
-	y_test['I_count'] = tf.cast(df.loc[train_start:test_end,'icu_count'], dtype=tf.float32)
-	y_test['D_in'] = tf.cast(df.loc[train_start:test_end,'deaths_covid'], dtype=tf.float32)
-
+	y_test['G_in'] = tf.cast(df.loc[train_start:test_end, 'general_ward_in'], dtype=tf.float32)
+	y_test['G_count'] = tf.cast(df.loc[train_start:test_end, 'general_ward_count'], dtype=tf.float32)
+	y_test['I_count'] = tf.cast(df.loc[train_start:test_end, 'icu_count'], dtype=tf.float32)
+	y_test['D_in'] = tf.cast(df.loc[train_start:test_end, 'deaths_covid'], dtype=tf.float32)
+	config = ModelConfig.from_json(model_config_path)
 	model = CovidModel([Vax.no, Vax.yes], [Comp.A, Comp.M, Comp.G, Comp.GR, Comp.I, Comp.IR, Comp.D],
-	                 transition_window,
-	                T_serial, epsilon, delta,
-	                 rho_M, lambda_M, nu_M,
-	                 rho_G, lambda_G, nu_G,
-	                 rho_I, lambda_I, nu_I,
-	                 lambda_I_bar, nu_I_bar,
-	                 rho_D, lambda_D, nu_D,
-	                 lambda_D_bar, nu_D_bar,
-	                 warmup_A_params,
-	                 warmup_M_params,
-	                 warmup_G_params, warmup_GR_params, init_count_G,
-	                 warmup_I_params, warmup_IR_params, init_count_I, posterior_samples=1000, debug_disable_theta=False)
+	                   transition_window,
+	                   config, posterior_samples=1000,
+	                   debug_disable_theta=False, fix_variance=False)
 
-  	# update param sheet
-	param_wks = gc.open_by_url(link).get_worksheet(3)
-	param_data = param_wks.get_all_values()
-
-	model.unconstrained_rho_M[1]['loc'] = tf.cast(logit(float(param_data[1][1])),dtype=tf.float32)
-	model.unconstrained_rho_G[1]['loc'] = tf.cast(logit(float(param_data[2][1])),dtype=tf.float32)
-	model.unconstrained_rho_I[1]['loc'] = tf.cast(logit(float(param_data[3][1])),dtype=tf.float32)
-	model.unconstrained_rho_D[1]['loc'] = tf.cast(logit(float(param_data[4][1])),dtype=tf.float32)
-
-	model.unconstrained_rho_M[0]['loc'] = tf.cast(logit(float(param_data[1][3])),dtype=tf.float32)
-	model.unconstrained_rho_G[0]['loc'] = tf.cast(logit(float(param_data[2][3])),dtype=tf.float32)
-	model.unconstrained_rho_I[0]['loc'] = tf.cast(logit(float(param_data[3][3])),dtype=tf.float32)
-	model.unconstrained_rho_D[0]['loc'] = tf.cast(logit(float(param_data[4][3])),dtype=tf.float32)
-
-	model.unconstrained_lambda_M[1]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[7][1]),dtype=tf.float32))
-	model.unconstrained_lambda_G[1]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[8][1]),dtype=tf.float32))
-	model.unconstrained_lambda_I[1]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[9][1]),dtype=tf.float32))
-	model.unconstrained_lambda_I_bar[1]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[10][1]),dtype=tf.float32))
-	model.unconstrained_lambda_D[1]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[11][1]),dtype=tf.float32))
-	model.unconstrained_lambda_D_bar[1]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[12][1]),dtype=tf.float32))
-
-	model.unconstrained_nu_M[1]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[7][2]),dtype=tf.float32))
-	model.unconstrained_nu_G[1]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[8][2]),dtype=tf.float32))
-	model.unconstrained_nu_I[1]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[9][2]),dtype=tf.float32))
-	model.unconstrained_nu_I_bar[1]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[10][2]),dtype=tf.float32))
-	model.unconstrained_nu_D[1]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[11][2]),dtype=tf.float32))
-	model.unconstrained_nu_D_bar[1]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[12][2]),dtype=tf.float32))
-
-	model.unconstrained_lambda_M[0]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[7][4]),dtype=tf.float32))
-	model.unconstrained_lambda_G[0]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[8][4]),dtype=tf.float32))
-	model.unconstrained_lambda_I[0]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[9][4]),dtype=tf.float32))
-	model.unconstrained_lambda_I_bar[0]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[10][4]),dtype=tf.float32))
-	model.unconstrained_lambda_D[0]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[11][4]),dtype=tf.float32))
-	model.unconstrained_lambda_D_bar[0]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[12][4]),dtype=tf.float32))
-
-	model.unconstrained_nu_M[0]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[7][5]),dtype=tf.float32))
-	model.unconstrained_nu_G[0]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[8][5]),dtype=tf.float32))
-	model.unconstrained_nu_I[0]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[9][5]),dtype=tf.float32))
-	model.unconstrained_nu_I_bar[0]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[10][5]),dtype=tf.float32))
-	model.unconstrained_nu_D[0]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[11][5]),dtype=tf.float32))
-	model.unconstrained_nu_D_bar[0]['loc'] = tfp.math.softplus_inverse(tf.cast(float(param_data[12][5]),dtype=tf.float32))
-
-
-	preds = tf.reduce_mean(model.call(x_test), axis=-1)
-
+	preds=tf.reduce_mean(model.call(x_test), axis=-1)
 	#set up
 	all_days = df.loc[warmup_start:test_end].index.values
 	warmup_days = df.loc[warmup_start:warmup_end].index.values
@@ -1233,6 +871,8 @@ def run_sheetModel_noTrain(model, sheetData, worksheet2, link, gc):
 	size_test_days = test_days.size 
 	size_train_test_days = train_test_days.size
 
+  	# update param sheet
+	param_worksheet = gc.open_by_url(link).get_worksheet(3)
 
 	worksheet = gc.open_by_url(link).get_worksheet(1)
 	#set cell_list for each column and iterate to fill up with values
@@ -1329,8 +969,6 @@ def run_sheetModel_noTrain(model, sheetData, worksheet2, link, gc):
 		cell.value = D_data[i]
 	worksheet.update_cells(D_list)
 
-
-
 	plt.figure(figsize=(8, 6))
 	plt.plot(df.loc[train_start:test_end].index.values, y_test['I_count'], label='ICU')
 	plt.plot(df.loc[train_start:test_end].index.values, preds[0][2], label='ICU')
@@ -1369,11 +1007,12 @@ def run_sheetModel_noTrain(model, sheetData, worksheet2, link, gc):
 
 	return model
 
-def project_only(link, model):
+def project_only(link):
 	auth.authenticate_user()
 	gc = gspread.authorize(GoogleCredentials.get_application_default())
 	wb = gc.open_by_url(link)
 	wks = wb.sheet1
 	sheetData = wks.get_all_values()
 	worksheet2 = gc.open_by_url(link).get_worksheet(2)
-	return run_sheetModel_noTrain(model, sheetData, worksheet2, link, gc)
+	model_config_path = '/content/drive/MyDrive/BayesianCovidPopulationModel/model_config.json'
+	return run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model_config_path)
