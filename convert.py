@@ -160,5 +160,5 @@ def spreadsheet_to_json(link):
 	jdata = replace_keys(jdata, str, from_tensor=True)
 
 	out_file = open("model_config.json", "w")
-	json.dump(jdata, out_file, indent = 4)
+	json.dump(jdata, out_file)
 	out_file.close()
