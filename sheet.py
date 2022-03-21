@@ -807,7 +807,6 @@ def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model_config_path=No
 	# How long can a person take to progress?
 	transition_window = int(sheetData[8][1])
 	learning_rate = float(sheetData[9][1])
-	num_epoch = int(sheetData[10][1])
 
 	#worksheet2
 	#first_column = wroksheet2.get_col()
@@ -1089,3 +1088,8 @@ def transfer_test(link):
 	load_default_data(link)
 	spreadsheet_to_json(link)
 	return project_only(link)
+
+def customized_test(link):
+	spreadsheet_to_json(link)
+	return project_only(link)
+
