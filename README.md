@@ -1,7 +1,7 @@
 # Covid Population Model
 **NEW SPREADSHEET FOR TOTAL COUNT MODEL**: https://docs.google.com/spreadsheets/d/1E8NoSwS7cCBYOuWp1trKhyXd3mBMQyL5FjHhGh0rOOw/edit#gid=0
 
-This repository contains code for a preliminary version of the Tufts Susceptible-to-Hospital Forecasting Model for COVID-19. This mechanistic probabilistic model describes how COVID-19 might spread in the broader population of a target region and produce daily hospital admissions. A key feature of the model is that it can account for vaccination and its impact on disease spread and need for hospital resources.
+This repository contains code for a preliminary version of the Tufts Susceptible-to-Hospital Forecasting Model for COVID-19. This mechanistic probabilistic model describes how COVID-19 might spread in the broader population of a target region and produce daily hospital admissions, general ward population counts, ICU counts, and death counts due to COVID-19. A key feature of the model is that it can account for vaccination and its impact on disease spread and need for hospital resources.
 
 We hope this codebase can help users answer questions like:
 - Given what we have seen from April thru July 2021, how many admissions to the hospital will the state of Massachusetts see in August?
@@ -44,6 +44,9 @@ For the in-browser workflow, users will interact with 3 parts:
     - where default Rt(viral reproductive constant which determines how fast the virus spreads) and Vaccination Percentage of the given state are shown. Can be modified by users and project under different context.
   - Fourth Sheet: ***Param (Transition, Duration)***
     - where learned transition and duration parameters are shown. Can be modified by users to project under different paramters.
+    - still in work
+  - Fifth Sheet: ***AllParam***
+    - where all parameters are contained
   - A shared folder on Google Drive, containing: Python files defining the model itself (users should not need to edit these)
   - CSV files defining observed data that can be used for training the model. Contains:
     - [Daily hospital admissions for all 50 states](https://healthdata.gov/api/views/g62h-syeh/rows.csv?accessType=DOWNLOAD)
@@ -55,9 +58,9 @@ For the in-browser workflow, users will interact with 3 parts:
 
 ## Step-by-Step Guide to Producing your own forecasts 
 - Prepare a shared folder in Google Drive 
-  - Download all the files from this Github ( the Google Colab notebook, Google Sheet, python files, data from Github and store them in the same directory in your Google Drive. Please remember the name and location of the directory in your Google Drive. You will need it when edit the second cell of the notebook.
+  - Download all the files from this Github ( the Google Colab notebook, Google Sheet, python files, json file, data from Github and store them in the same directory in your Google Drive. Please remember the name and location of the directory in your Google Drive. You will need it when edit the second cell of the notebook.
 - Within this folder, create a  Google Sheet
-  - You should copy the template Google Sheet link is at https://docs.google.com/spreadsheets/d/130-vXn_6q8IWQUCcizFukW8fTPwt2oOPtx4w3zMNS04/edit#gid=0. You can save it as your own Google Sheet and make sure it has a sharable link.
+  - You should copy the template Google Sheet link is at https://docs.google.com/spreadsheets/d/1E8NoSwS7cCBYOuWp1trKhyXd3mBMQyL5FjHhGh0rOOw/edit#gid=0. You can save it as your own Google Sheet and make sure it has a sharable link.
 - Edit the Google Sheet
   - Fill in the yellow cells to specify the desired US state and training period and test period
 - Run the model by opening the Google Colab notebook in Google Drive
@@ -71,7 +74,8 @@ For the in-browser workflow, users will interact with 3 parts:
     - The provided example finishes in about 5-10 minutes
     - After finishing, a diagnostic plot of the forecasted daily hospital admissions over time (as well as other quantities) is displayed
     - Check the InfluxCountsByCompartment sheet in Google Sheet to inspect detailed values produced by the forecast and displayed in the plot. Check the Param sheet to inspect exact values of learned parameters.
-   - run the seventh cell: make projections using users' own parameters or context without retraining the model
+   - run the seventh cell: user can customize parameters in AllParam in Google Sheet and generate new json file that contains the latest customized parameters. After a new json file is generated, user can go back to run sixth cell to make projection with new parameters.
+   - run the eighth cell: enter other state in Setting in Google Sheet, the program automatically adjusts the transfer ratio and make projections for the other selected state with current learned parameters.
 
 
 ## Detailed Guide to Google Sheet
@@ -98,14 +102,8 @@ For the in-browser workflow, users will interact with 3 parts:
   - Rt: viral reproductive constant which determines how fast the virus spreads
   - Vax_Pct: Vaccination Rate of the given state on the given day.
 - **Param (Transition, Duration)**. The parameter sheet.
-  - rho: the probability of transitioning from one stage to the next.
-    1. M: infected -> symptoms
-    2. X: symptoms -> severe
-    3. G: severe -> hospitalized
-  - lambda: the mode number of days of staying in one stage before transitioning to another stage. nu: the mode uncertainty
-    1. M: stay in infected before transition
-    2. X: stay in symptoms before transition
-    3. G: stay in severe before transition
+  - in work
+- **AllParam**. the sheet that contains all parameters and allows user customization
 ## Detailed Guide to Google Drive shared folder
 - Python files:
   - data.py (read in and store all the data)
@@ -113,6 +111,8 @@ For the in-browser workflow, users will interact with 3 parts:
   - model.py (contain model functionalities)
   - sheet.py (integrate Google Sheet functionalities)
   - project.py (contains model functionalities without training)
+  - convert.py
+  - model_config.py
 - data (to acquire the latest data, click download links below):
   - [covidestim]([download link](https://covidestim.s3.us-east-2.amazonaws.com/latest/state/estimates.csv)): Estimates from the [CovidEstim project](https://covidestim.org/) about the effective reproduction number in each state over time
   - [hhs]([download link](https://healthdata.gov/api/views/g62h-syeh/rows.csv?accessType=DOWNLOAD)): Daily hospital admissions for all 50 states from [Healthdata.gov](https://healthdata.gov/)
