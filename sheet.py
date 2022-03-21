@@ -581,7 +581,6 @@ def run_sheetModel(sheetData, worksheet2, link, gc):
 	preds = tf.reduce_mean(model.call(x_test), axis=-1)
 
 
-
 	#set up
 	all_days = df.loc[warmup_start:test_end].index.values
 	warmup_days = df.loc[warmup_start:warmup_end].index.values
@@ -806,9 +805,9 @@ def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model_config_path=No
 	"""### Model Settings"""
 
 	# How long can a person take to progress?
-	transition_window = int(sheetData[31][1])
-	learning_rate = float(sheetData[32][1])
-	num_epoch = int(sheetData[33][1])
+	transition_window = int(sheetData[8][1])
+	learning_rate = float(sheetData[9][1])
+	num_epoch = int(sheetData[10][1])
 
 	#worksheet2
 	#first_column = wroksheet2.get_col()
@@ -969,41 +968,100 @@ def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model_config_path=No
 		cell.value = D_data[i]
 	worksheet.update_cells(D_list)
 
-	plt.figure(figsize=(8, 6))
-	plt.plot(df.loc[train_start:test_end].index.values, y_test['I_count'], label='ICU')
-	plt.plot(df.loc[train_start:test_end].index.values, preds[0][2], label='ICU')
-	month_ticks = matplotlib.dates.MonthLocator(interval=1)
-	ax = plt.gca()
-	ax.xaxis.set_major_locator(month_ticks)
-	plt.legend()
-	plt.title('ICU Count')
 
-	plt.figure(figsize=(8, 6))
-	plt.plot(df.loc[train_start:test_end].index.values, y_test['G_count'], )
-	plt.plot(df.loc[train_start:test_end].index.values, preds[0][0])
-	month_ticks = matplotlib.dates.MonthLocator(interval=1)
-	ax = plt.gca()
-	ax.xaxis.set_major_locator(month_ticks)
-	plt.legend()
-	plt.title('Gen Count')
+	###########
+	pred_draws = model.call(x_test)
+	numpy_draws  = pred_draws.numpy().squeeze()
+	pred_G_count = numpy_draws[0,:,:]
+	pred_G_in =  numpy_draws[1,:,:]
+	pred_I_count = numpy_draws[2,:,:]
+	pred_D_in = numpy_draws[3,:,:]
 
-	plt.figure(figsize=(8, 6))
-	plt.plot(df.loc[train_start:test_end].index.values, y_test['G_in'], )
-	plt.plot(df.loc[train_start:test_end].index.values, preds[0][1])
-	month_ticks = matplotlib.dates.MonthLocator(interval=1)
-	ax = plt.gca()
-	ax.xaxis.set_major_locator(month_ticks)
-	plt.legend()
-	plt.title('Gen Influx')
+	pred_G_count_lower, pred_G_count_mean, pred_G_count_upper = (np.percentile(pred_G_count,2.5, axis=1),
+	                                                             np.mean(pred_G_count, axis=1),
+	                                                             np.percentile(pred_G_count,97.5, axis=1))
 
-	plt.figure(figsize=(8, 6))
-	plt.plot(df.loc[train_start:test_end].index.values, y_test['D_in'], )
-	plt.plot(df.loc[train_start:test_end].index.values, preds[0][3])
+	pred_G_in_lower, pred_G_in_mean, pred_G_in_upper = (np.percentile(pred_G_in,2.5, axis=1),
+	                                                             np.mean(pred_G_in, axis=1),
+	                                                             np.percentile(pred_G_in,97.5, axis=1))
+
+	pred_I_count_lower, pred_I_count_mean, pred_I_count_upper = (np.percentile(pred_I_count,2.5, axis=1),
+	                                                             np.mean(pred_I_count, axis=1),
+	                                                             np.percentile(pred_I_count,97.5, axis=1))
+
+	pred_D_in_lower, pred_D_in_mean, pred_D_in_upper = (np.percentile(pred_D_in,2.5, axis=1),
+	                                                             np.mean(pred_D_in, axis=1),
+	                                                             np.percentile(pred_D_in,97.5, axis=1))
+
+	##########
+	plt.figure(figsize=(20, 12))
+	plt.plot(df.loc[train_start:test_end].index.values, pred_I_count_mean, label='Predicted Mean')
+	plt.plot(df.loc[train_start:test_end].index.values, y_test['I_count'], label='Data')
+	plt.fill_between(df.loc[train_start:test_end].index.values, pred_I_count_lower, pred_I_count_upper,
+	                label='95% CI', alpha=0.3)
+
+	max_y = max(max(pred_I_count_upper), max(y_test['I_count']))
+	plt.plot([df.loc[train_end:train_end].index.values, df.loc[train_end:train_end].index.values], [0,max_y],
+	         '--', color='red',linewidth=5, alpha=0.15, label='Train/Test Split')
+
 	month_ticks = matplotlib.dates.MonthLocator(interval=1)
 	ax = plt.gca()
 	ax.xaxis.set_major_locator(month_ticks)
 	plt.legend()
-	plt.title('Death Influx')
+	plt.ylabel('Patients')
+	plt.title('ICU Census')
+	#####################
+	plt.figure(figsize=(20, 12))
+	plt.plot(df.loc[train_start:test_end].index.values, pred_G_count_mean, label='Predicted Mean')
+	plt.plot(df.loc[train_start:test_end].index.values, y_test['G_count'], label='Data')
+	plt.fill_between(df.loc[train_start:test_end].index.values, pred_G_count_lower, pred_G_count_upper,
+	                label='95% CI', alpha=0.3)
+
+	max_y = max(max(pred_G_count_upper), max(y_test['G_count']))
+	plt.plot([df.loc[train_end:train_end].index.values, df.loc[train_end:train_end].index.values], [0,max_y],
+	         '--', color='red',linewidth=5, alpha=0.15, label='Train/Test Split')
+
+	month_ticks = matplotlib.dates.MonthLocator(interval=1)
+	ax = plt.gca()
+	ax.xaxis.set_major_locator(month_ticks)
+	plt.legend()
+	plt.ylabel('Patients')
+	plt.title('General Ward Census')
+	##########################3
+
+	plt.figure(figsize=(20, 12))
+	plt.plot(df.loc[train_start:test_end].index.values, pred_G_in_mean, label='Predicted Mean')
+	plt.plot(df.loc[train_start:test_end].index.values, y_test['G_in'], label='Data')
+	plt.fill_between(df.loc[train_start:test_end].index.values, pred_G_in_lower, pred_G_in_upper,
+	                label='95% CI', alpha=0.3)
+
+	max_y = max(max(pred_G_in_upper), max(y_test['G_in']))
+	plt.plot([df.loc[train_end:train_end].index.values, df.loc[train_end:train_end].index.values], [0,max_y],
+	         '--', color='red',linewidth=5, alpha=0.15, label='Train/Test Split')
+
+	month_ticks = matplotlib.dates.MonthLocator(interval=1)
+	ax = plt.gca()
+	ax.xaxis.set_major_locator(month_ticks)
+	plt.legend()
+	plt.ylabel('Patients')
+	plt.title('General Ward Daily New Patients')
+#####################
+	plt.figure(figsize=(20, 12))
+	plt.plot(df.loc[train_start:test_end].index.values, pred_D_in_mean, label='Predicted Mean')
+	plt.plot(df.loc[train_start:test_end].index.values, y_test['D_in'], label='Data')
+	plt.fill_between(df.loc[train_start:test_end].index.values, pred_D_in_lower, pred_D_in_upper,
+	                label='95% CI', alpha=0.3)
+
+	max_y = max(max(pred_D_in_upper), max(y_test['D_in']))
+	plt.plot([df.loc[train_end:train_end].index.values, df.loc[train_end:train_end].index.values], [0,max_y],
+	         '--', color='red',linewidth=5, alpha=0.15, label='Train/Test Split')
+
+	month_ticks = matplotlib.dates.MonthLocator(interval=1)
+	ax = plt.gca()
+	ax.xaxis.set_major_locator(month_ticks)
+	plt.legend()
+	plt.ylabel('Patients')
+	plt.title('Daily Deaths')
 
 	return model
 
@@ -1016,3 +1074,18 @@ def project_only(link):
 	worksheet2 = gc.open_by_url(link).get_worksheet(2)
 	model_config_path = '/content/drive/MyDrive/BayesianCovidPopulationModel/model_config.json'
 	return run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model_config_path)
+
+
+def transfer_test(link):
+	auth.authenticate_user()
+	gc = gspread.authorize(GoogleCredentials.get_application_default())
+	wb = gc.open_by_url(link)
+	wks = wb.sheet1
+	sheetData = wks.get_all_values()
+	state = sheetData[5][1]
+	state_abbrev = sheetData[6][1]
+	ratio_g, ratio_i = calculate_ratio(link, state, state_abbrev)
+	update_ratio(link, ratio_g, ratio_i)
+	load_default_data(link)
+	spreadsheet_to_json(link)
+	return project_only(link)
