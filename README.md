@@ -74,8 +74,7 @@ For the in-browser workflow, users will interact with 3 parts:
     - After finishing, a diagnostic plot of the forecasted daily hospital admissions over time (as well as other quantities) is displayed
     - Check the InfluxCountsByCompartment sheet in Google Sheet to inspect detailed values produced by the forecast and displayed in the plot. Check the Param sheet to inspect exact values of learned parameters.
    - run the seventh cell: make projections using users' own parameters or context without retraining the model
- 
-To check out the live demonstration of how to use the model, click [here](https://tufts.zoom.us/rec/play/8cnfGGrCikacz9boe7J0LJscb-l0bPEWpJ_PtjspE_FFqFDlSYpU0Q5DKTQYVKPwThy5-FCKmAJ-B0c.xYlcBrGFy_1h4fRh?startTime=1635196884000&_x_zm_rtaid=ZQh25DiZR6yOoO9LRqf2WA.1635540729327.765d58128a32b7d816120015f364ee25&_x_zm_rhtaid=195).
+
 
 ## Detailed Guide to Google Sheet
 - **Setting**. User enters necessary information in the yellow cells. The grey cells are determined by yellow cells. The yellow cells are listed below:
@@ -85,28 +84,18 @@ To check out the live demonstration of how to use the model, click [here](https:
   - Start date of Test days
   - Name of the state of interest
   - Abbreviate of the state of interest
-  - Priors(transition probability distribution of beliefs before evidence) in alpha and beta values (alpha and beta are the two parameters that determine the shape of Beta Distributions below). In beta distribution, the mode transition probability (peak of the distribution) is equal to (alpha-1)/(alpha+beta-2) for alpha, beta >1. We have transition priors for 3 stages below:
-    1. M: infected -> symptoms
-    2. X: symptoms -> severe
-    3. G: severe -> death
-  - Priors(duration probability distribution of beliefs before evidence) in (lambda, sigma), (nu, tau), which represent the paramters (mean, variance) of Normal Distribution. We use 2-parameter formulation for all duration distributions, where two values mode lamda and temperature nu determine how probability mass is spread over J days. Firstly, lambda is mode number of days until transition to the next compartment and tau is its variance. Secondly, nu is the mode uncertainty and tau is its variance. We have duration priors for 3 stages below:
-    1. M: infected -> symptoms
-    2. X: symptoms -> severe
-    3. G: severe -> death
   - transition window: maximum number of days of transitioning from one state to another
-  - T_serial: fixed serial interval between successive infections
   - learning rate: step size of each iteration in training the model.
-  - vax_asymp_risk: effective percentage of vaccines at preventing infection
-  - vax_mild_risk: effective percentage of vaccines at preventing symptomatic
-  - vax_extreme_risk: effective percentage of vaccines at preventing hospitalization
+  - transfer_ratio_GeneralWard: ratio of number of patients in General Ward at first day of training between current state and new selected state
+  - transfer_ratio_ICU: ratio of number of patients in ICU at first day of training between current state and new selected state
 - **InfluxCountsByCompartment**. The result sheet.
   - PERIOD: distinguish warmup, training, and testing period
   - TIMESTEP: 0 is the beginning of traning period and any negative timestep refers to warmup period
   - DATE
-  - NUM_TRANS_TO_INFECTED (IA): number of people become infected on the given day
-  - NUM_TRANS_TO_SYMPTOMATIC (IM): number of people become symptomatic on the given day
-  - NUM_TRANS_TO_SEVERE (IX): number of people become severely symptomatic on the given day
-  - NUM_ADMIT_TO_HOSPITAL (HG): number of people admitted to hospitals on the given day due to COVID-19
+  - general_ward_in: number of people entering general ward on the given day
+  - general_ward_count: number of people in general ward on the given day
+  - ICU_count: number of people in ICU on the given day
+  - deaths_covid: number of people died due to COVID-19 on the given day
 - **Context(Rt, Vax_Pct)**. The context sheet.
   - Rt: viral reproductive constant which determines how fast the virus spreads
   - Vax_Pct: Vaccination Rate of the given state on the given day.
