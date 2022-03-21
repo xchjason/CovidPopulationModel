@@ -48,6 +48,7 @@ For the in-browser workflow, users will interact with 3 parts:
   - Fifth Sheet: ***AllParam***
     - where all parameters are contained
   - A shared folder on Google Drive, containing: Python files defining the model itself (users should not need to edit these)
+  - model_config.json. A json file that contains all parameters.
   - CSV files defining observed data that can be used for training the model. Contains:
     - [Daily hospital admissions for all 50 states](https://healthdata.gov/api/views/g62h-syeh/rows.csv?accessType=DOWNLOAD)
     - [Daily vaccination information for all 50 states](https://data.cdc.gov/api/views/unsk-b7fc/rows.csv?accessType=DOWNLOAD)
