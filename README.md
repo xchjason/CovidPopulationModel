@@ -60,8 +60,6 @@ For the in-browser workflow, users will interact with 3 parts:
   - You should copy the template Google Sheet link is at https://docs.google.com/spreadsheets/d/130-vXn_6q8IWQUCcizFukW8fTPwt2oOPtx4w3zMNS04/edit#gid=0. You can save it as your own Google Sheet and make sure it has a sharable link.
 - Edit the Google Sheet
   - Fill in the yellow cells to specify the desired US state and training period and test period
-  - Adjust any a priori assumptions as needed
-  - Adjust any optimization settings as needed
 - Run the model by opening the Google Colab notebook in Google Drive
   - run the first cell: authorize Google Colab notebook to access the Google Drive directory
   - run the second cell: access the Google Drive directory from Google Colab notebook. (To see the location of the directory, check "Files" on the left side of the notebook)
