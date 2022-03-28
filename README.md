@@ -64,7 +64,7 @@ For the in-browser workflow, users will interact with 3 parts:
 - Prepare a shared folder in Google Drive 
   - Download all the files from this Github ( the Google Colab notebook, Google Sheet, python files, json file, data from Github and store them in the same directory in your Google Drive. Please remember the name and location of the directory in your Google Drive. You will need it when edit the second cell of the notebook.
 - Within this folder, create a  Google Sheet
-  - You should copy the template Google Sheet link is at https://docs.google.com/spreadsheets/d/1E8NoSwS7cCBYOuWp1trKhyXd3mBMQyL5FjHhGh0rOOw/edit#gid=0. You can save it as your own Google Sheet and make sure it has a sharable link.
+  - You should copy the template Google Sheet link is at https://docs.google.com/spreadsheets/d/1Yj1aTiNa_ZFFbMH1IcuFYK5c774kK_vXzsu9sbxeS2A/edit#gid=0. You can save it as your own Google Sheet and make sure it has a sharable link.
 - Edit the Google Sheet
   - Fill in the yellow cells to specify the desired US state and training period and test period
 - Run the model by opening the Google Colab notebook in Google Drive
