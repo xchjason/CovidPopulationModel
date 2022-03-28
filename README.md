@@ -42,11 +42,14 @@ For the in-browser workflow, users will interact with 3 parts:
     - where results of the daily forecast are written to (see below)
   - Third Sheet: ***Context(Rt, Vax_Pct)***
     - where default Rt(viral reproductive constant which determines how fast the virus spreads) and Vaccination Percentage of the given state are shown. Can be modified by users and project under different context.
-  - Fourth Sheet: ***Param (Transition, Duration)***
-    - where learned transition and duration parameters are shown. Can be modified by users to project under different paramters.
-    - still in work
-  - Fifth Sheet: ***AllParam***
+  - Fourth Sheet: ***AllParam***
     - where all parameters are contained
+  - Fifth Sheet: ***Durations(Vax)***
+    - where learned duration parameters for vaccinated population are shown. Can be modified by users to project under different paramters.
+  - Sixth Sheet: ***Durations(Unvax)***
+    - where learned duration parameters for unvaccinated population are shown. Can be modified by users to project under different paramters.
+  - Seventh Sheet: ***Transitions***
+    - where learned transition parameters for unvaccinated population are shown. Can be modified by users to project under different paramters.
   - A shared folder on Google Drive, containing: Python files defining the model itself (users should not need to edit these)
   - model_config.json. A json file that contains all parameters.
   - CSV files defining observed data that can be used for training the model. Contains:
@@ -65,18 +68,21 @@ For the in-browser workflow, users will interact with 3 parts:
 - Edit the Google Sheet
   - Fill in the yellow cells to specify the desired US state and training period and test period
 - Run the model by opening the Google Colab notebook in Google Drive
-  - run the first cell: authorize Google Colab notebook to access the Google Drive directory
-  - run the second cell: access the Google Drive directory from Google Colab notebook. (To see the location of the directory, check "Files" on the left side of the notebook)
-  - run the third cell: load in the model modules to the notebook
-  - run the fourth cell: enter the link of the sharable Google Sheet
-  - run the fifth cell: load the default Rt and Vaccination Rate to Google Sheet so that user can edit.
-  - run the sixth cell: train the model and make the prediction (point-wise estimate)
+  - run the 1st cell: authorize Google Colab notebook to access the Google Drive directory
+  - run the 2nd cell: access the Google Drive directory from Google Colab notebook. (To see the location of the directory, check "Files" on the left side of the notebook)
+  - run the 3rd cell: load in the model modules to the notebook
+  - run the 4th cell: enter the link of the sharable Google Sheet
+  - run the 5th cell: load the default Rt and Vaccination Rate to Google Sheet so that user can edit
+  - run the 6th cell: load in all parameters value to spreadsheet from json file
+  - run the 7th cell: train the model and make the prediction 
     - Monitor the progress and verify expected output
     - The provided example finishes in about 5-10 minutes
     - After finishing, a diagnostic plot of the forecasted daily hospital admissions over time (as well as other quantities) is displayed
     - Check the InfluxCountsByCompartment sheet in Google Sheet to inspect detailed values produced by the forecast and displayed in the plot. Check the Param sheet to inspect exact values of learned parameters.
-   - run the seventh cell: user can customize parameters in AllParam in Google Sheet and generate new json file that contains the latest customized parameters. After a new json file is generated, user can go back to run sixth cell to make projection with new parameters.
-   - run the eighth cell: enter other state in Setting in Google Sheet, the program automatically adjusts the transfer ratio and make projections for the other selected state with current learned parameters.
+   - run the 8th cell: user can customize parameters in AllParam in Google Sheet and generate new json file that contains the latest customized parameters. After a new json file is generated, user can go back to run sixth cell to make projection with new parameters
+   - run the 9th cell: enter other state in Setting in Google Sheet, the program automatically adjusts the transfer ratio and make projections for the other selected state with current learned parameters
+   - run the 10th cell: project with user-customized ratios
+   - run the 11th cell: users can change parameter values in user interface sheet (Durations(Vax), Durations(Unvax), Transitions) and sync the changed values on AllParam sheet.
 
 
 ## Detailed Guide to Google Sheet
@@ -102,9 +108,10 @@ For the in-browser workflow, users will interact with 3 parts:
 - **Context(Rt, Vax_Pct)**. The context sheet.
   - Rt: viral reproductive constant which determines how fast the virus spreads
   - Vax_Pct: Vaccination Rate of the given state on the given day.
-- **Param (Transition, Duration)**. The parameter sheet.
-  - in work
 - **AllParam**. the sheet that contains all parameters and allows user customization
+- ***Durations(Vax)***
+- ***Durations(Unvax)***
+- ***Transitions***
 ## Detailed Guide to Google Drive shared folder
 - Python files:
   - data.py (read in and store all the data)
