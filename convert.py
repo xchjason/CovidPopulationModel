@@ -12,7 +12,7 @@ def json_to_spreadsheet(link, file):
 
 	auth.authenticate_user()
 	gc = gspread.authorize(GoogleCredentials.get_application_default())
-	allparam_sheet = gc.open_by_url(link).get_worksheet(4)
+	allparam_sheet = gc.open_by_url(link).get_worksheet(3)
 
 	allparam_sheet.update_cell(2, 3, str(data['T_serial']['prior']['loc']))
 	allparam_sheet.update_cell(3, 3, str(data['T_serial']['value']['loc']))
@@ -33,15 +33,17 @@ def json_to_spreadsheet(link, file):
 	rho_stages = ['M', 'G', 'I', 'D']
 
 	for i, s in enumerate(rho_stages):
-		allparam_sheet.update_cell(13+i*2, 5, data['rho'][s]['prior']['0']['a'])
-		allparam_sheet.update_cell(14+i*2, 5, data['rho'][s]['value']['0']['loc'])
-		allparam_sheet.update_cell(13+i*2, 6, data['rho'][s]['prior']['0']['b'])
-		allparam_sheet.update_cell(14+i*2, 6, data['rho'][s]['value']['0']['scale'])
+		allparam_sheet.update_cell(13+i, 5, data['rho'][s]['prior']['0']['a'])
+		allparam_sheet.update_cell(22+i, 5, data['rho'][s]['value']['0']['loc'])
+		allparam_sheet.update_cell(13+i, 6, data['rho'][s]['prior']['0']['b'])
+		allparam_sheet.update_cell(22+i, 6, data['rho'][s]['value']['0']['scale'])
 
-		allparam_sheet.update_cell(22+i*2, 5, data['eff'][s]['prior']['1']['a'])
-		allparam_sheet.update_cell(23+i*2, 5, data['eff'][s]['value']['1']['loc'])
-		allparam_sheet.update_cell(22+i*2, 6, data['eff'][s]['prior']['1']['b'])
-		allparam_sheet.update_cell(23+i*2, 6, data['eff'][s]['value']['1']['scale'])
+		allparam_sheet.update_cell(17+i, 5, data['eff'][s]['prior']['1']['a'])
+		allparam_sheet.update_cell(26+i, 5, data['eff'][s]['value']['1']['loc'])
+		allparam_sheet.update_cell(17+i, 6, data['eff'][s]['prior']['1']['b'])
+		allparam_sheet.update_cell(26+i, 6, data['eff'][s]['value']['1']['scale'])
+
+
 
 	lambda_stages = ['M', 'G', 'I', 'I_bar', 'D', 'D_bar']
 	for i, s in enumerate(lambda_stages):
@@ -100,8 +102,8 @@ def update_ratio(link, ratio_g, ratio_i):
 	auth.authenticate_user()
 	gc = gspread.authorize(GoogleCredentials.get_application_default())
 	setting_sheet = gc.open_by_url(link).get_worksheet(0)
+	setting_sheet.update_cell(11, 2, ratio_g)
 	setting_sheet.update_cell(12, 2, ratio_g)
-	setting_sheet.update_cell(13, 2, ratio_g)
 
 def calculate_ratio(link, state, state_abbrev):
 	auth.authenticate_user()
@@ -112,7 +114,7 @@ def calculate_ratio(link, state, state_abbrev):
 	wks = wb.sheet1
 	sheetData = wks.get_all_values()
 
-	wks4 = wb.get_worksheet(4)
+	wks4 = wb.get_worksheet(3)
 	alldata = wks4.get_all_values()
 
 	train_start = (sheetData[3][2])
@@ -140,13 +142,13 @@ def spreadsheet_to_json(link):
 	auth.authenticate_user()
 	gc = gspread.authorize(GoogleCredentials.get_application_default())
 	wb = gc.open_by_url(link)
-	wks = wb.get_worksheet(4)
+	wks = wb.get_worksheet(3)
 	data = wks.get_all_values()
 
 	firstSheet = wb.sheet1
 	firstData = firstSheet.get_all_values()
-	ratio = float(firstData[11][1])
-	ratio_i = float(firstData[12][1])
+	ratio = float(firstData[10][1])
+	ratio_i = float(firstData[11][1])
 
 	jdata = {}
 	jdata['T_serial']={}
@@ -159,34 +161,20 @@ def spreadsheet_to_json(link):
 	jdata['epsilon']['prior'] = {'a': data[8][2], 'b': data[8][3]}
 	jdata['epsilon']['value'] = {'loc': data[10][2], 'scale': data[10][3]}
 
-	jdata['rho']={}
-	jdata['rho']['M']={}
-	jdata['rho']['M']['prior'] = {'0': {'a': data[12][4], 'b': data[12][5]},'1': {'a': data[13][4], 'b': data[13][5]}}
-	jdata['rho']['M']['value'] = {'0': {'loc': data[21][4], 'scale': data[21][5]},'1': {'loc': data[22][4], 'scale': data[22][5]}}
-	jdata['rho']['G'] = {}
-	jdata['rho']['G']['prior'] = {'0': {'a': data[14][4], 'b': data[14][5]},'1': {'a': data[15][4], 'b': data[15][5]}}
-	jdata['rho']['G']['value'] = {'0': {'loc': data[23][4], 'scale': data[23][5]},'1': {'loc': data[24][4], 'scale': data[24][5]}}
-	jdata['rho']['I'] = {}
-	jdata['rho']['I']['prior'] = {'0': {'a': data[16][4], 'b': data[16][5]},'1': {'a': data[17][4], 'b': data[17][5]}}
-	jdata['rho']['I']['value'] = {'0': {'loc': data[25][4], 'scale': data[25][5]},'1': {'loc': data[26][4], 'scale': data[26][5]}}
-	jdata['rho']['D'] = {}
-	jdata['rho']['D']['prior'] = {'0': {'a': data[18][4], 'b': data[18][5]},'1': {'a': data[19][4], 'b': data[19][5]}}
-	jdata['rho']['D']['value'] = {'0': {'loc': data[27][4], 'scale': data[27][5]},'1': {'loc': data[28][4], 'scale': data[28][5]}}
-
 
 	rho_stages = ['M', 'G', 'I', 'D']
 	jdata['rho']={}
 	for i, s in enumerate(rho_stages):
 		jdata['rho'][s] = {}
-		jdata['rho'][s]['prior'] =  {'0': {'a': data[12+i*2][4], 'b': data[12+i*2][5]}}
-		jdata['rho'][s]['value'] =  {'0': {'loc': data[13+i*2][4], 'scale': data[13+i*2][5]}}	
+		jdata['rho'][s]['prior'] =  {'0': {'a': data[12+i][4], 'b': data[12+i][5]}}
+		jdata['rho'][s]['value'] =  {'0': {'loc': data[21+i][4], 'scale': data[21+i][5]}}	
 
 	eff_stages = ['M', 'G', 'I', 'D']
 	jdata['eff']={}
 	for i, s in enumerate(eff_stages):
 		jdata['eff'][s] = {}
-		jdata['eff'][s]['prior'] =  {'1': {'a': data[21+i*2][4], 'b': data[21+i*2][5]}}
-		jdata['eff'][s]['value'] =  {'1': {'loc': data[22+i*2][4], 'scale': data[22+i*2][5]}}	
+		jdata['eff'][s]['prior'] =  {'1': {'a': data[16+i][4], 'b': data[16+i][5]}}
+		jdata['eff'][s]['value'] =  {'1': {'loc': data[25+i][4], 'scale': data[25+i][5]}}	
 
 	lambda_stages = ['M', 'G', 'I', 'I_bar', 'D', 'D_bar']
 	jdata['lambda']={}

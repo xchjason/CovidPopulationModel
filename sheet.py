@@ -1093,3 +1093,30 @@ def customized_test(link):
 	spreadsheet_to_json(link)
 	return project_only(link)
 
+def update_allparam(link):
+	auth.authenticate_user()
+	gc = gspread.authorize(GoogleCredentials.get_application_default())
+	wks_allparam = gc.open_by_url(link).get_worksheet(3)
+	data_dur_vax = gc.open_by_url(link).get_worksheet(4).get_all_values()
+	data_dur_unvax = gc.open_by_url(link).get_worksheet(5).get_all_values()
+	data_trans = gc.open_by_url(link).get_worksheet(6).get_all_values()
+
+	for i in range(5):
+		#unvax lambda
+		wks_allparam.update_cell(33 + 4 * i, 5, data_dur_unvax[4 + i][4])
+		wks_allparam.update_cell(33 + 4 * i, 6, data_dur_unvax[4 + i][5])
+		#unvax nu
+		wks_allparam.update_cell(58 + 4 * i, 5, data_dur_unvax[4 + i][7])
+		wks_allparam.update_cell(58 + 4 * i, 6, data_dur_unvax[4 + i][8])
+
+		#vax lambda
+		wks_allparam.update_cell(34 + 4 * i, 5, data_dur_vax[4 + i][4])
+		wks_allparam.update_cell(34 + 4 * i, 6, data_dur_vax[4 + i][5])
+		#vax nu
+		wks_allparam.update_cell(59 + 4 * i, 5, data_dur_vax[4 + i][7])
+		wks_allparam.update_cell(59 + 4 * i, 6, data_dur_vax[4 + i][8])
+
+	for i in range(4):
+		wks_allparam.update_cell(22 + i, 5, data_trans[1 + i][1])
+
+	print("AllParam has been updated --> ready for spreadsheet_to_json")
