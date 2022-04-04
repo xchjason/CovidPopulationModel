@@ -88,6 +88,7 @@ For the in-browser workflow, users will interact with 3 parts:
    - run the 11th cell: users can change parameter values in user interface sheet (Durations(Vax), Durations(Unvax), Transitions) and sync the changed values on AllParam sheet.
 
 
+
 ## Detailed Guide to Google Sheet
 - **Setting**. User enters necessary information in the yellow cells. The grey cells are determined by yellow cells. The yellow cells are listed below:
   - Number of Warmup days
@@ -112,9 +113,9 @@ For the in-browser workflow, users will interact with 3 parts:
   - Rt: viral reproductive constant which determines how fast the virus spreads
   - Vax_Pct: Vaccination Rate of the given state on the given day.
 - **AllParam**. the sheet that contains all parameters and allows user customization
-- ***Durations(Vax)***
-- ***Durations(Unvax)***
-- ***Transitions***
+- ***Durations(Vax)***. the user-friendly sheet that contains all duration parameters for vaccinated people and allows user customization
+- ***Durations(Unvax)***. the user-friendly sheet that contains all duration parameters for unvaccinated people and allows user customization
+- ***Transitions***. the user-friendly sheet that contains all transitions parameters for unvaccinated people and allows user customization
 ## Detailed Guide to Google Drive shared folder
 - Python files:
   - data.py (read in and store all the data)
