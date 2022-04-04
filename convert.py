@@ -5,13 +5,16 @@ from model_config import replace_keys
 from data import read_data, create_warmup
 import gspread
 from oauth2client.client import GoogleCredentials
+from google.auth import default
 
 def json_to_spreadsheet(link, file):
 	with open(file, 'r') as openfile:
 	    data = json.load(openfile)
 
 	auth.authenticate_user()
-	gc = gspread.authorize(GoogleCredentials.get_application_default())
+	#gc = gspread.authorize(GoogleCredentials.get_application_default())
+	creds, _ = default()
+	gc = gspread.authorize(creds)
 	allparam_sheet = gc.open_by_url(link).get_worksheet(3)
 
 	allparam_sheet.update_cell(2, 3, str(data['T_serial']['prior']['loc']))
@@ -100,15 +103,18 @@ def json_to_spreadsheet(link, file):
 
 def update_ratio(link, ratio_g, ratio_i):
 	auth.authenticate_user()
-	gc = gspread.authorize(GoogleCredentials.get_application_default())
+	#gc = gspread.authorize(GoogleCredentials.get_application_default())
+	creds, _ = default()
+	gc = gspread.authorize(creds)
 	setting_sheet = gc.open_by_url(link).get_worksheet(0)
 	setting_sheet.update_cell(11, 2, ratio_g)
 	setting_sheet.update_cell(12, 2, ratio_g)
 
 def calculate_ratio(link, state, state_abbrev):
 	auth.authenticate_user()
-	gc = gspread.authorize(GoogleCredentials.get_application_default())
-
+	#gc = gspread.authorize(GoogleCredentials.get_application_default())
+	creds, _ = default()
+	gc = gspread.authorize(creds)
 	#read in the date setting
 	wb = gc.open_by_url(link)
 	wks = wb.sheet1
@@ -140,7 +146,9 @@ def calculate_ratio(link, state, state_abbrev):
 
 def spreadsheet_to_json(link):
 	auth.authenticate_user()
-	gc = gspread.authorize(GoogleCredentials.get_application_default())
+	#gc = gspread.authorize(GoogleCredentials.get_application_default())
+	creds, _ = default()
+	gc = gspread.authorize(creds)
 	wb = gc.open_by_url(link)
 	wks = wb.get_worksheet(3)
 	data = wks.get_all_values()

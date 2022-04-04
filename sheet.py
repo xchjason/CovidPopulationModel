@@ -29,6 +29,7 @@ plt.rcParams.update({'font.size': 20}) # set plot font sizes
 from google.colab import auth
 import gspread
 from oauth2client.client import GoogleCredentials
+from google.auth import default
 
 
 def convert_date(date_str):
@@ -55,7 +56,9 @@ def read_sheet_link():
 
 def load_default_data(link):
   auth.authenticate_user()
-  gc = gspread.authorize(GoogleCredentials.get_application_default())
+  #gc = gspread.authorize(GoogleCredentials.get_application_default())
+  creds, _ = default()
+  gc = gspread.authorize(creds)
 
   #read in the date setting
   wb = gc.open_by_url(link)
@@ -773,8 +776,9 @@ def run_sheetModel(sheetData, worksheet2, link, gc):
 
 def train_and_project(link):
   auth.authenticate_user()
-  gc = gspread.authorize(GoogleCredentials.get_application_default())
-
+  #gc = gspread.authorize(GoogleCredentials.get_application_default())
+  creds, _ = default()
+  gc = gspread.authorize(creds)
   #worksheet = gc.open('CovidModelSheet').sheet1
   wb = gc.open_by_url(link)
   worksheet = wb.sheet1
@@ -1066,7 +1070,9 @@ def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model_config_path=No
 
 def project_only(link):
 	auth.authenticate_user()
-	gc = gspread.authorize(GoogleCredentials.get_application_default())
+	#gc = gspread.authorize(GoogleCredentials.get_application_default())
+	creds, _ = default()
+	gc = gspread.authorize(creds)
 	wb = gc.open_by_url(link)
 	wks = wb.sheet1
 	sheetData = wks.get_all_values()
@@ -1077,7 +1083,9 @@ def project_only(link):
 
 def transfer_test(link):
 	auth.authenticate_user()
-	gc = gspread.authorize(GoogleCredentials.get_application_default())
+	#gc = gspread.authorize(GoogleCredentials.get_application_default())
+	creds, _ = default()
+	gc = gspread.authorize(creds)
 	wb = gc.open_by_url(link)
 	wks = wb.sheet1
 	sheetData = wks.get_all_values()
@@ -1086,16 +1094,20 @@ def transfer_test(link):
 	ratio_g, ratio_i = calculate_ratio(link, state, state_abbrev)
 	update_ratio(link, ratio_g, ratio_i)
 	load_default_data(link)
+	#option for Rt
 	spreadsheet_to_json(link)
 	return project_only(link)
 
 def customized_test(link):
 	spreadsheet_to_json(link)
+	#just show the ratio,
 	return project_only(link)
 
 def update_allparam(link):
 	auth.authenticate_user()
-	gc = gspread.authorize(GoogleCredentials.get_application_default())
+	#gc = gspread.authorize(GoogleCredentials.get_application_default())
+	creds, _ = default()
+	gc = gspread.authorize(creds)
 	wks_allparam = gc.open_by_url(link).get_worksheet(3)
 	data_dur_vax = gc.open_by_url(link).get_worksheet(4).get_all_values()
 	data_dur_unvax = gc.open_by_url(link).get_worksheet(5).get_all_values()
