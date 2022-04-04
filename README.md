@@ -59,7 +59,7 @@ For the in-browser workflow, users will interact with 3 parts:
 - A cloud notebook in Google Colab:
   - Executing this notebook is what “runs” the model and ultimately produces the forecast that is written to the shared spreadsheet 
 - 3 different cloud notebooks in Google Colab that serve 3 different functions:
-  - Basic: make projection with given json file
+  - Basic: make projection for the given state with given json file, which is trained for the given state
   - Transfer: make projection with auto adjusted transfer ratio (transfer ratio: a ratio needed to address the difference in initial count to hospitals of different states) of a selected state that is different from the original state
   - Customize: make projection with customized parameters
 
