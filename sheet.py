@@ -1080,6 +1080,29 @@ def project_only(link):
 	model_config_path = '/content/drive/MyDrive/BayesianCovidPopulationModel/model_config.json'
 	return run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model_config_path)
 
+def transfer_suggestion(link):
+	auth.authenticate_user()
+	#gc = gspread.authorize(GoogleCredentials.get_application_default())
+	creds, _ = default()
+	gc = gspread.authorize(creds)
+	wb = gc.open_by_url(link)
+	wks = wb.sheet1
+	sheetData = wks.get_all_values()
+	state = sheetData[5][1]
+	state_abbrev = sheetData[6][1]
+	ratio_g, ratio_i = calculate_ratio(link, state, state_abbrev)
+	print("Your selected state: ", state)
+	print("recommended ratio for general ward: ", ratio_g)
+	print("recommended ratio for ICU: ", ratio_i)
+
+	to_update = input("Do you want to update with recommended ratios for your selected state (Y/N): ")
+	if (to_update == 'Y'):
+		update_ratio(link, ratio_g, ratio_i)
+		print("Ratios updated!")
+	elif (to_update == 'N'):
+		print("Ratios not updated!")
+	else:
+		print("Invalid input!")
 
 def transfer_test(link):
 	auth.authenticate_user()
