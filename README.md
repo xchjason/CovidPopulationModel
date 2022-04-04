@@ -58,7 +58,10 @@ For the in-browser workflow, users will interact with 3 parts:
     - [Estimates from the CovidEstim project](https://covidestim.s3.us-east-2.amazonaws.com/latest/state/estimates.csv) about the effective reproduction number in each state over time
 - A cloud notebook in Google Colab:
   - Executing this notebook is what “runs” the model and ultimately produces the forecast that is written to the shared spreadsheet 
-
+- 3 different cloud notebooks in Google Colab that serve 3 different functions:
+  - Basic: make projection with given json file
+  - Transfer: make projection with auto adjusted transfer ratio (transfer ratio: a ratio needed to address the difference in initial count to hospitals of different states) of a selected state that is different from the original state
+  - Customize: make projection with customized parameters
 
 ## Step-by-Step Guide to Producing your own forecasts 
 - Prepare a shared folder in Google Drive 
