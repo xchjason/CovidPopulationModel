@@ -106,17 +106,14 @@ For the in-browser workflow, users will interact with 3 parts (Google Sheet, Goo
   - run the 5th cell: load the default Rt and Vaccination Rate to Google Sheet so that user can edit
   - run the 6th cell: load in all parameters value to spreadsheet from json file
   - run the 7th cell: users can transfer if they want to project with the displayed transfer ratio
-  - run the 8th cell: update AllParam sheet with the customized values in user customization sheets.
+  - users can change parameter values in user interface sheet (Durations(Vax), Durations(Unvax), Transitions)
+  - run the 8th cell: update AllParam sheet with the customized values in user customization sheets
   - run the 9th cell: generate a new json file from the customized AllParam sheet
   - run the 10th cell: train the model and make the prediction 
     - Monitor the progress and verify expected output
     - The provided example finishes in about 5-10 minutes
     - After finishing, a diagnostic plot of the forecasted daily hospital admissions over time (as well as other quantities) is displayed
     - Check the InfluxCountsByCompartment sheet in Google Sheet to inspect detailed values produced by the forecast and displayed in the plot. Check the Param sheet to inspect exact values of learned parameters.
-   - run the 8th cell: user can customize parameters in AllParam in Google Sheet and generate new json file that contains the latest customized parameters. After a new json file is generated, user can go back to run sixth cell to make projection with new parameters
-   - run the 9th cell: enter other state in Setting in Google Sheet, the program automatically adjusts the transfer ratio and make projections for the other selected state with current learned parameters
-   - run the 10th cell: project with user-customized ratios
-   - run the 11th cell: users can change parameter values in user interface sheet (Durations(Vax), Durations(Unvax), Transitions) and sync the changed values on AllParam sheet.
 
 ## Detailed Guide to Google Sheet
 - **Setting**. User enters necessary information in the yellow cells. The grey cells are determined by yellow cells. The yellow cells are listed below:
