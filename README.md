@@ -72,6 +72,7 @@ For the in-browser workflow, users will interact with 3 parts (Google Sheet, Goo
   - Fill in the yellow cells to specify the desired US state and training period and test period
 - Run the model by opening the Google Colab notebook in Google Drive. There are 3 notebooks to choose from and the directions are as followed:
 ### Model_Notebook(Basic).ipynb (does the basic projection with given parameters)
+![](image/basic.png)
   - run the 1st cell: authorize Google Colab notebook to access the Google Drive directory
   - run the 2nd cell: access the Google Drive directory from Google Colab notebook. (To see the location of the directory, check "Files" on the left side of the notebook)
   - run the 3rd cell: load in the model modules to the notebook
@@ -85,6 +86,7 @@ For the in-browser workflow, users will interact with 3 parts (Google Sheet, Goo
     - Check the InfluxCountsByCompartment sheet in Google Sheet to inspect detailed values produced by the forecast and displayed in the plot. Check the Param sheet to inspect exact values of learned parameters.
 
 ### Model_Notebook(Transfer).ipynb (use the given parameters of a state to make projection on a different state)
+![](image/transfer.png)
   - run the 1st cell: authorize Google Colab notebook to access the Google Drive directory
   - run the 2nd cell: access the Google Drive directory from Google Colab notebook. (To see the location of the directory, check "Files" on the left side of the notebook)
   - run the 3rd cell: load in the model modules to the notebook
@@ -99,6 +101,7 @@ For the in-browser workflow, users will interact with 3 parts (Google Sheet, Goo
     - Check the InfluxCountsByCompartment sheet in Google Sheet to inspect detailed values produced by the forecast and displayed in the plot. Check the Param sheet to inspect exact values of learned parameters.
     - 
 ### Model_Notebook(Customize).ipynb (users have maximum flexibility to customize parameters and make their own projections)
+![](image/customize.png)
   - run the 1st cell: authorize Google Colab notebook to access the Google Drive directory
   - run the 2nd cell: access the Google Drive directory from Google Colab notebook. (To see the location of the directory, check "Files" on the left side of the notebook)
   - run the 3rd cell: load in the model modules to the notebook
