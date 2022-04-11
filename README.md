@@ -158,7 +158,10 @@ For the in-browser workflow, users will interact with 3 parts (Google Sheet, Goo
   - [owid]([download link](https://data.cdc.gov/api/views/unsk-b7fc/rows.csv?accessType=DOWNLOAD)): Daily vaccination information for all 50 states from [Centers for Disease Control and Prevention](https://www.cdc.gov/)
 
 ## Google Colab
-This is where an user accesses and runs the model. Detailed instructions are shown in the notebook. 
+This is where an user accesses and runs the model. Detailed instructions are shown in the 3 notebooks which serve 3 different functions:
+  - Basic: make projection for the given state with given json file, which is trained for the given state
+  - Transfer: make projection with auto adjusted transfer ratio (transfer ratio: a ratio needed to address the difference in initial count to hospitals of different states) of a selected state that is different from the original state
+  - Customize: make projection with customized parameters
 
 ## File Management
 To use the model, it's important to understand the interactions among different kinds of files on different platforms. For users to manage multiple json files and try to rerun the model, here are some key tips:
