@@ -1,5 +1,4 @@
 # Covid Population Model
-**NEW SPREADSHEET FOR TOTAL COUNT MODEL**: https://docs.google.com/spreadsheets/d/1Yj1aTiNa_ZFFbMH1IcuFYK5c774kK_vXzsu9sbxeS2A/edit#gid=0
 
 This repository contains code for a preliminary version of the Tufts Susceptible-to-Hospital Forecasting Model for COVID-19. This mechanistic probabilistic model describes how COVID-19 might spread in the broader population of a target region and produce daily hospital admissions, general ward population counts, ICU counts, and death counts due to COVID-19. A key feature of the model is that it can account for vaccination and its impact on disease spread and need for hospital resources.
 
