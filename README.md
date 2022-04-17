@@ -48,7 +48,7 @@ For the in-browser workflow, users will interact with 3 parts (Google Sheet, Goo
   - Sixth Sheet: ***Durations(Unvax)***
     - where learned duration parameters for unvaccinated population are shown. Can be modified by users to project under different paramters.
   - Seventh Sheet: ***Transitions***
-    - where learned transition parameters for unvaccinated population are shown. Can be modified by users to project under different paramters.
+    - where learned transition parameters for unvaccinated and vaccinated population are shown. Can be modified by users to project under different paramters.
   - A shared folder on Google Drive, containing: Python files defining the model itself (users should not need to edit these)
   - model_config.json. A json file that contains all parameters.
   - CSV files defining observed data that can be used for training the model. Contains:
@@ -141,7 +141,7 @@ For the in-browser workflow, users will interact with 3 parts (Google Sheet, Goo
 - **AllParam**. the sheet that contains all parameters and allows user customization
 - ***Durations(Vax)***. the user-friendly sheet that contains all duration parameters for vaccinated people and allows user customization. Lambda is mode number of days until transition to the next compartment and tau is its variance. Secondly, nu is the mode uncertainty and tau is its variance. 
 - ***Durations(Unvax)***. the user-friendly sheet that contains all duration parameters for unvaccinated people and allows user customization. Lambda is mode number of days until transition to the next compartment and tau is its variance. Secondly, nu is the mode uncertainty and tau is its variance.
-- ***Transitions***. the user-friendly sheet that contains all transitions parameters for unvaccinated people and allows user customization
+- ***Transitions***. the user-friendly sheet that contains all transitions parameters for unvaccinated and vaccinated people and allows user customization
 ## Detailed Guide to Google Drive shared folder
 - Python files:
   - data.py (read in and store all the data)
