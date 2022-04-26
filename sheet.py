@@ -1153,6 +1153,6 @@ def update_allparam(link):
 
 	for i in range(4):
 		wks_allparam.update_cell(22 + i, 5, data_trans[1 + i][1])
-		wks_allparam.update_cell(26 + i, 5, data_trans[4 + i][3])
+		wks_allparam.update_cell(26 + i, 5, data_trans[1 + i][3])
 
 	print("AllParam has been updated --> ready for spreadsheet_to_json")
