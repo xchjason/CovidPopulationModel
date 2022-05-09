@@ -580,6 +580,9 @@ def basic_project():
 	json_to_spreadsheet(link, "model_config.json")
 	return project_only(link)
 
+def softplus_np(x): 
+	return np.log1p(np.exp(-np.abs(x))) + np.maximum(x, 0)
+
 def transfer_project():
 	link = read_sheet_link()
 	load_default_data(link)
@@ -652,7 +655,8 @@ def transfer_suggestion(link):
 	trained_state_abbrev = us_state_to_abbrev[trained_state]
 
 	ratio_g, ratio_i = calculate_ratio(link, trained_state, trained_state_abbrev)
-	print("Your selected state: ", state)
+	print("Your target state: ", state)
+	print("Your trained state: ", trained_state)
 	print("recommended ratio for general ward: ", ratio_g)
 	print("recommended ratio for ICU: ", ratio_i)
 

@@ -107,8 +107,14 @@ def update_ratio(link, ratio_g, ratio_i):
 	creds, _ = default()
 	gc = gspread.authorize(creds)
 	setting_sheet = gc.open_by_url(link).get_worksheet(0)
-	setting_sheet.update_cell(11, 2, ratio_g)
-	setting_sheet.update_cell(12, 2, ratio_g)
+	setting_sheet.update_cell(9, 2, ratio_g)
+	setting_sheet.update_cell(10, 2, ratio_g)
+
+def softplus_np(x): 
+	return np.log1p(np.exp(-np.abs(x))) + np.maximum(x, 0)
+
+def softplus_inv(x): 
+	return np.log(np.expm1(x))
 
 def calculate_ratio(link, state, state_abbrev):
 	auth.authenticate_user()
@@ -138,9 +144,8 @@ def calculate_ratio(link, state, state_abbrev):
 	             owid_date=owid_date,
 	             state=state, state_abbrev=state_abbrev)
 
-	ratio_g = df['general_ward_count'][train_start]/(float(alldata[82][4])+float(alldata[83][4]))
-	ratio_i = df['icu_count'][train_start]/(float(alldata[86][4])+float(alldata[87][4]))
-
+	ratio_g = df['general_ward_count'][train_start]/(softplus_np(100 * float(alldata[82][4]))+ softplus_np(100 * float(alldata[83][4])))
+	ratio_i = df['icu_count'][train_start]/(softplus_np(100 * float(alldata[86][4]))+ softplus_np(100 * float(alldata[87][4])))
 	return ratio_g, ratio_i
 
 
@@ -155,8 +160,8 @@ def spreadsheet_to_json(link):
 
 	firstSheet = wb.sheet1
 	firstData = firstSheet.get_all_values()
-	ratio = float(firstData[10][1])
-	ratio_i = float(firstData[11][1])
+	ratio = float(firstData[8][1])
+	ratio_i = float(firstData[9][1])
 
 	jdata = {}
 	jdata['T_serial']={}
@@ -213,25 +218,27 @@ def spreadsheet_to_json(link):
 	for i, s in enumerate(warmup_stages):
 		jdata['warmup'][s] = {}
 		jdata['warmup'][s]['prior'] =  {'0': {'slope': data[89+i*4][4], 'intercept': data[89+i*4][5],'scale': data[89+i*4][6]},'1': {'slope': data[90+i*4][4], 'intercept': data[90+i*4][5],'scale': data[90+i*4][6]}}
-		jdata['warmup'][s]['value'] =  {'0': {'slope': data[91+i*4][4], 'intercept': float(data[91+i*4][5]) * ratio,'scale': data[91+i*4][6]},'1': {'slope': data[92+i*4][4], 'intercept': float(data[92+i*4][5]) * ratio,'scale': data[92+i*4][6]}}
+		jdata['warmup'][s]['value'] =  {'0': {'slope': data[91+i*4][4], 'intercept': softplus_inv((softplus_np(100 * float(data[91+i*4][5])) * ratio)/100),'scale': data[91+i*4][6]},'1': {'slope': data[92+i*4][4], 'intercept': softplus_inv((softplus_np(100 * float(data[92+i*4][5])) * ratio)/100),'scale': data[92+i*4][6]}}
 	#jdata['warmup']['mean_transform'] = 'scale_100_softplus'
+
+	#softplus_inv((softplus_np(100 * float(data[83+i*4][4])) * ratio)/100)
 
 	init_count_stages = ['G', 'I']
 	jdata['init_count'] = {}
 	for i, s in enumerate(init_count_stages):
 		jdata['init_count'][s] = {}
 		jdata['init_count'][s]['prior'] =  {'0': {'loc': data[80+i*4][4], 'scale': data[80+i*4][5]},'1': {'loc': data[81+i*4][4], 'scale': data[81+i*4][5]}}
-		jdata['init_count'][s]['value'] =  {'0': {'loc': float(data[82+i*4][4]) * ratio, 'scale': data[82+i*4][5]},'1': {'loc': float(data[83+i*4][4]) * ratio, 'scale': data[83+i*4][5]}}
+		jdata['init_count'][s]['value'] =  {'0': {'loc': softplus_inv((softplus_np(100 * float(data[82+i*4][4])) * ratio)/100), 'scale': data[82+i*4][5]},'1': {'loc': softplus_inv((softplus_np(100 * float(data[83+i*4][4])) * ratio)/100), 'scale': data[83+i*4][5]}}
 	#jdata['warmup']['mean_transform'] = 'scale_100_softplus'
 
-	jdata['init_count']['I']['value']['0']['loc'] = float(data[86][4]) * ratio_i
-	jdata['init_count']['I']['value']['1']['loc'] = float(data[87][4]) * ratio_i
+	jdata['init_count']['I']['value']['0']['loc'] = softplus_inv((softplus_np(100 * float(data[86][4])) * ratio_i)/100)
+	jdata['init_count']['I']['value']['1']['loc'] = softplus_inv((softplus_np(100 * float(data[87][4])) * ratio_i)/100)
 
-	jdata['warmup']['I']['value']['0']['intercept'] = float(data[107][5]) * ratio_i
-	jdata['warmup']['I']['value']['1']['intercept'] = float(data[108][5]) * ratio_i
+	jdata['warmup']['I']['value']['0']['intercept'] = softplus_inv((softplus_np(100 * float(data[107][5])) * ratio_i)/100)
+	jdata['warmup']['I']['value']['1']['intercept'] = softplus_inv((softplus_np(100 * float(data[108][5])) * ratio_i)/100)
 
-	jdata['warmup']['IR']['value']['0']['intercept'] = float(data[111][5]) * ratio_i
-	jdata['warmup']['IR']['value']['1']['intercept'] = float(data[112][5]) * ratio_i
+	jdata['warmup']['IR']['value']['0']['intercept'] = softplus_inv((softplus_np(100 * float(data[111][5])) * ratio_i)/100)
+	jdata['warmup']['IR']['value']['1']['intercept'] = softplus_inv((softplus_np(100 * float(data[112][5])) * ratio_i)/100)
 
 	jdata = replace_keys(jdata, str, from_tensor=True)
 
