@@ -116,15 +116,13 @@ For the in-browser workflow, users will interact with 3 parts (Google Sheet, Goo
     - Check the InfluxCountsByCompartment sheet in Google Sheet to inspect detailed values produced by the forecast and displayed in the plot. Check the Param sheet to inspect exact values of learned parameters.
 
 ## Detailed Guide to Google Sheet
-- **Setting**. User enters necessary information in the yellow cells. The grey cells are determined by yellow cells. The yellow cells are listed below:
+- **Setting**. User enters necessary information in the green cells. The grey cells are determined by yellow cells. The yellow cells are listed below:
   - Number of Warmup days
   - Number of Train days
-  - Number of Test days
+  - Number of Projection days
   - Start date of Test days
   - Name of the state of interest
-  - Abbreviate of the state of interest
-  - transition window: maximum number of days of transitioning from one state to another
-  - learning rate: step size of each iteration in training the model.
+  - Name of trained state
   - transfer_ratio_GeneralWard: ratio of number of patients in General Ward at first day of training between current state and new selected state
   - transfer_ratio_ICU: ratio of number of patients in ICU at first day of training between current state and new selected state
 - **InfluxCountsByCompartment**. The result sheet.
