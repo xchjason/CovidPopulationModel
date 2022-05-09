@@ -580,9 +580,6 @@ def basic_project():
 	json_to_spreadsheet(link, "model_config.json")
 	return project_only(link)
 
-def softplus_np(x): 
-	return np.log1p(np.exp(-np.abs(x))) + np.maximum(x, 0)
-
 def transfer_project():
 	link = read_sheet_link()
 	load_default_data(link)
@@ -652,9 +649,9 @@ def transfer_suggestion(link):
 
 	state = sheetData[5][1]
 	trained_state = sheetData[6][1]
-	trained_state_abbrev = us_state_to_abbrev[trained_state]
+	state_abbrev = us_state_to_abbrev[state]
 
-	ratio_g, ratio_i = calculate_ratio(link, trained_state, trained_state_abbrev)
+	ratio_g, ratio_i = calculate_ratio(link, state, state_abbrev)
 	print("Your target state: ", state)
 	print("Your trained state: ", trained_state)
 	print("recommended ratio for general ward: ", ratio_g)
@@ -731,9 +728,9 @@ def transfer_test(link):
 		"Wyoming": "WY",
 	}
 
-	trained_state = sheetData[6][1]
-	trained_state_abbrev = us_state_to_abbrev[trained_state]
-	ratio_g, ratio_i = calculate_ratio(link, trained_state, trained_state_abbrev)
+	state = sheetData[5][1]
+	state_abbrev = us_state_to_abbrev[trained_state]
+	ratio_g, ratio_i = calculate_ratio(link, state, state_abbrev)
 	update_ratio(link, ratio_g, ratio_i)
 	load_default_data(link)
 	#option for Rt
