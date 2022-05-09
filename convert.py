@@ -162,12 +162,17 @@ def spreadsheet_to_json(link):
 	jdata['T_serial']={}
 	jdata['T_serial']['prior'] = {'loc': data[1][2], 'scale': data[1][3]}
 	jdata['T_serial']['value'] = {'loc': data[2][2], 'scale': data[2][3]}
+	#jdata['T_serial']['mean_transform'] = 'softplus'
+
 	jdata['delta'] = {}
 	jdata['delta']['prior'] = {'a': data[4][2], 'b': data[4][3]}
 	jdata['delta']['value'] = {'loc': data[6][2], 'scale': data[6][3]}
+	#jdata['delta']['mean_transform'] = 'sigmoid'
+
 	jdata['epsilon'] = {}
 	jdata['epsilon']['prior'] = {'a': data[8][2], 'b': data[8][3]}
 	jdata['epsilon']['value'] = {'loc': data[10][2], 'scale': data[10][3]}
+	#jdata['epsilon']['mean_transform'] = 'sigmoid'
 
 
 	rho_stages = ['M', 'G', 'I', 'D']
@@ -176,6 +181,8 @@ def spreadsheet_to_json(link):
 		jdata['rho'][s] = {}
 		jdata['rho'][s]['prior'] =  {'0': {'a': data[12+i][4], 'b': data[12+i][5]}}
 		jdata['rho'][s]['value'] =  {'0': {'loc': data[21+i][4], 'scale': data[21+i][5]}}	
+	#jdata['rho']['mean_transform'] = 'sigmoid'
+
 
 	eff_stages = ['M', 'G', 'I', 'D']
 	jdata['eff']={}
@@ -183,6 +190,7 @@ def spreadsheet_to_json(link):
 		jdata['eff'][s] = {}
 		jdata['eff'][s]['prior'] =  {'1': {'a': data[16+i][4], 'b': data[16+i][5]}}
 		jdata['eff'][s]['value'] =  {'1': {'loc': data[25+i][4], 'scale': data[25+i][5]}}	
+	#jdata['eff']['mean_transform'] = 'sigmoid'
 
 	lambda_stages = ['M', 'G', 'I', 'I_bar', 'D', 'D_bar']
 	jdata['lambda']={}
@@ -190,6 +198,7 @@ def spreadsheet_to_json(link):
 		jdata['lambda'][s] = {}
 		jdata['lambda'][s]['prior'] =  {'0': {'loc': data[30+i*4][4], 'scale': data[30+i*4][5]},'1': {'loc': data[31+i*4][4], 'scale': data[31+i*4][5]}}
 		jdata['lambda'][s]['value'] =  {'0': {'loc': data[32+i*4][4], 'scale': data[32+i*4][5]},'1': {'loc': data[33+i*4][4], 'scale': data[33+i*4][5]}}
+	#jdata['lambda']['mean_transform'] = 'softplus'
 
 	nu_stages = ['M', 'G', 'I', 'I_bar', 'D', 'D_bar']
 	jdata['nu'] = {}
@@ -197,6 +206,7 @@ def spreadsheet_to_json(link):
 		jdata['nu'][s] = {}
 		jdata['nu'][s]['prior'] =  {'0': {'loc': data[55+i*4][4], 'scale': data[55+i*4][5]},'1': {'loc': data[56+i*4][4], 'scale': data[56+i*4][5]}}
 		jdata['nu'][s]['value'] =  {'0': {'loc': data[57+i*4][4], 'scale': data[57+i*4][5]},'1': {'loc': data[58+i*4][4], 'scale': data[58+i*4][5]}}
+	#jdata['nu']['mean_transform'] = 'softplus'
 
 	warmup_stages = ['A', 'M', 'G', 'GR', 'I', 'IR']
 	jdata['warmup'] = {}
@@ -204,6 +214,7 @@ def spreadsheet_to_json(link):
 		jdata['warmup'][s] = {}
 		jdata['warmup'][s]['prior'] =  {'0': {'slope': data[89+i*4][4], 'intercept': data[89+i*4][5],'scale': data[89+i*4][6]},'1': {'slope': data[90+i*4][4], 'intercept': data[90+i*4][5],'scale': data[90+i*4][6]}}
 		jdata['warmup'][s]['value'] =  {'0': {'slope': data[91+i*4][4], 'intercept': float(data[91+i*4][5]) * ratio,'scale': data[91+i*4][6]},'1': {'slope': data[92+i*4][4], 'intercept': float(data[92+i*4][5]) * ratio,'scale': data[92+i*4][6]}}
+	#jdata['warmup']['mean_transform'] = 'scale_100_softplus'
 
 	init_count_stages = ['G', 'I']
 	jdata['init_count'] = {}
@@ -211,7 +222,7 @@ def spreadsheet_to_json(link):
 		jdata['init_count'][s] = {}
 		jdata['init_count'][s]['prior'] =  {'0': {'loc': data[80+i*4][4], 'scale': data[80+i*4][5]},'1': {'loc': data[81+i*4][4], 'scale': data[81+i*4][5]}}
 		jdata['init_count'][s]['value'] =  {'0': {'loc': float(data[82+i*4][4]) * ratio, 'scale': data[82+i*4][5]},'1': {'loc': float(data[83+i*4][4]) * ratio, 'scale': data[83+i*4][5]}}
-
+	#jdata['warmup']['mean_transform'] = 'scale_100_softplus'
 
 	jdata['init_count']['I']['value']['0']['loc'] = float(data[86][4]) * ratio_i
 	jdata['init_count']['I']['value']['1']['loc'] = float(data[87][4]) * ratio_i
