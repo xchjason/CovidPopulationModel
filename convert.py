@@ -6,6 +6,8 @@ from data import read_data, create_warmup
 import gspread
 from oauth2client.client import GoogleCredentials
 from google.auth import default
+import tensorflow as tf
+import tensorflow_probability as tfp
 
 def json_to_spreadsheet(link, file):
 	with open(file, 'r') as openfile:
@@ -108,13 +110,14 @@ def update_ratio(link, ratio_g, ratio_i):
 	gc = gspread.authorize(creds)
 	setting_sheet = gc.open_by_url(link).get_worksheet(0)
 	setting_sheet.update_cell(9, 2, ratio_g)
-	setting_sheet.update_cell(10, 2, ratio_g)
+	setting_sheet.update_cell(10, 2, ratio_i)
 
 def softplus_np(x): 
 	return np.log1p(np.exp(-np.abs(x))) + np.maximum(x, 0)
 
 def softplus_inv(x): 
-	return np.log(np.expm1(x))
+	type_float = tf.constant(x, tf.float32)
+	return tfp.math.softplus_inverse(type_float).numpy().tolist()
 
 def calculate_ratio(link, state, state_abbrev):
 	auth.authenticate_user()
@@ -146,7 +149,7 @@ def calculate_ratio(link, state, state_abbrev):
 
 	ratio_g = df['general_ward_count'][train_start]/(softplus_np(100 * float(alldata[82][4]))+ softplus_np(100 * float(alldata[83][4])))
 	ratio_i = df['icu_count'][train_start]/(softplus_np(100 * float(alldata[86][4]))+ softplus_np(100 * float(alldata[87][4])))
-	return ratio_g, ratio_i
+	return ratio_g, ratio_g
 
 
 def spreadsheet_to_json(link):
@@ -239,6 +242,7 @@ def spreadsheet_to_json(link):
 
 	jdata['warmup']['IR']['value']['0']['intercept'] = softplus_inv(softplus_np(100 * float(data[111][5])) * ratio_i)/100
 	jdata['warmup']['IR']['value']['1']['intercept'] = softplus_inv(softplus_np(100 * float(data[112][5])) * ratio_i)/100
+
 
 	jdata = replace_keys(jdata, str, from_tensor=True)
 
