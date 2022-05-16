@@ -729,7 +729,7 @@ def transfer_test(link):
 	}
 
 	state = sheetData[5][1]
-	state_abbrev = us_state_to_abbrev[trained_state]
+	state_abbrev = us_state_to_abbrev[state]
 	ratio_g, ratio_i = calculate_ratio(link, state, state_abbrev)
 	update_ratio(link, ratio_g, ratio_i)
 	load_default_data(link)
