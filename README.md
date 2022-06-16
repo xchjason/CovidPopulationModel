@@ -1,3 +1,22 @@
+# Contents
+- 1	COVID Population Model	
+- 2	Preparing the model – Steps you must take once	
+  - 2A – No local installation – Using Google applications	
+     - 2A.1 – Activate Google utilities	
+     - 2A.2 – Create a Google folder	
+  - 2B – No Google utilities – Local installation instead	
+- 3	Running the model	
+  - 3.1	Selecting an assumption set	
+    - 3.1.1  If the training region dropdown list does contain the target region	
+    - 3.1.2  If the training region dropdown list does not contain the target region	
+    - 3.1.3  Selecting the training period	
+  - 3.2	Adjusting assumption set values	
+  - 3.3	Running the model	
+    - 3.3.1  Model mode 1 – Training and target regions the same	
+    - 3.3.2  Model mode 2 – Training and target regions differ, user leaves assumptions unchanged	
+    - 3.3.3  Model use mode 3 – User modifies assumptions	
+
+
 # 1 Covid Population Model
 This repository contains the Tufts Susceptible-to-Hospital Forecasting Model for COVID-19. This mechanistic probabilistic model projects how 
 - COVID prevalence in the general population may change over time; 
