@@ -353,7 +353,7 @@ def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model_config_path=No
 	                   config, posterior_samples=1000,
 	                   debug_disable_theta=False, fix_variance=False)
 
-	preds=tf.reduce_mean(model.call(x_test), axis=-1)
+	#preds=tf.reduce_mean(model.call(x_test), axis=-1)
 	#set up
 	all_days = df.loc[warmup_start:test_end].index.values
 	warmup_days = df.loc[warmup_start:warmup_end].index.values
@@ -380,7 +380,7 @@ def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model_config_path=No
 		cell.value = ''
 	worksheet.update_cells(clear_list)
 	#set up top row (period, timestep, date, ANY_to_HG)
-	cell_list = worksheet.range('A1:G1')
+	cell_list = worksheet.range('A1:O1')
 	cell_list[0].value = 'PERIOD'
 	cell_list[1].value = 'TIMESTEP'
 	cell_list[2].value = 'DATE'
@@ -388,6 +388,15 @@ def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model_config_path=No
 	cell_list[4].value = 'general_ward_count'
 	cell_list[5].value = 'ICU_count'
 	cell_list[6].value = 'deaths_covid'
+	cell_list[7].value = 'general_ward_in_low'
+	cell_list[8].value = 'general_ward_in_high'
+	cell_list[9].value = 'general_ward_count_low'
+	cell_list[10].value = 'general_ward_count_high'
+	cell_list[11].value = 'ICU_count_low'
+	cell_list[12].value = 'ICU_count_high'
+	cell_list[13].value = 'deaths_covid_low'
+	cell_list[14].value = 'deaths_covid_high'
+
 	worksheet.update_cells(cell_list)
 
 	#Set the period column
@@ -430,42 +439,6 @@ def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model_config_path=No
 		cell.value = all_days[i]
 	worksheet.update_cells(date_list)
 
-	#G_in
-	G_in_data = preds[0][1].numpy().tolist()
-	#G_in_range = 'D2' + ':D' + end_timestep
-	G_in_range = 'D' + start_train + ':D' + end_timestep
-	G_in_list = worksheet.range(G_in_range)
-	for i, cell in enumerate(G_in_list):
-		cell.value = G_in_data[i]
-	worksheet.update_cells(G_in_list)
-
-	#G_count
-	G_count_data = preds[0][0].numpy().tolist()
-	#G_count_range = 'E2' + ':E' + end_timestep
-	G_count_range = 'E' + start_train + ':E' + end_timestep
-	G_count_list = worksheet.range(G_count_range)
-	for i, cell in enumerate(G_count_list):
-		cell.value = G_count_data[i]
-	worksheet.update_cells(G_count_list)
-
-	#I_count
-	I_count_data = preds[0][2].numpy().tolist()
-	#I_count_range = 'F2' + ':F' + end_timestep
-	I_count_range = 'F' + start_train + ':F' + end_timestep
-	I_count_list = worksheet.range(I_count_range)
-	for i, cell in enumerate(I_count_list):
-		cell.value = I_count_data[i]
-	worksheet.update_cells(I_count_list)
-
-	#Death
-	D_data = preds[0][3].numpy().tolist()
-	D_range = 'G' + start_train + ':G' + end_timestep
-	D_list = worksheet.range(D_range)
-	for i, cell in enumerate(D_list):
-		cell.value = D_data[i]
-	worksheet.update_cells(D_list)
-
-
 	###########
 	pred_draws = model.call(x_test)
 	numpy_draws  = pred_draws.numpy().squeeze()
@@ -489,6 +462,111 @@ def run_sheetModel_noTrain(sheetData, worksheet2, link, gc, model_config_path=No
 	pred_D_in_lower, pred_D_in_mean, pred_D_in_upper = (np.percentile(pred_D_in,2.5, axis=1),
 	                                                             np.mean(pred_D_in, axis=1),
 	                                                             np.percentile(pred_D_in,97.5, axis=1))
+
+
+	#G_in
+	G_in_data = pred_G_in_mean.tolist()
+	#G_in_range = 'D2' + ':D' + end_timestep
+	G_in_range = 'D' + start_train + ':D' + end_timestep
+	G_in_list = worksheet.range(G_in_range)
+	for i, cell in enumerate(G_in_list):
+		cell.value = G_in_data[i]
+	worksheet.update_cells(G_in_list)
+
+	#G_count
+	G_count_data = pred_G_count_mean.tolist()
+	#G_count_range = 'E2' + ':E' + end_timestep
+	G_count_range = 'E' + start_train + ':E' + end_timestep
+	G_count_list = worksheet.range(G_count_range)
+	for i, cell in enumerate(G_count_list):
+		cell.value = G_count_data[i]
+	worksheet.update_cells(G_count_list)
+
+	#I_count
+	I_count_data = pred_I_count_mean.tolist()
+	#I_count_range = 'F2' + ':F' + end_timestep
+	I_count_range = 'F' + start_train + ':F' + end_timestep
+	I_count_list = worksheet.range(I_count_range)
+	for i, cell in enumerate(I_count_list):
+		cell.value = I_count_data[i]
+	worksheet.update_cells(I_count_list)
+
+	#Death
+	D_data = pred_D_in_mean.tolist()
+	D_range = 'G' + start_train + ':G' + end_timestep
+	D_list = worksheet.range(D_range)
+	for i, cell in enumerate(D_list):
+		cell.value = D_data[i]
+	worksheet.update_cells(D_list)
+
+	#G_in_low
+	G_in_data = pred_G_in_lower.tolist()
+	G_in_range = 'H' + start_train + ':H' + end_timestep
+	G_in_list = worksheet.range(G_in_range)
+	for i, cell in enumerate(G_in_list):
+		cell.value = G_in_data[i]
+	worksheet.update_cells(G_in_list)
+
+	#G_in_high
+	G_in_data = pred_G_in_upper.tolist()
+	G_in_range = 'I' + start_train + ':I' + end_timestep
+	G_in_list = worksheet.range(G_in_range)
+	for i, cell in enumerate(G_in_list):
+		cell.value = G_in_data[i]
+	worksheet.update_cells(G_in_list)
+
+
+	#G_count_low
+	G_count_data = pred_G_count_lower.tolist()
+	G_count_range = 'J' + start_train + ':J' + end_timestep
+	G_count_list = worksheet.range(G_count_range)
+	for i, cell in enumerate(G_count_list):
+		cell.value = G_count_data[i]
+	worksheet.update_cells(G_count_list)
+
+	#G_count_high
+	G_count_data = pred_G_count_upper.tolist()
+	G_count_range = 'K' + start_train + ':K' + end_timestep
+	G_count_list = worksheet.range(G_count_range)
+	for i, cell in enumerate(G_count_list):
+		cell.value = G_count_data[i]
+	worksheet.update_cells(G_count_list)
+
+
+	#I_count_low
+	I_count_data = pred_I_count_lower.tolist()
+	#I_count_range = 'F2' + ':F' + end_timestep
+	I_count_range = 'L' + start_train + ':L' + end_timestep
+	I_count_list = worksheet.range(I_count_range)
+	for i, cell in enumerate(I_count_list):
+		cell.value = I_count_data[i]
+	worksheet.update_cells(I_count_list)
+
+
+	#I_count_high
+	I_count_data = pred_I_count_upper.tolist()
+	#I_count_range = 'F2' + ':F' + end_timestep
+	I_count_range = 'M' + start_train + ':M' + end_timestep
+	I_count_list = worksheet.range(I_count_range)
+	for i, cell in enumerate(I_count_list):
+		cell.value = I_count_data[i]
+	worksheet.update_cells(I_count_list)
+
+
+	#Death
+	D_data = pred_D_in_lower.tolist()
+	D_range = 'N' + start_train + ':N' + end_timestep
+	D_list = worksheet.range(D_range)
+	for i, cell in enumerate(D_list):
+		cell.value = D_data[i]
+	worksheet.update_cells(D_list)
+
+	D_data = pred_D_in_upper.tolist()
+	D_range = 'O' + start_train + ':O' + end_timestep
+	D_list = worksheet.range(D_range)
+	for i, cell in enumerate(D_list):
+		cell.value = D_data[i]
+	worksheet.update_cells(D_list)
 
 	##########
 	plt.figure(figsize=(20, 12))
