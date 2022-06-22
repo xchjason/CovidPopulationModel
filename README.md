@@ -155,6 +155,7 @@ As you execute each step, a green checkmark should appear to the left of each se
 3.3.1  Model mode 1 – Training and target regions the same
  
 ![](image/Picture5.png)
+  
 Open the BASIC COLAB notebook:
 - Navigate to the Google drive folder created for this simulation (Section 2A.2).
 - Click on the BASIC COLAB notebook (named “Model_Notebook(Basic).ipynb”).
