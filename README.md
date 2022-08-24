@@ -40,14 +40,14 @@ Users have two options for setting up the model.  They can avoid installing soft
 - ***No local installation*** – users control the model using three Google cloud-based tools: google Sheets, Google Drive, and Google Collaboratory.  The model reports results to a Google workbook.
 - ***No Google utilities*** – users use the Anaconda environment and install software on their own computer.  The model reports results to an Excel spreadsheet.  We are currently developing this option.
 
-# 2A – No local installation – Using Google applications
+## 2A – No local installation – Using Google applications
 Running the model requires:
 - A Google spreadsheet workbook referred to as the “control workbook”;
 - One of three Google COLAB notebooks, depending on what model features the user wishes to control; and
 - Simulation code.
 This section describes how to activate the Google utilities needed to install and run the model (Section 2A.1) and how to create and populate a folder with the required files and software (Section 2A.2).  Section 3 describes how to alter model control features and run the model.
 
-2A.1 – Activate Google utilities
+### 2A.1 – Activate Google utilities
 - The Google Chrome browser (available [here](https://www.google.com/chrome/downloads/))
 - A Google Drive account
   - see [here](https://edu.gcfglobal.org/en/googledriveanddocs/getting-started-with-google-drive/1/) for instructions to set one up.
@@ -61,30 +61,30 @@ This section describes how to activate the Google utilities needed to install an
   - lick on the “Colaboratory” application that appears.
   - Click on the blue INSTALL button.
 
-2A.2 – Create a Google folder
+### 2A.2 – Create a Google folder
 
-Step 2A.2.1 – Create a Google folder (see instructions, [here](https://support.google.com/drive/answer/2375091?hl=en&co=GENIE.Platform%3DDesktop)).  Name this folder BayesianCovidPopulationModel.
+#### Step 2A.2.1 – Create a Google folder (see instructions, [here](https://support.google.com/drive/answer/2375091?hl=en&co=GENIE.Platform%3DDesktop)).  Name this folder BayesianCovidPopulationModel.
 
-Step 2A.2.2 – Download the contents of the Github page located [here](https://github.com/xchjason/CovidPopulationModel).  To do so, click on the green CODE button in the upper right corner of the page and select DOWNLOAD ZIP from the dropdown menu.
+#### Step 2A.2.2 – Download the contents of the Github page located [here](https://github.com/xchjason/CovidPopulationModel).  To do so, click on the green CODE button in the upper right corner of the page and select DOWNLOAD ZIP from the dropdown menu.
 ![](image/Picture1.png)
 
-Step 2A.2.3 – Unzip the downloaded contents.  On a Windows computer, find the downloaded Zip file, right click on it, and select EXTRACT ALL.  Note the location of the folder created and containing the contents downloaded from the Github page.
+#### Step 2A.2.3 – Unzip the downloaded contents.  On a Windows computer, find the downloaded Zip file, right click on it, and select EXTRACT ALL.  Note the location of the folder created and containing the contents downloaded from the Github page.
 
-Step 2A.2.4 – Upload the material downloaded in Steps 2A.2.2 and 2A.2.3 to the Google folder created in Step 2A.2.1 (BayesianCovidPopulationModel).
+#### Step 2A.2.4 – Upload the material downloaded in Steps 2A.2.2 and 2A.2.3 to the Google folder created in Step 2A.2.1 (BayesianCovidPopulationModel).
 - Within your internet browser, go to https://drive.google.com/drive/my-drive.  
 - Find the folder created in Step 2A.2.1 (BayesianCovidPopulationModel) and double click on it.
 - At the left, click on the “+ New” button.
 - Select FOLDER UPLOAD.
 - A file browser window will open.  Navigate to the folder on your computer created in Step 2A.2.3.  Select the folder.  Click on “upload” when prompted.
 
-Step 2A.2.5 – Move the contents in the uploaded folder to the top level of the folder created in Step 2A.2.1.  
+#### Step 2A.2.5 – Move the contents in the uploaded folder to the top level of the folder created in Step 2A.2.1.  
 - Open the folder created in Step 2A.2.1 (BayesianCovidPopulationModel).  You will see a single folder.  Open that folder.  Continue to open folders until you get to a list of folders and files that resembles the figure at right. 
 - Select all items in this folder by (1) clicking on the first item, (2) holding down the shift key, and (3) clicking on the final item in this list.  All items should now be highlighted.
 - Move the items by (1) right clicking and selecting MOVE TO, (2) navigating to the folder created in Step 2A.2.1, and (3) clicking on the blue MOVE HERE button.
 
 ![](image/Picture2.png)
 
-Step 2A.2.6 – Create your own copy of the Google workbook that has the model parameter values that control the simulation.
+#### Step 2A.2.6 – Create your own copy of the Google workbook that has the model parameter values that control the simulation.
 - Open the Google workbook template by clicking [here](https://docs.google.com/spreadsheets/d/1yKfBId3RnJPFW8fEbuwKIlywTwTheDuLhGyqb0DESXU/edit#gid=0); 
 - Select the FILE dropdown menu and then select MAKE A COPY; 
 - In the NAME box, enter a name that is meaningful to you; 
