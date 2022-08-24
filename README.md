@@ -126,12 +126,10 @@ Running the Tufts COVID model involves:
 
 - Optionally adjusting any of these parameters.
 
-Procedures for running the model depend on (1) whether the training region and target region differ, and (2) whether you wish to modify any of the parameters the model identifies:
-
-
-- Selecting a model “assumption set” that represents a geographic region and a historic period.  
-- Optionally adjusting assumption set values.
-- Running the model to project the number of COVID patients in the hospital general ward, in the intensive care unit, and the number who die.
+Procedures for running the model depend on (1) whether the training region and target region differ, and (2) whether you wish to modify any of the parameters the model identifies.  There are three model modes:
+- Mode 1 (Section 3.1 - below): Training region and target region **are the same**, with no user revision of the assumptions.
+- Mode 2 (Section 3.2 - below): Training region and target region **differ**, with no user revision of the assumptions.
+- Mode 3 (Section 3.3 - below): Training region and target region are the same or differ, and the user **does** revise assumptions.
 
 ## 3.1	Selecting an assumption set
 
@@ -166,10 +164,7 @@ After selecting an assumption set (Section 3.1), you can alter its values by edi
 
 ## 3.3	Running the model
 
-There are three model modes:
-- Mode 1 (Section 3.3.1 - below): Training region and target region **are the same**, with no change to any of the assumption set values.
-- Mode 2 (Section 3.3.2 - below): Training region and target region **differ**, and use of the assumption set values (Section 3.2) without any user-specified revisions.
-- Mode 3 (Section 3.3.3 - below): Training region and target region are the same or differ, and use of the assumption set values (Section 3.2), with or without user-specified revisions.
+
 
 For any of these modes, specify a **projection period**, i.e., a range of dates for which the model will project the number of individuals who develop symptomatic COVID, the number requiring care in the hospital general ward, the number requiring ICU care, and the number dying from COVID.  To specify the projection period:
 - Go to the Settings sheet in the workbook created in step 2A.2.6.
