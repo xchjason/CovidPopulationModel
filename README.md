@@ -167,8 +167,6 @@ As you execute each step, a green checkmark should appear to the left of each se
 
 In this case, the model warehouse contains an assumption set calibrated (i.e., “trained”) using data from the region to be simulated (the target region).  
 
-![](image/Picture5.png)
-  
 #### 3.3.1.1 Open control workbook 
 - See file created in Step 2A.2.6.  
 - Select and open the SETTINGS sheet.
