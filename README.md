@@ -87,7 +87,7 @@ This section describes how to activate the Google utilities needed to install an
 - Select all items in this folder by (1) clicking on the first item, (2) holding down the shift key, and (3) clicking on the final item in this list.  All items should now be highlighted.
 - Move the items by (1) right clicking and selecting MOVE TO, (2) navigating to the folder created in Step 2A.2.1, and (3) clicking on the blue MOVE HERE button.
 
-<img src="image/Picture2.png" width="200">
+<img src="image/Picture2.png" width="500">
 
 #### Step 2A.2.6 – Create your own copy of the Google workbook that has the model parameter values that control the simulation.
 - Open the Google workbook template by clicking [here](https://docs.google.com/spreadsheets/d/1yKfBId3RnJPFW8fEbuwKIlywTwTheDuLhGyqb0DESXU/edit#gid=0); 
