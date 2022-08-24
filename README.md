@@ -123,16 +123,6 @@ To specify an assumption set, open the control workbook and navigate to the SETT
 
 - The target region – i.e., the region you are interested in simulating.
 
-### 3.1.1  If the training region dropdown list DOES contain the target region
-In this case, the model warehouse contains an assumption set calibrated (i.e., “trained”) using data from the region to be simulated (the target region).  
-- Navigate to the control workbook and click on it to open.
-- Select and open the SETTINGS sheet.
-  - Select the **training region** - i.e., the region serving as the source of the empirical COVID population and hospital utilization data used to calibrate the model assumptions.
-  - Specify the  **training period** – i.e., the time period for the empirical COVID population and hospital utilization data used to calibrate the model assumptions (see Section 3.1.3 for more detail).
-  - Select the target region from both the training dropdown list and from the target region dropdown list.
-  - Set the general ward and intensive care transfer ratios 1.0.  These constants scale the training region general ward and ICU patient projections to produce corresponding estimates for the target region.  When the training and target ratios are the same, these ratios should be 1.0 because no scaling of these values is necessary.
-  - Set the date range for the PROJECTION PERIOD.
-
 ### 3.1.2  If the training region dropdown list does NOT contain the target region
 In this case, the model warehouse does not contain an assumption set calibrated using data from the region to be simulated (the target region).
 
@@ -174,17 +164,24 @@ As you execute each step, a green checkmark should appear to the left of each se
 ![](image/Picture4.png)
   
 ### 3.3.1  Model mode 1 – Training and target regions the same
- 
+
+In this case, the model warehouse contains an assumption set calibrated (i.e., “trained”) using data from the region to be simulated (the target region).  
+
 ![](image/Picture5.png)
   
-Open the BASIC COLAB notebook:
+Open and set the control workbook created in Step 2A.2.6.  Select and open the SETTINGS sheet.
+
+- Select the **training region** - i.e., the region serving as the source of the empirical COVID population and hospital utilization data used to calibrate the model assumptions.
+- Specify the  **training period** – i.e., the time period for the empirical COVID population and hospital utilization data used to calibrate the model assumptions (see Section 3.1.3 for more detail).
+- Select the target region from both the training dropdown list and from the target region dropdown list.
+- Set the general ward and intensive care transfer ratios 1.0.  These constants scale the training region general ward and ICU patient projections to produce corresponding estimates for the target region.  When the training and target ratios are the same, these ratios should be 1.0 because no scaling of these values is necessary.
+  - Set the date range for the PROJECTION PERIOD.
+
+Run the simulation.  Open the BASIC COLAB notebook:
 - Navigate to the Google drive folder created for this simulation (Section 2A.2).
 - Click on the BASIC COLAB notebook (named “Model_Notebook(Basic).ipynb”).
 - Click on the OPEN IN COLAB button at the top of the notebook. 
 
-
-Run the simulation:
-  
 - A.	Execute BASIC COLAB code segment #1 (“Grant Access to User Google Drive”).
   
 - B.	Execute BASIC COLAB code segment #2 (“Go to Simulation Folder”).  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
