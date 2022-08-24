@@ -14,7 +14,7 @@
   - 3.3	Running the model	
     - 3.3.1  Model mode 1 – Training and target regions the same	
     - 3.3.2  Model mode 2 – Training and target regions differ, user leaves assumptions unchanged	
-    - 3.3.3  Model use mode 3 – User modifies assumptions	
+    - 3.3.3  Model mode 3 – User modifies assumptions	
 
 
 # 1 Covid Population Model
@@ -48,7 +48,7 @@ Running the model requires:
 This section describes how to activate the Google utilities needed to install and run the model (Section 2A.1) and how to create and populate a folder with the required files and software (Section 2A.2).  Section 3 describes how to alter model control features and run the model.
 
 2A.1 – Activate Google utilities
-- The Google Chrome browser (available here)
+- The Google Chrome browser (available here - https://www.google.com/chrome/downloads/)
 - A Google Drive account (see here for instructions to set one up; and see here for more information on managing your Google Drive account).
 - The Google Colaboratory application.  
   - From within your browser go to Google Drive (here); 
@@ -60,6 +60,7 @@ This section describes how to activate the Google utilities needed to install an
   - Click on the blue INSTALL button.
 
 2A.2 – Create a Google folder
+
 Step 2A.2.1 – Create a Google folder (see instructions, here).  Name this folder BayesianCovidPopulationModel.
 
 Step 2A.2.2 – Download the contents of the Github page located here.  To do so, click on the green CODE button in the upper right corner of the page and select DOWNLOAD ZIP from the dropdown menu.
