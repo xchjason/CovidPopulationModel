@@ -177,11 +177,12 @@ Open and set the control workbook created in Step 2A.2.6.  Select and open the S
 - Set the general ward and intensive care transfer ratios 1.0.  These constants scale the training region general ward and ICU patient projections to produce corresponding estimates for the target region.  When the training and target ratios are the same, these ratios should be 1.0 because no scaling of these values is necessary.
   - Set the date range for the PROJECTION PERIOD.
 
-Run the simulation.  Open the BASIC COLAB notebook:
+Open the BASIC COLAB notebook:
 - Navigate to the Google drive folder created for this simulation (Section 2A.2).
 - Click on the BASIC COLAB notebook (named “Model_Notebook(Basic).ipynb”).
 - Click on the OPEN IN COLAB button at the top of the notebook. 
 
+Run the simulation:
 - A.	Execute BASIC COLAB code segment #1 (“Grant Access to User Google Drive”).
   
 - B.	Execute BASIC COLAB code segment #2 (“Go to Simulation Folder”).  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
