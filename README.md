@@ -50,7 +50,7 @@ This section describes how to activate the Google utilities needed to install an
 2A.1 – Activate Google utilities
 - The Google Chrome browser (available [here](https://www.google.com/chrome/downloads/))
 - A Google Drive account
-  - see [here](https://edu.gcfglobal.org/en/googledriveanddocs/getting-started-with-google-drive/1/) - for instructions to set one up.
+  - see [here](https://edu.gcfglobal.org/en/googledriveanddocs/getting-started-with-google-drive/1/) for instructions to set one up.
   - see [here](https://edu.gcfglobal.org/en/googledriveanddocs/) for more information on managing your Google Drive account.
 - The Google Colaboratory application.  
   - From within your browser go to Google Drive ([here](https://drive.google.com/drive/); 
