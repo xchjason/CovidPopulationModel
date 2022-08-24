@@ -169,12 +169,13 @@ In this case, the model warehouse contains an assumption set calibrated (i.e., â
 
 ![](image/Picture5.png)
   
-Open and set the control workbook created in Step 2A.2.6.  Select and open the SETTINGS sheet.
-
+Open control workbook 
+- See file created in Step 2A.2.6.  
+- Select and open the SETTINGS sheet.
 - Select the **training region** - i.e., the region serving as the source of the empirical COVID population and hospital utilization data used to calibrate the model assumptions.
 - Specify the  **training period** â€“ i.e., the time period for the empirical COVID population and hospital utilization data used to calibrate the model assumptions (see Section 3.1.3 for more detail).
-- Select the target region from both the training dropdown list and from the target region dropdown list.
-- Set the general ward and intensive care transfer ratios 1.0.  These constants scale the training region general ward and ICU patient projections to produce corresponding estimates for the target region.  When the training and target ratios are the same, these ratios should be 1.0 because no scaling of these values is necessary.
+- Select the **target region** from both the training dropdown list and from the target region dropdown list.
+- Set the **transfer ratios** to 1.0 for general ward and intensive care.  These constants scale the training region general ward and ICU patient projections to produce corresponding estimates for the target region.  When the training and target ratios are the same, these ratios should be 1.0 because no scaling of these values is necessary.
   - Set the date range for the PROJECTION PERIOD.
 
 Open the BASIC COLAB notebook:
