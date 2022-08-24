@@ -67,7 +67,7 @@ This section describes how to activate the Google utilities needed to install an
 - Name this folder BayesianCovidPopulationModel.
 
 TEST
-<img src="image/Picture1.png" width="200">
+<img src="image/Picture1.png" width="200" center>
 
 
 
