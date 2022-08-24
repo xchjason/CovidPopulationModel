@@ -69,8 +69,10 @@ This section describes how to activate the Google utilities needed to install an
 #### Step 2A.2.2 – Download the contents of the Github page located [here](https://github.com/xchjason/CovidPopulationModel).  
 - To do so, click on the green CODE button in the upper right corner of the page and select DOWNLOAD ZIP from the dropdown menu.
 
+<p align="center">
 <img src="image/Picture1.png" width="600">
-
+</p>
+  
 #### Step 2A.2.3 – Unzip the downloaded contents.  
 - On a Windows computer, find the downloaded Zip file, right click on it, and select EXTRACT ALL.  
 - Note the location of the folder created and containing the contents downloaded from the Github page.
@@ -87,16 +89,20 @@ This section describes how to activate the Google utilities needed to install an
 - Select all items in this folder by (1) clicking on the first item, (2) holding down the shift key, and (3) clicking on the final item in this list.  All items should now be highlighted.
 - Move the items by (1) right clicking and selecting MOVE TO, (2) navigating to the folder created in Step 2A.2.1, and (3) clicking on the blue MOVE HERE button.
 
+<p align="center">
 <img src="image/Picture2.png" width="400">
-
+</p>
+  
 #### Step 2A.2.6 – Create your own copy of the Google workbook that has the model parameter values that control the simulation.
 - Open the Google workbook template by clicking [here](https://docs.google.com/spreadsheets/d/1yKfBId3RnJPFW8fEbuwKIlywTwTheDuLhGyqb0DESXU/edit#gid=0); 
 - Select the FILE dropdown menu and then select MAKE A COPY; 
 - In the NAME box, enter a name that is meaningful to you; 
 - In the folder box, double-click on the “My Drive” folder and navigate your way to the Google folder created in Step 2A.2.1.
-- 
-<img src="image/Picture3.png" width="250"> 
 
+<p align="center">
+<img src="image/Picture3.png" width="250"> 
+</p>
+  
 ## 2B – No Google utilities – Local installation instead
 To be done.
 
