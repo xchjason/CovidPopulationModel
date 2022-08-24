@@ -120,21 +120,26 @@ Assumptions specified in each assumption set include:
 - Probability distributions that quantify the proportion of patients in each state who progress to a more severe health state; and
 - COVID reproductive value that represents the rate each day at which the number of individuals in the population infected with COVID is increasing or decreasing.
 To specify an assumption set, open the control workbook and navigate to the SETTINGS sheet.  Then specify:
-- The training region and training period – i.e., the region and time period defining the source of the empirical COVID population and hospital utilization data used to calibrate the model assumptions.
+
 - The target region – i.e., the region you are interested in simulating.
 
-### 3.1.1  If the training region dropdown list does contain the target region
+### 3.1.1  If the training region dropdown list DOES contain the target region
 In this case, the model warehouse contains an assumption set calibrated (i.e., “trained”) using data from the region to be simulated (the target region).  
-- Select the target region from both the training dropdown list and from the target region dropdown list.
-- Set the general ward and intensive care transfer ratios 1.0.  These constants scale the training region general ward and ICU patient projections to produce corresponding estimates for the target region.  When the training and target ratios are the same, these ratios should be 1.0 because no scaling of these values is necessary.
+- Navigate to the control workbook and click on it to open.
+- Select and open the SETTINGS sheet.
+  - Select the **training region** - i.e., the region serving as the source of the empirical COVID population and hospital utilization data used to calibrate the model assumptions.
+  - Specify the  **training period** – i.e., the time period for the empirical COVID population and hospital utilization data used to calibrate the model assumptions (see Section 3.1.3 for more detail).
+  - Select the target region from both the training dropdown list and from the target region dropdown list.
+  - Set the general ward and intensive care transfer ratios 1.0.  These constants scale the training region general ward and ICU patient projections to produce corresponding estimates for the target region.  When the training and target ratios are the same, these ratios should be 1.0 because no scaling of these values is necessary.
+  - Set the date range for the PROJECTION PERIOD.
 
-### 3.1.2  If the training region dropdown list does not contain the target region
+### 3.1.2  If the training region dropdown list does NOT contain the target region
 In this case, the model warehouse does not contain an assumption set calibrated using data from the region to be simulated (the target region).
 
 - Select a training region proxy.  For example, if the target region is Vermont and the training region dropdown list does not contain Vermont, you might select a nearby state that does appear in the training region dropdown list (such as Massachusetts).
 - The control workbook will recommend transfer ratios for the general ward and intensive care unit.  You can adjust these values to help the model produce projections that best match empirical observations.
 
-### 3.1.3  Selecting the training period
+### 3.1.3  More on selecting the training period
 Select a training period that is most representative of the period for which you wish to make projections.  For example, to make projections for autumn of 2021, you might select a training period of late summer 2021 because the delta variant was prevalent throughout both of these periods, hence making late summer 2021 reasonably representative of conditions encountered in fall 2021.  
 If an assumption set with an appropriate training period is not available for the selected training region, it might make sense to prioritize appropriateness of the training period over matching the training and target regions.  For example, suppose you wish to make projections for Vermont during the summer of 2022, when Omicron was prevalent.  You can choose either of these assumption sets:
 - Assumption set 1 – Training region is Vermont, and training period is May-July, 2021.
@@ -176,14 +181,7 @@ Open the BASIC COLAB notebook:
 - Navigate to the Google drive folder created for this simulation (Section 2A.2).
 - Click on the BASIC COLAB notebook (named “Model_Notebook(Basic).ipynb”).
 - Click on the OPEN IN COLAB button at the top of the notebook. 
-Open the control workbook:
-- Navigate to the control workbook and click on it to open.
-- Select and open the SETTINGS sheet.  
-- Specify the region and dates for which the simulation will make COVID projections.  
-  - Go to the control workbook and select the SETTINGS sheet.  
-  - Set the training and target regions to the same location (e.g., set both to “Massachusetts”).  
-  - Set both transfer ratios to 1.0.  
-  - Set the date range for the PROJECTION PERIOD.
+
 
 Run the simulation:
   
