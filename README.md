@@ -155,18 +155,19 @@ There are three model modes:
 - Mode 2: Training region and target region differ, and use of the assumption set values (Section 3.2) without any user-specified revisions.
 - Mode 3: Training region and target region are the same or differ, and use of the assumption set values (Section 3.2), with or without user-specified revisions.
 
-![](image/Picture4.png)
-
-Specifying the projection period
-
-For any of these modes, specify a projection period, i.e., a range of dates for which the model will project the number of individuals who develop symptomatic COVID, the number requiring care in the hospital general ward, the number requiring ICU care, and the number dying from COVID.  To specify the projection period, <<TO BE FILLED IN>>
+For any of these modes, specify a **projection period**, i.e., a range of dates for which the model will project the number of individuals who develop symptomatic COVID, the number requiring care in the hospital general ward, the number requiring ICU care, and the number dying from COVID.  To specify the projection period:
+- Go to the Settings sheet in the workbook created in step 2A.2.6.
+- Find the row labeled "Projection Period".
+- Enter the length of the projection period and the first day of the projection period in the appropriate columns.
   
 Run the model by executing code segments embedded in a Google COLAB notebook.  
   
-The screenshot at the right shows the BASIC COLAB notebook.  There are four code segments, each of which has a set of square brackets (“[ ]”) in its left margin.  To execute a code segment, click on the square brackets.  (Note that when you mouse over the square brackets, a right-pointing arrow appears).
+The screenshot below shows the BASIC COLAB notebook.  The BASIC COLAB notebook has four code segments, each of which has a set of square brackets (“[ ]”) in its left margin.  To execute a code segment, click on the square brackets.  (Note that when you mouse over the square brackets, a right-pointing arrow appears).
 Google may ask you if you want to grant access to your Google workbook.  If so prompted, reply YES and follow subsequent prompts.
 As you execute each step, a green checkmark should appear to the left of each segment of executed code. 
 
+![](image/Picture4.png)
+  
 ### 3.3.1  Model mode 1 – Training and target regions the same
  
 ![](image/Picture5.png)
