@@ -172,9 +172,9 @@ Open the control workbook:
 - Select and open the SETTINGS sheet.  
 Run the simulation:
   
--A.	Execute BASIC COLAB code segment #1 (“Mount Your Google Drive”).  This step grants access to the Google drive.
+- A.	Execute BASIC COLAB code segment #1 (“Mount Your Google Drive”).  This step grants access to the Google drive.
   
--B.	Execute BASIC COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
+- B.	Execute BASIC COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
   
 - C.	Execute BASIC COLAB code segment #3 (“Import modules”).  This code segment loads the model into the Google COLAB notebook.
   
@@ -196,15 +196,15 @@ Open the control workbook:
 - Select and open the SETTINGS sheet.
 Run the simulation:
   
-A.	Execute TRANSFER COLAB code segment #1 (“Mount Your Google Drive”).  This step grants access to the Google drive.
+- A.	Execute TRANSFER COLAB code segment #1 (“Mount Your Google Drive”).  This step grants access to the Google drive.
   
-B.	Execute TRANSFER COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
+- B.	Execute TRANSFER COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
   
-C.	Execute TRANSFER COLAB code segment #3 (“Import modules”).  This code segment loads the model into the Google COLAB notebook.
+- C.	Execute TRANSFER COLAB code segment #3 (“Import modules”).  This code segment loads the model into the Google COLAB notebook.
   
-D.	Specify the training region, target region, and date range for which the simulation will make COVID projections.  Go to the control workbook and select the SETTINGS sheet.  For example, set the training region to “Massachusetts” and the target region to “Vermont”.  The workbook will recommend transfer ratio values after execution of code segment #3.  If you want to change them, follow the instructions for Model mode 3 (below).  Set the date range for the PROJECTION PERIOD.
+- D.	Specify the training region, target region, and date range for which the simulation will make COVID projections.  Go to the control workbook and select the SETTINGS sheet.  For example, set the training region to “Massachusetts” and the target region to “Vermont”.  The workbook will recommend transfer ratio values after execution of code segment #3.  If you want to change them, follow the instructions for Model mode 3 (below).  Set the date range for the PROJECTION PERIOD.
   
-E.	Execute TRANSFER COLAB code segment #4 (“Transfer the Learned Parameters to Test on a New State”).  This code segment executes the simulation model.  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  Note that execution of the model can take 5-10 minutes.
+- E.	Execute TRANSFER COLAB code segment #4 (“Transfer the Learned Parameters to Test on a New State”).  This code segment executes the simulation model.  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  Note that execution of the model can take 5-10 minutes.
 
 
 ### 3.3.3  Model use mode 3 – User modifies assumptions
@@ -221,29 +221,29 @@ Open the control workbook:
   
 Run the simulation:
   
-A.	Execute CUSTOMIZE COLAB code segment #1 (“Go to Simulation Folder”).  This step grants access to the Google drive.
+- A.	Execute CUSTOMIZE COLAB code segment #1 (“Go to Simulation Folder”).  This step grants access to the Google drive.
   
-B.	Execute CUSTOMIZE COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
+- B.	Execute CUSTOMIZE COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
   
-C.	Execute CUSTOMIZE COLAB code segment #3 (“Import Simulation Package”).  This code segment loads the model into the Google COLAB notebook.
+- C.	Execute CUSTOMIZE COLAB code segment #3 (“Import Simulation Package”).  This code segment loads the model into the Google COLAB notebook.
   
-D.	Specify the training region, target region, and date range for which the simulation will make COVID projections.  Go to the control workbook and select the SETTINGS sheet.  For example, set the training region to “Massachusetts” and the target region to “Vermont”.  The workbook will recommend transfer ratio values after execution of code segment #3.  You can revise these values or leave them unchanged.  Set the date range for the PROJECTION PERIOD.
+- D.	Specify the training region, target region, and date range for which the simulation will make COVID projections.  Go to the control workbook and select the SETTINGS sheet.  For example, set the training region to “Massachusetts” and the target region to “Vermont”.  The workbook will recommend transfer ratio values after execution of code segment #3.  You can revise these values or leave them unchanged.  Set the date range for the PROJECTION PERIOD.
   
-E.	Execute CUSTOMIZE COLAB code segment #4 (“Get Location of Control Workbook”).  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  
+- E.	Execute CUSTOMIZE COLAB code segment #4 (“Get Location of Control Workbook”).  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  
   
-F.	Execute CUSTOMIZE COLAB code segment #5 (“Load Default Values for COVID Rate of Spread in the Population”).  This code segment loads the default values for the COVID rate of spread in the population of the target state into the CONEXT sheet.
+- F.	Execute CUSTOMIZE COLAB code segment #5 (“Load Default Values for COVID Rate of Spread in the Population”).  This code segment loads the default values for the COVID rate of spread in the population of the target state into the CONEXT sheet.
   
-G.	Execute CUSTOMIZE COLAB code segment #6 (“Import All Parameters to Spreadsheet”).  This code segment loads all the parameters representing the training region and training period.
+- G.	Execute CUSTOMIZE COLAB code segment #6 (“Import All Parameters to Spreadsheet”).  This code segment loads all the parameters representing the training region and training period.
   
-H.	Execute CUSTOMIZE COLAB code segment #7 (“Transfer suggestion”) if you want to reset the transfer ratios to their simulation-recommended values.  In response to the prompt (“Do you want to update with recommended ratios for your selected state (Y/N)?”  
-- Answering “Y” updates the values as described;
-- Answering “N” makes no change to the values
+- H.	Execute CUSTOMIZE COLAB code segment #7 (“Transfer suggestion”) if you want to reset the transfer ratios to their simulation-recommended values.  In response to the prompt (“Do you want to update with recommended ratios for your selected state (Y/N)?”  
+  -  Answering “Y” updates the values as described;
+  - Answering “N” makes no change to the values
   
-I.	Modify user-accessible assumptions in the model.  These assumptions appear in cells that are shaded green in any sheet.
+- I.	Modify user-accessible assumptions in the model.  These assumptions appear in cells that are shaded green in any sheet.
   
-J.	Execute CUSTOMIZE COLAB segment #8 (“Update AllParam”).  This code segment incorporates user-specified revisions to the DURATIONS and TRANSITIONS sheets.  Always run this code segment before running the simulation.
+- J.	Execute CUSTOMIZE COLAB segment #8 (“Update AllParam”).  This code segment incorporates user-specified revisions to the DURATIONS and TRANSITIONS sheets.  Always run this code segment before running the simulation.
   
-K.	Execute CUSTOMIZE COLAB segment #9 (“Update learned parameters”).  This code segment creates a new json file.
+- K.	Execute CUSTOMIZE COLAB segment #9 (“Update learned parameters”).  This code segment creates a new json file.
   
-L.	Execute CUSTOMIZE COLAB segment #10 (“Project COVID Outcomes with User-Specified Assumptions”).
+- L.	Execute CUSTOMIZE COLAB segment #10 (“Project COVID Outcomes with User-Specified Assumptions”).
 After running the model, the user can modify assumptions and proceed to run the model again.  The user can make modifications at steps D, H, and I in this list.  Be sure to execute all subsequent steps.  For example, following modification of the training region (part of Step D), follow steps E, F, and so forth.
