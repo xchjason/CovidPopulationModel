@@ -160,7 +160,7 @@ For any of these modes, specify a **projection period**, i.e., a range of dates 
 - Find the row labeled "Projection Period".
 - Enter the length of the projection period and the first day of the projection period in the appropriate columns.
   
-Run the model by executing code segments embedded in a Google COLAB notebook.  
+Run the model by executing code segments embedded in a Google COLAB notebook.   
   
 The screenshot below shows the BASIC COLAB notebook.  The BASIC COLAB notebook has four code segments, each of which has a set of square brackets (“[ ]”) in its left margin.  To execute a code segment, click on the square brackets.  (Note that when you mouse over the square brackets, a right-pointing arrow appears).
 Google may ask you if you want to grant access to your Google workbook.  If so prompted, reply YES and follow subsequent prompts.
