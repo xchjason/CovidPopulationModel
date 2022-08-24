@@ -207,7 +207,7 @@ D.	Specify the training region, target region, and date range for which the simu
 E.	Execute TRANSFER COLAB code segment #4 (“Transfer the Learned Parameters to Test on a New State”).  This code segment executes the simulation model.  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  Note that execution of the model can take 5-10 minutes.
 
 
-3.3.3  Model use mode 3 – User modifies assumptions
+### 3.3.3  Model use mode 3 – User modifies assumptions
   
 ![](image/Picture7.png)
   
