@@ -23,7 +23,7 @@ This repository contains the Tufts Susceptible-to-Hospital Forecasting Model for
 - Disease may progress from infection in susceptible individuals to symptomatic disease and potentially to severe disease; 
 - Some individuals may undergo hospitalization; and 
 - Hospitalized patients may progress from care in the general ward to more acute care (e.g., in the intensive care unit).
-The model has two characteristics that make it a useful tool for estimating the contribution interventions make to population health. 
+The model has two characteristics that make it a useful tool for estimating the contribution interventions make to population health.  
 
 First, ***the model’s projections align with real world observations*** for a specific geographic region because the model undergoes calibration against empirical data.  Because it is probabilistic, the model characterizes its projections as distributions.  
 
