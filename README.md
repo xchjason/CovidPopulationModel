@@ -172,15 +172,15 @@ Open the control workbook:
 - Select and open the SETTINGS sheet.  
 Run the simulation:
   
-- A.	Execute BASIC COLAB code segment #1 (“Mount Your Google Drive”).  This step grants access to the Google drive.
+  - A.	Execute BASIC COLAB code segment #1 (“Mount Your Google Drive”).  This step grants access to the Google drive.
   
-- B.	Execute BASIC COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
+  - B.	Execute BASIC COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
   
-- C.	Execute BASIC COLAB code segment #3 (“Import modules”).  This code segment loads the model into the Google COLAB notebook.
+  - C.	Execute BASIC COLAB code segment #3 (“Import modules”).  This code segment loads the model into the Google COLAB notebook.
   
-- D.	Specify the region and dates for which the simulation will make COVID projections.  Go to the control workbook and select the SETTINGS sheet.  Set the training and target regions to the same location (e.g., set both to “Massachusetts”).  Set both transfer ratios to 1.0.  Set the date range for the PROJECTION PERIOD.
+  - D.	Specify the region and dates for which the simulation will make COVID projections.  Go to the control workbook and select the SETTINGS sheet.  Set the training and target regions to the same location (e.g., set both to “Massachusetts”).  Set both transfer ratios to 1.0.  Set the date range for the PROJECTION PERIOD.
   
-- E.	Execute BASIC COLAB code segment #4 (“Run model”).  This code segment executes the simulation model.  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  Note that execution of the model can take 5-10 minutes.
+  - E.	Execute BASIC COLAB code segment #4 (“Run model”).  This code segment executes the simulation model.  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  Note that execution of the model can take 5-10 minutes.
 
 
 ### 3.3.2  Model mode 2 – Training and target regions differ, user leaves assumptions unchanged
