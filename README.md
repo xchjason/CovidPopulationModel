@@ -95,7 +95,7 @@ This section describes how to activate the Google utilities needed to install an
 - In the NAME box, enter a name that is meaningful to you; 
 - In the folder box, double-click on the “My Drive” folder and navigate your way to the Google folder created in Step 2A.2.1.
 - 
-<img src="image/Picture3.png" width="400"> 
+<img src="image/Picture3.png" width="200"> 
 
 ## 2B – No Google utilities – Local installation instead
 To be done.
