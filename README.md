@@ -63,12 +63,17 @@ This section describes how to activate the Google utilities needed to install an
 
 ### 2A.2 – Create a Google folder
 
-#### Step 2A.2.1 – Create a Google folder (see instructions, [here](https://support.google.com/drive/answer/2375091?hl=en&co=GENIE.Platform%3DDesktop)).  Name this folder BayesianCovidPopulationModel.
+#### Step 2A.2.1 – Create a Google folder 
+- See instructions [here](https://support.google.com/drive/answer/2375091?hl=en&co=GENIE.Platform%3DDesktop)).  
+- Name this folder BayesianCovidPopulationModel.
 
-#### Step 2A.2.2 – Download the contents of the Github page located [here](https://github.com/xchjason/CovidPopulationModel).  To do so, click on the green CODE button in the upper right corner of the page and select DOWNLOAD ZIP from the dropdown menu.
+#### Step 2A.2.2 – Download the contents of the Github page located [here](https://github.com/xchjason/CovidPopulationModel).  
+- To do so, click on the green CODE button in the upper right corner of the page and select DOWNLOAD ZIP from the dropdown menu.
 ![](image/Picture1.png)
 
-#### Step 2A.2.3 – Unzip the downloaded contents.  On a Windows computer, find the downloaded Zip file, right click on it, and select EXTRACT ALL.  Note the location of the folder created and containing the contents downloaded from the Github page.
+#### Step 2A.2.3 – Unzip the downloaded contents.  
+- On a Windows computer, find the downloaded Zip file, right click on it, and select EXTRACT ALL.  
+- Note the location of the folder created and containing the contents downloaded from the Github page.
 
 #### Step 2A.2.4 – Upload the material downloaded in Steps 2A.2.2 and 2A.2.3 to the Google folder created in Step 2A.2.1 (BayesianCovidPopulationModel).
 - Within your internet browser, go to https://drive.google.com/drive/my-drive.  
