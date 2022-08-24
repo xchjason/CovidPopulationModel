@@ -146,8 +146,8 @@ After selecting an assumption set (Section 3.1), you can alter its values by edi
 ## 3.3	Running the model
 
 There are three model modes:
-- Mode 1 (Section 3.3.1 - below): Training region and target region are the same, with no change to any of the assumption set values.
-- Mode 2 (Section 3.3.2 - below): Training region and target region differ, and use of the assumption set values (Section 3.2) without any user-specified revisions.
+- Mode 1 (Section 3.3.1 - below): Training region and target region **are the same**, with no change to any of the assumption set values.
+- Mode 2 (Section 3.3.2 - below): Training region and target region **differ**, and use of the assumption set values (Section 3.2) without any user-specified revisions.
 - Mode 3 (Section 3.3.3 - below): Training region and target region are the same or differ, and use of the assumption set values (Section 3.2), with or without user-specified revisions.
 
 For any of these modes, specify a **projection period**, i.e., a range of dates for which the model will project the number of individuals who develop symptomatic COVID, the number requiring care in the hospital general ward, the number requiring ICU care, and the number dying from COVID.  To specify the projection period:
