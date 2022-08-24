@@ -66,8 +66,14 @@ This section describes how to activate the Google utilities needed to install an
 - See instructions [here](https://support.google.com/drive/answer/2375091?hl=en&co=GENIE.Platform%3DDesktop).  
 - Name this folder BayesianCovidPopulationModel.
 
+TEST
+<img src="image/Picture1.png" width="200">
+
+
+
 #### Step 2A.2.2 – Download the contents of the Github page located [here](https://github.com/xchjason/CovidPopulationModel).  
 - To do so, click on the green CODE button in the upper right corner of the page and select DOWNLOAD ZIP from the dropdown menu.
+
 ![](image/Picture1.png)
 
 #### Step 2A.2.3 – Unzip the downloaded contents.  
