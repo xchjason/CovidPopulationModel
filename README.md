@@ -64,7 +64,7 @@ This section describes how to activate the Google utilities needed to install an
 ### 2A.2 – Create a Google folder
 
 #### Step 2A.2.1 – Create a Google folder 
-- See instructions [here](https://support.google.com/drive/answer/2375091?hl=en&co=GENIE.Platform%3DDesktop)).  
+- See instructions [here](https://support.google.com/drive/answer/2375091?hl=en&co=GENIE.Platform%3DDesktop).  
 - Name this folder BayesianCovidPopulationModel.
 
 #### Step 2A.2.2 – Download the contents of the Github page located [here](https://github.com/xchjason/CovidPopulationModel).  
