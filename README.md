@@ -107,7 +107,7 @@ This section describes how to activate the Google utilities needed to install an
 To be done.
 
 # 3	Running the model
-Running the Tufts COVID model involves:
+Running the Tufts COVID model involves: 
 - Selecting a **training region** - model parameters for health state dwell times and transfer probabilities reflect empirically observed transitions in that region during the training period.  Parameters that depend on this selection include
   - Duration with mild symptoms (vaxinated or unvaxinated), 
   - Duration hospitalized in the general ward (vaxinated or unvaxinated, declining or recovering)
