@@ -57,7 +57,7 @@ This section describes how to activate the Google utilities needed to install an
   - Select MORE from the dropdown menu; 
   - Select + CONNECT MORE APPS; 
   - Click on the search icon at the top of the window that pops up (the magnifying glass icon) and search for “colab”.
-  - lick on the “Colaboratory” application that appears.
+  - Click on the “Colaboratory” application that appears.
   - Click on the blue INSTALL button.
 
 ### 2A.2 – Create a Google folder
