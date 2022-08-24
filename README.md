@@ -95,7 +95,7 @@ This section describes how to activate the Google utilities needed to install an
 - In the folder box, double-click on the “My Drive” folder and navigate your way to the Google folder created in Step 2A.2.1.
 ![](image/Picture3.png)
 
-# 2B – No Google utilities – Local installation instead
+## 2B – No Google utilities – Local installation instead
 To be done.
 
 # 3	Running the model
