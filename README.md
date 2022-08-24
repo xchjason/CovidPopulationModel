@@ -104,7 +104,7 @@ Running the Tufts COVID model involves:
 - Optionally adjusting assumption set values.
 - Running the model to project the number of COVID patients in the hospital general ward, in the intensive care unit, and the number who die.
 
-3.1	Selecting an assumption set
+## 3.1	Selecting an assumption set
 
 The Tufts COVID research team maintains a “warehouse” of assumption sets that each represent a geographic region and period.  This section describes how to specify an assumption set representative of the setting and period for which the simulation model will make projections.
 Assumptions specified in each assumption set include: 
@@ -115,32 +115,32 @@ To specify an assumption set, open the control workbook and navigate to the SETT
 - The training region and training period – i.e., the region and time period defining the source of the empirical COVID population and hospital utilization data used to calibrate the model assumptions.
 - The target region – i.e., the region you are interested in simulating.
 
-3.1.1  If the training region dropdown list does contain the target region
+### 3.1.1  If the training region dropdown list does contain the target region
 In this case, the model warehouse contains an assumption set calibrated (i.e., “trained”) using data from the region to be simulated (the target region).  
 - Select the target region from both the training dropdown list and from the target region dropdown list.
 - Set the general ward and intensive care transfer ratios 1.0.  These constants scale the training region general ward and ICU patient projections to produce corresponding estimates for the target region.  When the training and target ratios are the same, these ratios should be 1.0 because no scaling of these values is necessary.
 
-3.1.2  If the training region dropdown list does not contain the target region
+### 3.1.2  If the training region dropdown list does not contain the target region
 In this case, the model warehouse does not contain an assumption set calibrated using data from the region to be simulated (the target region).
 
 - Select a training region proxy.  For example, if the target region is Vermont and the training region dropdown list does not contain Vermont, you might select a nearby state that does appear in the training region dropdown list (such as Massachusetts).
 - The control workbook will recommend transfer ratios for the general ward and intensive care unit.  You can adjust these values to help the model produce projections that best match empirical observations.
 
-3.1.3  Selecting the training period
+### 3.1.3  Selecting the training period
 Select a training period that is most representative of the period for which you wish to make projections.  For example, to make projections for autumn of 2021, you might select a training period of late summer 2021 because the delta variant was prevalent throughout both of these periods, hence making late summer 2021 reasonably representative of conditions encountered in fall 2021.  
 If an assumption set with an appropriate training period is not available for the selected training region, it might make sense to prioritize appropriateness of the training period over matching the training and target regions.  For example, suppose you wish to make projections for Vermont during the summer of 2022, when Omicron was prevalent.  You can choose either of these assumption sets:
 - Assumption set 1 – Training region is Vermont, and training period is May-July, 2021.
 - Assumption set 2 – Training region is Massachusetts, and training period is March-May, 2022.
 Assumption set 2 is probably more appropriate because even though its use necessitates use of transfer ratios to extrapolate from Massachusetts to Vermont, the assumptions reflect the properties of the Omicron variant, rather than the Delta variant, which was prevalent during the middle of 2021.
 
-3.2	Adjusting assumption set values
+## 3.2	Adjusting assumption set values
 After selecting an assumption set (Section 3.1), you can alter its values by editing values in cells that are shaded green in control workbook:
 - Health state dwell time distributions – Revise values in the DURATIONS(VAX) and DURATIONS(UNVAX) sheets.  
 - Health state transition probabilities – Revise values in the TRANSITIONS sheet.  The parameter “rho” represents the average probability that (1) individuals infected with COVID will develop mild symptoms; (2) individuals with mild COVID symptoms will require care in the hospital general ward, (3) COVID patients receiving care in the hospital general ward will require ICU care, and (4) COVID patients receiving ICU care will die.
 - COVID reproductive value – Revise values in the CONTEXT sheet.  This parameter controls the assumed rate at which the prevalence of COVID increases or decreases each day.  This parameter’s value represents the average number of new COVID infections caused by each existing infection; hence when the value of this parameter exceeds 1.0, the simulation model’s assumed population COVID prevalence increases each day.  Values below 1.0 mean prevalence decreases each day.  You can modify values for the training period and the projection period but not for the warmup period.  
 - Transfer ratios – Revise values in the SETTINGS sheet.  The general ward transfer ratio represents the anticipated ratio of the number of patients in the general ward in the target region to the corresponding number of patients in the training region.  The ICU transfer ratio represents the corresponding ratio for the intensive care unit.  The control workbook will recommend values for these transfer ratios based the observed number of patients in the general ward and in the ICU in the target region at the end of the training period.  You can use the defaults or modify them.  For example, if you believe the spread of COVID in the target region lags the spread of COVID in the training region, it might be appropriate to increase the transfer ratio values in anticipation of the target region general ward and ICU counts “catching up” to the corresponding counts in the training region.
 
-3.3	Running the model
+## 3.3	Running the model
 
 There are three model modes:
 - Mode 1: Training region and target region are the same, with no change to any of the assumption set values.
@@ -159,7 +159,7 @@ The screenshot at the right shows the BASIC COLAB notebook.  There are four code
 Google may ask you if you want to grant access to your Google workbook.  If so prompted, reply YES and follow subsequent prompts.
 As you execute each step, a green checkmark should appear to the left of each segment of executed code. 
 
-3.3.1  Model mode 1 – Training and target regions the same
+### 3.3.1  Model mode 1 – Training and target regions the same
  
 ![](image/Picture5.png)
   
@@ -172,18 +172,18 @@ Open the control workbook:
 - Select and open the SETTINGS sheet.  
 Run the simulation:
   
-A.	Execute BASIC COLAB code segment #1 (“Mount Your Google Drive”).  This step grants access to the Google drive.
+- A.	Execute BASIC COLAB code segment #1 (“Mount Your Google Drive”).  This step grants access to the Google drive.
   
-B.	Execute BASIC COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
+- B.	Execute BASIC COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
   
-C.	Execute BASIC COLAB code segment #3 (“Import modules”).  This code segment loads the model into the Google COLAB notebook.
+- C.	Execute BASIC COLAB code segment #3 (“Import modules”).  This code segment loads the model into the Google COLAB notebook.
   
-D.	Specify the region and dates for which the simulation will make COVID projections.  Go to the control workbook and select the SETTINGS sheet.  Set the training and target regions to the same location (e.g., set both to “Massachusetts”).  Set both transfer ratios to 1.0.  Set the date range for the PROJECTION PERIOD.
+- D.	Specify the region and dates for which the simulation will make COVID projections.  Go to the control workbook and select the SETTINGS sheet.  Set the training and target regions to the same location (e.g., set both to “Massachusetts”).  Set both transfer ratios to 1.0.  Set the date range for the PROJECTION PERIOD.
   
-E.	Execute BASIC COLAB code segment #4 (“Run model”).  This code segment executes the simulation model.  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  Note that execution of the model can take 5-10 minutes.
+- E.	Execute BASIC COLAB code segment #4 (“Run model”).  This code segment executes the simulation model.  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  Note that execution of the model can take 5-10 minutes.
 
 
-3.3.2  Model mode 2 – Training and target regions differ, user leaves assumptions unchanged
+### 3.3.2  Model mode 2 – Training and target regions differ, user leaves assumptions unchanged
  
 ![](image/Picture6.png)
 
