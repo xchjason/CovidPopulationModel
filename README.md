@@ -172,9 +172,9 @@ Open the control workbook:
 - Select and open the SETTINGS sheet.  
 Run the simulation:
   
-- A.	Execute BASIC COLAB code segment #1 (“Mount Your Google Drive”).  This step grants access to the Google drive.
+-A.	Execute BASIC COLAB code segment #1 (“Mount Your Google Drive”).  This step grants access to the Google drive.
   
-- B.	Execute BASIC COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
+-B.	Execute BASIC COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
   
 - C.	Execute BASIC COLAB code segment #3 (“Import modules”).  This code segment loads the model into the Google COLAB notebook.
   
