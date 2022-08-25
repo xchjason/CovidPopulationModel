@@ -181,13 +181,13 @@ Note - The transfer ratios in the control workbook should both be set to 1.
 
 Run the simulation:
 
-  - A.	Execute BASIC COLAB code segment #1 (“Grant Access to User Google Drive”).
+  - CODE SETUP 1.	Execute BASIC COLAB code segment #1 (“Grant Access to User Google Drive”).
   
-  - B.	Execute BASIC COLAB code segment #2 (“Go to Simulation Folder”).  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
+  - CODE SETUP 2.	Execute BASIC COLAB code segment #2 (“Go to Simulation Folder”).  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
   
-  - C.	Execute BASIC COLAB code segment #3 (“Import Simulation Packages”).  
+  - CODE SETUP 3.	Execute BASIC COLAB code segment #3 (“Import Simulation Packages”).  
   
-  - D.	Execute BASIC COLAB code segment #4 (“Run model”).  This code segment executes the simulation model.  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  Note that execution of the model can take 5-10 minutes. 
+  - MODEL SIMULATION.	Execute BASIC COLAB code segment #4 (“Run model”).  This code segment executes the simulation model.  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  Note that execution of the model can take 5-10 minutes. 
 
 ### 3.4.2  Model mode 2 – Training and target regions differ, user leaves assumptions unchanged
 
@@ -224,26 +224,29 @@ Run the simulation:
   - Paste this address into the response box and click the ENTER button on the keyboard.
 
 - E.  Execute CUSTOMIZE COLAB code segment #5 ("Load Default Values for COVID Rate of Spread in the Population").  
-  - This segment loads the rate at which COVID infection spreads in the **target region**. 
+  - This segment loads into the control workbook the rate at which COVID infection spreads in the **target region**. 
   - Expressed as Rt, the COVID reproductive constant).  
   - See Context(Rt, Vax_Pct).  
   - The user can subsequently modify the Rt values.
 
 - F.	Execute CUSTOMIZE COLAB code segment #6 (“Import All Parameters to Spreadsheet”).  
-  - This segment imports loads the rate at which COVID spreads in the **training region**. 
+  - This segment imports loads into the control workbook the rate at which COVID spreads in the **training region**. 
   - Expressed as Rt values.  
 
 - G.  Execute CUSTOMIZE COLAB code segment #7 ("Transfer Suggestion").  
-  - This segment calculates suggested transfer ratios.
+  - This segment calculates recommended transfer ratios.
   - The values reflect  hospital count data and ICU count data from the training region and target region on the first day of the training period.  
-  - To accept the recommended values based on these ratios, respond "Y" to prompt.
-  - To leave the values in the control workbook's SETTINGS sheet unchanged, respond "N" to prompt.
+  - To save the recommended ratios into the control workbook, respond "Y" to prompt.
+  - To retain the original ratios in the control workbook, respond "N" to prompt.
 
 - H.  Execute CUSTOMIZE COLAB code segment #8 ("Update AllParam").  
-  - This code segment synchronizes control workbook entries related to health state dwell time assumptions (DURATIONS(VAX) and DURATIONS(UNVAX) sheets), and transition probabilities (TRANSITIONS sheet).
+  - This code segment synchronizes control workbook entries.
+  - Updates parameters for: 
+    - Health state dwell time assumptions (DURATIONS(VAX) and DURATIONS(UNVAX) sheets)
+    - Transition probabilities (TRANSITIONS sheet).
 
 - I  Execute CUSTOMIZE COLAB code segment #9 ("Update Learned Parameters").  
-  - This code segment genrates a new json file with the appropriate parameters.
+  - This code segment generates a new json file with the appropriate parameters.
 
 - J  Execute CUSTOMIZE COLAB code segment #10 ("Project COVID Outcomes with User-Specified assumptions").  Generates simulation projections.
 
