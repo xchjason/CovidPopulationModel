@@ -23,7 +23,7 @@ Running the model requires:
 - A Google spreadsheet workbook referred to as the “control workbook”;
 - One of three Google COLAB notebooks, depending on what model features the user wishes to control; and
 - Simulation code.
-This section describes how to activate the Google utilities needed to install and run the model (Section 2A.1) and how to create and populate a folder with the required files and software (Section 2A.2).  Section 3 describes how to alter model control features and run the model.
+This section describes how to activate the Google utilities needed to install and run the model (Section 2.1) and how to create and populate a folder with the required files and software (Section 2.2).  Section 3 describes how to alter model control features and run the model.
 
 ### 2.1 – Activate Google utilities
 - The Google Chrome browser (available [here](https://www.google.com/chrome/downloads/))
@@ -65,7 +65,7 @@ This section describes how to activate the Google utilities needed to install an
 #### Step 2.2.5 – Move the contents in the uploaded folder to the top level of the folder created in Step 2.2.1.  
 - Open the folder created in Step 2.2.1 (BayesianCovidPopulationModel).  You will see a single folder.  Open that folder.  Continue to open folders until you get to a list of folders and files that resembles the figure at right. 
 - Select all items in this folder by (1) clicking on the first item, (2) holding down the shift key, and (3) clicking on the final item in this list.  All items should now be highlighted.
-- Move the items by (1) right clicking and selecting MOVE TO, (2) navigating to the folder created in Step 2A.2.1, and (3) clicking on the blue MOVE HERE button.
+- Move the items by (1) right clicking and selecting MOVE TO, (2) navigating to the folder created in Step 2.2.1, and (3) clicking on the blue MOVE HERE button.
 
 <p align="center">
 <img src="image/Picture2.png" width="400">
@@ -76,7 +76,7 @@ Thiw workbook contains parameter values that control the simulation (see Section
 - Open the Google workbook template by clicking [here](https://docs.google.com/spreadsheets/d/1yKfBId3RnJPFW8fEbuwKIlywTwTheDuLhGyqb0DESXU/edit#gid=0); 
 - Select the FILE dropdown menu and then select MAKE A COPY; 
 - In the NAME box, enter a name that is meaningful to you; 
-- In the folder box, double-click on the “My Drive” folder and navigate your way to the Google folder created in Step 2A.2.1.
+- In the folder box, double-click on the “My Drive” folder and navigate your way to the Google folder created in Step 2.2.1.
 
 <p align="center">
 <img src="image/Picture3.png" width="250"> 
@@ -125,7 +125,7 @@ Procedures for running the model depend on (1) whether the training region and t
 
 ## 3.2 Modifying model parameters
 
-You can modify many model parameters by editing their values in the control workbook (see Section 2A.2.6).
+You can modify many model parameters by editing their values in the control workbook (see Section 2.2.6).
 
 ### 3.2.1 Health state dwell tie distributions
 Revise values in the DURATIONS(VAX) and DURATIONS(UNVAX) sheets
@@ -157,7 +157,7 @@ The control workbook will recommend values for these transfer ratios based the o
 ## 3.3	Running the model
 
 For any of these modes, specify a **projection period**, i.e., a range of dates for which the model will project the number of individuals who develop symptomatic COVID, the number requiring care in the hospital general ward, the number requiring ICU care, and the number dying from COVID.  To specify the projection period:
-- Go to the Settings sheet in the workbook created in step 2A.2.6.
+- Go to the Settings sheet in the workbook created in step 2.2.6.
 - Find the row labeled "Projection Period".
 - Enter the length of the projection period and the first day of the projection period in the appropriate columns.
   
@@ -174,7 +174,7 @@ As you execute each step, a green checkmark should appear to the left of each se
 In this case, the model warehouse contains an assumption set calibrated (i.e., “trained”) using data from the region to be simulated (the target region).  
 
 #### 3.3.1.1 Open control workbook 
-- See file created in Step 2A.2.6.  
+- See file created in Step 2.2.6.  
 - Select and open the SETTINGS sheet.
 - Select the **training region** - i.e., the region serving as the source of the empirical COVID population and hospital utilization data used to calibrate the model assumptions.
 - Specify the  **training period** – i.e., the time period for the empirical COVID population and hospital utilization data used to calibrate the model assumptions (see Section 3.1.3 for more detail).
@@ -183,7 +183,7 @@ In this case, the model warehouse contains an assumption set calibrated (i.e., �
 - Set the **transfer ratios** to 1.0 for general ward and intensive care.  These constants scale the training region general ward and ICU patient projections to produce corresponding estimates for the target region.  When the training and target ratios are the same, these ratios should be 1.0 because no scaling of these values is necessary.
 
 #### 3.3.1.2 Open the BASIC COLAB notebook:
-- Navigate to the Google drive folder created for this simulation (Section 2A.2).
+- Navigate to the Google drive folder created for this simulation (Section 2.2).
 - Click on the BASIC COLAB notebook (named “Model_Notebook(Basic).ipynb”).
 - Click on the OPEN IN COLAB button at the top of the notebook. 
 
@@ -202,7 +202,7 @@ In this case, the model warehouse contains an assumption set calibrated (i.e., �
 ![](image/Picture6.png)
 
 Open the TRANSFER COLAB notebook:
-- Navigate to the Google drive folder created for this simulation (Section 2A.2).
+- Navigate to the Google drive folder created for this simulation (Section 2.2).
 - Click on the TRANSFER COLAB notebook (named “Model_Notebook(Transfer).ipynb”).
 - Click on the OPEN IN COLAB button at the top of the notebook. 
 Open the control workbook:
@@ -227,7 +227,7 @@ Run the simulation:
 ![](image/Picture7.png)
   
 Open the CUSTOMIZE COLAB notebook:
-- Navigate to the Google drive folder created for this simulation (Section 2A.2).
+- Navigate to the Google drive folder created for this simulation (Section 2.2).
 - Click on the CUSTOMIZE COLAB notebook (named “Model_Notebook(Customize).ipynb”).
 - Click on the OPEN IN COLAB button at the top of the notebook. 
 Open the control workbook:
