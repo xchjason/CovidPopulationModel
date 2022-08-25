@@ -179,7 +179,8 @@ Use the BASIC COLAB notebook (named “Model_Notebook(Basic).ipynb”).
 
 Note - The transfer ratios in the control workbook should both be set to 1.
 
-Run the simulation as follows:
+Run the simulation:
+
   - A.	Execute BASIC COLAB code segment #1 (“Grant Access to User Google Drive”).
   
   - B.	Execute BASIC COLAB code segment #2 (“Go to Simulation Folder”).  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
@@ -188,9 +189,9 @@ Run the simulation as follows:
   
   - D.	Execute BASIC COLAB code segment #4 (“Run model”).  This code segment executes the simulation model.  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  Note that execution of the model can take 5-10 minutes. 
 
-### 3.3.2  Model mode 2 – Training and target regions differ, user leaves assumptions unchanged
+### 3.4.2  Model mode 2 – Training and target regions differ, user leaves assumptions unchanged
 
-Use the TRANSFER COLAB notebook:
+Use the TRANSFER COLAB notebook (named "Model_Notebook(Transfer).ipynb".
 
 Run the simulation:
   
