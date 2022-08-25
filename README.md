@@ -210,11 +210,13 @@ Use the TRANSFER COLAB notebook (named "Model_Notebook(Customize).ipynb").
 Overview
 - You can run the four **CODE SETUP** steps once (assuming that you do not switch to a different control workbook).
 - Next, execute the three **ADD TO WORKBOOK** steps.
-- Now you can customize parameters (in green cells inn the control workbook).
+- Now you can customize parameters (by manually revising the contents green-shaded cells in the control workbook).
 - Run the **UPDATE WORKBOOK** code segment after customizing control workbook parameters.
 - Run the **UPDATE JSON** code segment after updating the workbook.
 - Execute **RUN MODEL**.
-- You can repeadedly return to the **customize parameters** step for another scenario.  Execute the subsequent steps (**UPDATE WORKBOOK**, **UPDATE JSON**, **RUN MODEL**).
+- You can repeadedly return to the **customize parameters** step to evaluate additional scenarios.  
+  - Run the **UPDATE WORKBOOK** steps (e.g., to choose a different target region) or revise control workbook parameters.
+  - Execute the subsequent steps: **UPDATE WORKBOOK**, **UPDATE JSON**, **RUN MODEL**.
   
 Run the simulation:
   
