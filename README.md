@@ -208,7 +208,7 @@ Run the simulation:
 Use the TRANSFER COLAB notebook (named "Model_Notebook(Customize).ipynb").
 
 Overview
-- You can run the four **CODE SETUP** steps once (assuming that you do not change switch to a different control workbook).
+- You can run the four **CODE SETUP** steps once (assuming that you do not switch to a different control workbook).
 - Next, execute the three **ADD TO WORKBOOK** steps.
 - Now you can customize parameters (in green cells inn the control workbook).
 - Run the **UPDATE WORKBOOK** code segment after customizing control workbook parameters.
