@@ -152,12 +152,7 @@ In this case, the model warehouse does not contain an assumption set calibrated 
 - Select a training region proxy.  For example, if the target region is Vermont and the training region dropdown list does not contain Vermont, you might select a nearby state that does appear in the training region dropdown list (such as Massachusetts).
 - The control workbook will recommend transfer ratios for the general ward and intensive care unit.  You can adjust these values to help the model produce projections that best match empirical observations.
 
-### 3.1.3  More on selecting the training period
-Select a training period that is most representative of the period for which you wish to make projections.  For example, to make projections for autumn of 2021, you might select a training period of late summer 2021 because the delta variant was prevalent throughout both of these periods, hence making late summer 2021 reasonably representative of conditions encountered in fall 2021.  
-If an assumption set with an appropriate training period is not available for the selected training region, it might make sense to prioritize appropriateness of the training period over matching the training and target regions.  For example, suppose you wish to make projections for Vermont during the summer of 2022, when Omicron was prevalent.  You can choose either of these assumption sets:
-- Assumption set 1 – Training region is Vermont, and training period is May-July, 2021.
-- Assumption set 2 – Training region is Massachusetts, and training period is March-May, 2022.
-Assumption set 2 is probably more appropriate because even though its use necessitates use of transfer ratios to extrapolate from Massachusetts to Vermont, the assumptions reflect the properties of the Omicron variant, rather than the Delta variant, which was prevalent during the middle of 2021.
+
 
 ## 3.2	Adjusting assumption set values
 After selecting an assumption set (Section 3.1), you can alter its values by editing values in cells that are shaded green in control workbook:
