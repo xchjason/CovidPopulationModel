@@ -213,7 +213,8 @@ Overview
 - Now you can customize parameters (in green cells inn the control workbook).
 - Run the **UPDATE WORKBOOK** code segment after customizing control workbook parameters.
 - Run the **UPDATE JSON** code segment after updating the workbook.
-- Finally, you can execute **RUN MODEL**.
+- Execute **RUN MODEL**.
+- You can repeadedly return to the **customize parameters** step for another scenario.  Execute the subsequent steps (**UPDATE WORKBOOK**, **UPDATE JSON**, **RUN MODEL**).
   
 Run the simulation:
   
