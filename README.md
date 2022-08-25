@@ -235,6 +235,7 @@ Run the simulation:
 
 - **ADD TO WORKBOOK 3**.  Execute CUSTOMIZE COLAB code segment #7 ("Transfer Suggestion").  
   - This segment calculates recommended transfer ratios.
+  - Uses values loaded in **ADD TO WORKBOOK 1** and **ADD TO WORKBOOK 2**.
   - The values reflect  hospital count data and ICU count data from the training region and target region on the first day of the training period.  
   - To save the recommended ratios into the control workbook, respond "Y" to prompt.
   - To retain the original ratios in the control workbook, respond "N" to prompt.
@@ -247,6 +248,9 @@ Run the simulation:
 
 - **UPDATE JSON**  Execute CUSTOMIZE COLAB code segment #9 ("Update Learned Parameters").  
   - This code segment generates a new json file with the appropriate parameters.
+  - **UPDATE WORKBOOK** must run before running **UPDATE JSON**.
 
-- **RUN MODEL**  Execute CUSTOMIZE COLAB code segment #10 ("Project COVID Outcomes with User-Specified assumptions").  Generates simulation projections.
+- **RUN MODEL**  Execute CUSTOMIZE COLAB code segment #10 ("Project COVID Outcomes with User-Specified assumptions").  
+  - Generates simulation projections.
+  - **UPDATE JSON** must run before **RUN MODEL**.
 
