@@ -87,11 +87,28 @@ Thiw workbook contains parameter values that control the simulation (see Section
 
 ## 3.1 Overview
 
-Running the Tufts COVID model involves 3 steps: 
+Running the Tufts COVID model involves these steps: 
 
-- Selecting a **training region**
-- Selecting a **target region** and **projection period**
-- Optionally adjusting any of these parameters
+### 3.1.1 Opening the control workbook (file created in Step 2.2.6)
+- Selecting a **training region** (Section 3.1.1)
+- Selecting a **target region** and **projection period** (Section 3.1.2) 
+- Optionally adjusting any of these parameters (Section 3.1.3 and 3.2)
+
+### 3.1.2 Running the simulation by 
+- Selecting and opening the appropriate COLAB notebook and executing code embedded code segments.  These notebooks are in the Google project folder (see Section 2.2.2).  
+- Running code segments by clicking on the square brackets to their left. For an illustration, look at the screenshot of the BASIC COLAB notebook below.  
+  - That notebook has four code segments, each of which has a set of square brackets (“[ ]”) in its left margin.  
+  - To execute a code segment, click on the square brackets.  
+  - Note that when you mouse over the square brackets, a right-pointing arrow appears.
+  - Google may ask you if you want to grant access to your Google workbook.  If so prompted, reply YES and follow subsequent prompts.
+  - As you execute each step, a green checkmark should appear to the left of each segment of executed code. 
+
+![](image/Picture4.png)
+
+
+
+
+
 
 ### 3.1.1 Selecting a training region
 
@@ -156,34 +173,16 @@ The control workbook will recommend values for these transfer ratios based the o
 
 ## 3.3	Running the model
 
-The user can run the model by executing code segments embedded in one of three Google COLAB notebooks.  You can find these notebooks in the Google project folder (see Section 2.2.2).    
-
-Run a code segment by clicking on the square brackets to its left.  
-- For an illustration, look at the screenshot of the BASIC COLAB notebook below.  
-- That notebook has four code segments, each of which has a set of square brackets (“[ ]”) in its left margin.  
-- To execute a code segment, click on the square brackets.  
-- Note that when you mouse over the square brackets, a right-pointing arrow appears.
-- Google may ask you if you want to grant access to your Google workbook.  If so prompted, reply YES and follow subsequent prompts.
-- As you execute each step, a green checkmark should appear to the left of each segment of executed code. 
-
-![](image/Picture4.png)
-  
-### 3.3.1  Model mode 1 – Training and target regions the same
-
-In this case, the model warehouse contains an assumption set calibrated (i.e., “trained”) using data from the region to be simulated (the target region).  
-
-- Open control workbook 
-  - See file created in Step 2.2.6.  
-  - Select and open the SETTINGS sheet.
-  - Select the training region.
-  - Select the target region.
-  - Specify the projection period.
-  - Set the **transfer ratios** to 1.0 for general ward and intensive care.
-
 - Open the BASIC COLAB notebook
   - Navigate to the Google drive folder created for this simulation (Section 2.2).
   - Click on the BASIC COLAB notebook (named “Model_Notebook(Basic).ipynb”).
   - Click on the OPEN IN COLAB button at the top of the notebook. 
+
+
+  
+### 3.3.1  Model mode 1 – Training and target regions the same
+
+
 
 - Run the simulation
   - A.	Execute BASIC COLAB code segment #1 (“Grant Access to User Google Drive”).
@@ -194,10 +193,9 @@ In this case, the model warehouse contains an assumption set calibrated (i.e., �
   
   - D.	Execute BASIC COLAB code segment #4 (“Run model”).  This code segment executes the simulation model.  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  Note that execution of the model can take 5-10 minutes. 
 
-
 ### 3.3.2  Model mode 2 – Training and target regions differ, user leaves assumptions unchanged
- 
-![](image/Picture6.png)
+
+
 
 Open the TRANSFER COLAB notebook:
 - Navigate to the Google drive folder created for this simulation (Section 2.2).
