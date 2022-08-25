@@ -191,7 +191,7 @@ Run the simulation:
 
 ### 3.4.2  Model mode 2 – Training and target regions differ, user leaves assumptions unchanged
 
-Use the TRANSFER COLAB notebook (named "Model_Notebook(Transfer).ipynb".
+Use the TRANSFER COLAB notebook (named "Model_Notebook(Transfer).ipynb").
 
 Run the simulation:
   
@@ -205,11 +205,17 @@ Run the simulation:
 
 ### 3.4.3  Model use mode 3 – User modifies assumptions
 
-Use the TRANSFER COLAB notebook (named "Model_Notebook(Customize).ipynb".
+Use the TRANSFER COLAB notebook (named "Model_Notebook(Customize).ipynb").
   
 Run the simulation:
   
-- A.	Execute CUSTOMIZE COLAB code segment #1 (“Go to Simulation Folder”).  This step grants access to the Google drive.
+- A.	Execute CUSTOMIZE COLAB code segment #1 (“Mount Your Google Drive”).  Same as Step A for Modes 1 and 2.
+
+- B.  Execute CUSTOMIZE COLAB code segment #2 ("Go to Simulation Folder").  Same as Step B for Modes 1 and 2.
+
+- C.  Execute CUSTOMIZE COLAB code segment #3 (“Import Simulation Package”).  Same as Step C for Modes 1 and 2.
+
+- D.  Execute CUSTOMIZE COLAB code segment #4 ("Get Location of Control Workbook").  Go to the control workbook (Section 2.2.6) and copy the internet address.  Paste the address into the prompt box that will appear when you run code segment #4.
   
 - B.	Execute CUSTOMIZE COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
   
