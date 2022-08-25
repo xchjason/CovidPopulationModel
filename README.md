@@ -216,8 +216,20 @@ Run the simulation:
 - C.  Execute CUSTOMIZE COLAB code segment #3 (“Import Simulation Package”).  Same as Step C for Modes 1 and 2.
 
 - D.  Execute CUSTOMIZE COLAB code segment #4 ("Get Location of Control Workbook").  Go to the control workbook (Section 2.2.6) and copy the internet address.  Paste the address into the prompt box that will appear when you run code segment #4.
-  
-- B.	Execute CUSTOMIZE COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
+
+- E.  Execute CUSTOMIZE COLAB code segment #5 ("Load Default Values for COVID Rate of Spread in the Population").  This segment loads  the assumed rate at which COVID infection spreads each day (expressed as RT, the COVID reproductive constant).  See Context(Rt, Vax_Pct).  The user can subsequently modify the Rt values.
+
+- F.	Execute CUSTOMIZE COLAB code segment #6 (“Import All Parameters to Spreadsheet”).  This segment imports default parameters from an external json file into the workbook.  
+
+- G.  Execute CUSTOMIZE COLAB code segment #7 ("Transfer Suggestion").  This segment calculates suggested transfer ratios based on hospital count data and ICU count data from the training region and target region on the first day of the training period.  The user can accept the recommended values based on these ratios, or enter alternative values.
+
+- H.  Execute CUSTOMIZE COLAB code segment #8 ("Update AllParam").  This code segment synchronizes control workbook entries related to health state dwell time assumptions (durations), and transition probabilities.
+
+- I  Execute CUSTOMIZE COLAB code segment #9 
+- 
+- 
+- 
+- This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
   
 - C.	Execute CUSTOMIZE COLAB code segment #3 (“Import Simulation Package”).  This code segment loads the model into the Google COLAB notebook.
   
