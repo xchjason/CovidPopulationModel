@@ -156,16 +156,15 @@ The control workbook will recommend values for these transfer ratios based the o
 
 ## 3.3	Running the model
 
-For any of these modes, specify a **projection period**, i.e., a range of dates for which the model will project the number of individuals who develop symptomatic COVID, the number requiring care in the hospital general ward, the number requiring ICU care, and the number dying from COVID.  To specify the projection period:
-- Go to the Settings sheet in the workbook created in step 2.2.6.
-- Find the row labeled "Projection Period".
-- Enter the length of the projection period and the first day of the projection period in the appropriate columns.
-  
-Run the model by executing code segments embedded in a Google COLAB notebook.   
-  
-The screenshot below shows the BASIC COLAB notebook.  The BASIC COLAB notebook has four code segments, each of which has a set of square brackets (“[ ]”) in its left margin.  To execute a code segment, click on the square brackets.  (Note that when you mouse over the square brackets, a right-pointing arrow appears).
-Google may ask you if you want to grant access to your Google workbook.  If so prompted, reply YES and follow subsequent prompts.
-As you execute each step, a green checkmark should appear to the left of each segment of executed code. 
+The user can run the model by executing code segments embedded in one of three Google COLAB notebooks.  You can find these notebooks in the Google project folder (see Section 2.2.2).    
+
+Run a code segment by clicking on the square brackets to its left.  
+- For an illustration, look at the screenshot of the BASIC COLAB notebook below.  
+- That notebook has four code segments, each of which has a set of square brackets (“[ ]”) in its left margin.  
+- To execute a code segment, click on the square brackets.  
+- Note that when you mouse over the square brackets, a right-pointing arrow appears.
+- Google may ask you if you want to grant access to your Google workbook.  If so prompted, reply YES and follow subsequent prompts.
+- As you execute each step, a green checkmark should appear to the left of each segment of executed code. 
 
 ![](image/Picture4.png)
   
@@ -176,11 +175,10 @@ In this case, the model warehouse contains an assumption set calibrated (i.e., �
 #### 3.3.1.1 Open control workbook 
 - See file created in Step 2.2.6.  
 - Select and open the SETTINGS sheet.
-- Select the **training region** - i.e., the region serving as the source of the empirical COVID population and hospital utilization data used to calibrate the model assumptions.
-- Specify the  **training period** – i.e., the time period for the empirical COVID population and hospital utilization data used to calibrate the model assumptions (see Section 3.1.3 for more detail).
-- Select the **target region** from both the training dropdown list and from the target region dropdown list.  Be sure it matches the **training region**.
-- Specify the **projection period** date range.
-- Set the **transfer ratios** to 1.0 for general ward and intensive care.  These constants scale the training region general ward and ICU patient projections to produce corresponding estimates for the target region.  When the training and target ratios are the same, these ratios should be 1.0 because no scaling of these values is necessary.
+- Select the training region.
+- Select the target region.
+- Specify the projection period.
+- Set the **transfer ratios** to 1.0 for general ward and intensive care.
 
 #### 3.3.1.2 Open the BASIC COLAB notebook:
 - Navigate to the Google drive folder created for this simulation (Section 2.2).
