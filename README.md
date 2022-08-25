@@ -118,6 +118,8 @@ Running the Tufts COVID model involves 3 steps:
 
 ### 3.1.1 Selecting a training region
 
+Select the **training region** by going to the SETTINGS sheet in the control workbook (Section 2A.2.6) and modifying the green cell labeled "Trained State" (cell B7).
+
 The training region represents the geographical source of the data that the model uses to "train" (calibrate) these parameters:  
 - Duration with mild symptoms (vaxinated or unvaxinated), 
 - Duration hospitalized in the general ward (vaxinated or unvaxinated, declining or recovering)
@@ -128,6 +130,8 @@ The training region represents the geographical source of the data that the mode
 - Proprtion in the ICU who die
 
 ### 3.1.2 Selecting a target region and projection period
+
+Select the **target region** by going to the SETTINGS sheet in the control workbook (Section 2A.2.6) and modifying the green cell to the right of "Target State/Region.  Select the projection period by specifying a duration (in days) and a start date in the green cells to the right of "Projection Period".
 
 The target region and projection period represent the geographic region and time period for which the model will generate projected COVID outcomes.  Selection of the target region and projection period influence two sets of parameters:
   - The assumed rate at which COVID infection spreads each day (expressed as RT, the COVID reproductive constant).  Values in excess of 1.0 indicate that the number of infections increases by a factor of RT each day, whereas values below 1.0 indicate exponential decay in the number of cases.  Values for RT come from COVIDESTIM for the target region and projection period.
@@ -174,8 +178,6 @@ The ICU transfer ratio represents the corresponding ratio for the intensive care
 The control workbook will recommend values for these transfer ratios based the observed number of patients in the general ward and in the ICU in the target region at the end of the training period.  You can use the defaults or modify them.  For example, if you believe the spread of COVID in the target region lags the spread of COVID in the training region, it might be appropriate to increase the transfer ratio values in anticipation of the target region general ward and ICU counts “catching up” to the corresponding counts in the training region.
 
 ## 3.3	Running the model
-
-
 
 For any of these modes, specify a **projection period**, i.e., a range of dates for which the model will project the number of individuals who develop symptomatic COVID, the number requiring care in the hospital general ward, the number requiring ICU care, and the number dying from COVID.  To specify the projection period:
 - Go to the Settings sheet in the workbook created in step 2A.2.6.
