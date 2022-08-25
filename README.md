@@ -99,8 +99,7 @@ Running the Tufts COVID model involves these steps:
   - Navigate Google project folder (see Section 2.2.2).  
   - Select the notebook you will use (see introduction to Section 3.4)
   - Click on the OPEN IN COLAB button at the top of the notebook.
-- Run code segments by clicking on the square brackets to their left. 
-- For an illustration, look at the screenshot of the BASIC COLAB notebook below.  
+- Run code segments by clicking on the square brackets to their left. For an illustration, look at the screenshot of the BASIC COLAB notebook below.  
   - That notebook has four code segments, each of which has a set of square brackets (“[ ]”) in its left margin.  
   - To execute a code segment, click on the square brackets.  
   - Note that when you mouse over the square brackets, a right-pointing arrow appears.
