@@ -214,9 +214,11 @@ Overview
 - Run the **UPDATE WORKBOOK** code segment after customizing control workbook parameters.
 - Run the **UPDATE JSON** code segment after updating the workbook.
 - Execute **RUN MODEL**.
-- You can repeadedly return to the **customize parameters** step to evaluate additional scenarios.  
-  - Run the **UPDATE WORKBOOK** steps (e.g., to choose a different target region) or revise control workbook parameters.
-  - Execute the subsequent steps: **UPDATE WORKBOOK**, **UPDATE JSON**, **RUN MODEL**.
+- You can run additional scenarios without repeating everything.  
+  - After you make a change, go through all the subsequent steps in the sequence below. 
+  - For example: 
+    - After revising the target region, execute all steps, starting with **ADD TO WORKBOOK 1**.
+    - After revising transition probabilities (green cells on the TRANSITIONS sheet), run **UPDATE WORKBOOK**, **UPDATE JSON**, and **RUN MODEL**. 
   
 Run the simulation:
   
