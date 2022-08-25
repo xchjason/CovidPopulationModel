@@ -95,7 +95,7 @@ Running the Tufts COVID model involves 3 steps:
 
 ### 3.1.1 Selecting a training region
 
-Select the **training region** by going to the SETTINGS sheet in the control workbook (Section 2A.2.6) and modifying the green cell labeled "Trained State" (cell B7).
+Select the **training region** by going to the SETTINGS sheet in the control workbook (Section 2.2.6) and modifying the green cell labeled "Trained State" (cell B7).
 
 The training region represents the geographical source of the data that the model uses to "train" (calibrate) these parameters:  
 - Duration with mild symptoms (vaxinated or unvaxinated), 
@@ -108,7 +108,7 @@ The training region represents the geographical source of the data that the mode
 
 ### 3.1.2 Selecting a target region and projection period
 
-Select the **target region** by going to the SETTINGS sheet in the control workbook (Section 2A.2.6) and modifying the green cell to the right of "Target State/Region.  Select the **projection period** by specifying a duration (in days) and a start date in the green cells to the right of "Projection Period".
+Select the **target region** by going to the SETTINGS sheet in the control workbook (Section 2.2.6) and modifying the green cell to the right of "Target State/Region.  Select the **projection period** by specifying a duration (in days) and a start date in the green cells to the right of "Projection Period".
 
 The target region and projection period represent the geographic region and time period for which the model will generate projected COVID outcomes.  Selection of the target region and projection period influence two sets of parameters:
   - The assumed rate at which COVID infection spreads each day (expressed as RT, the COVID reproductive constant).  Values in excess of 1.0 indicate that the number of infections increases by a factor of RT each day, whereas values below 1.0 indicate exponential decay in the number of cases.  Values for RT come from COVIDESTIM for the target region and projection period.
