@@ -107,24 +107,35 @@ This section describes how to activate the Google utilities needed to install an
 To be done.
 
 # 3	Running the model
-Running the Tufts COVID model involves: 
 
-- Selecting a **training region** - Parameters that depend on this selection include distributions for:
-  - Duration with mild symptoms (vaxinated or unvaxinated), 
-  - Duration hospitalized in the general ward (vaxinated or unvaxinated, declining or recovering)
-  - Duration in the ICU (vaxinated or unvaxinated, declining or recovering)
-  - Proportion infected who develop mild symptoms
-  - Proportion with mild symptoms who become hospitalized in the general ward
-  - Proportion in the general ward who transfer to the ICU
-  - Proprtion in the ICU who die
+## 3.1 Overview
 
-- Selecting a **target region** and **projection period**.  These selections influence two sets of parameters:
+Running the Tufts COVID model involves 3 steps: 
+
+- Selecting a **training region**
+- Selecting a **target region** and **projection period**
+- Optionally adjusting any of these parameters
+
+### 3.1.1 Selecting a training region
+
+The training region represents the geographical source of the data that the model uses to "train" (calibrate) these parameters:  
+- Duration with mild symptoms (vaxinated or unvaxinated), 
+- Duration hospitalized in the general ward (vaxinated or unvaxinated, declining or recovering)
+- Duration in the ICU (vaxinated or unvaxinated, declining or recovering)
+- Proportion infected who develop mild symptoms
+- Proportion with mild symptoms who become hospitalized in the general ward
+- Proportion in the general ward who transfer to the ICU
+- Proprtion in the ICU who die
+
+### 3.1.2 Selecting a target region and projection period
+
+The target region and projection period represent the geographic region and time period for which the model will generate projected COVID outcomes.  Selection of the target region and projection period influence two sets of parameters:
   - The assumed rate at which COVID infection spreads each day (expressed as RT, the COVID reproductive constant).  Values in excess of 1.0 indicate that the number of infections increases by a factor of RT each day, whereas values below 1.0 indicate exponential decay in the number of cases.  Values for RT come from COVIDESTIM for the target region and projection period.
   - General ward and ICU transfer ratios.  If the training region and target region differ, the number of COVID patients in the hospital general ward and ICU may likewise differ even after accounting for differences in the rate of disease spread (RT).  These differences can reflect 
     - Differences in overall population size (e.g., the population of Massachusetts is about 10 times larger than the population of Vermont) or 
     - Differences in the proportion of individuals who become hospitalized or require ICU care (e.g., the proportion of individuals infected with COVID patients requiring hospital care in Florida may exceed the corresponding proportion in Oklahoma because Florida's population is older. 
 
-- Optionally adjusting any of these parameters.
+### 3.1.3 Adjusting parameters (optional)
 
 Procedures for running the model depend on (1) whether the training region and target region differ, and (2) whether you wish to modify any of the parameters the model identifies.  There are three model modes:
 - Mode 1 (Section 3.1 - below): Training region and target region **are the same**, with no user revision of the assumptions.
@@ -133,14 +144,7 @@ Procedures for running the model depend on (1) whether the training region and t
 
 ## 3.1	Selecting an assumption set
 
-The Tufts COVID research team maintains a “warehouse” of assumption sets that each represent a geographic region and period.  This section describes how to specify an assumption set representative of the setting and period for which the simulation model will make projections.
-Assumptions specified in each assumption set include: 
-- Dwell time distributions that quantify how long patients remain in each health state;
-- Probability distributions that quantify the proportion of patients in each state who progress to a more severe health state; and
-- COVID reproductive value that represents the rate each day at which the number of individuals in the population infected with COVID is increasing or decreasing.
-To specify an assumption set, open the control workbook and navigate to the SETTINGS sheet.  Then specify:
 
-- The target region – i.e., the region you are interested in simulating.
 
 ### 3.1.2  If the training region dropdown list does NOT contain the target region
 In this case, the model warehouse does not contain an assumption set calibrated using data from the region to be simulated (the target region).
