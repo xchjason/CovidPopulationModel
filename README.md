@@ -219,18 +219,23 @@ Run the simulation:
   - Same as Step C for Modes 1 and 2.
 
 - D.  Execute CUSTOMIZE COLAB code segment #4 ("Get Location of Control Workbook").  
-  - This code segment will prompt for the control workbook link.  To get this link, open the control workbook (Section 2.2.6), open the SETTINGS sheet, and copy the link address.  
+  - This code segment will prompt for the control workbook link.  
+  - To get this link, open the control workbook (Section 2.2.6), open the SETTINGS sheet, and copy the link address.  
   - Paste this address into the response box and click the ENTER button on the keyboard.
 
 - E.  Execute CUSTOMIZE COLAB code segment #5 ("Load Default Values for COVID Rate of Spread in the Population").  
-  - This segment loads  the rate at which COVID infection spreads in the **target region** each day (expressed as RT, the COVID reproductive constant).  See Context(Rt, Vax_Pct).  
+  - This segment loads the rate at which COVID infection spreads in the **target region**. 
+  - Expressed as Rt, the COVID reproductive constant).  
+  - See Context(Rt, Vax_Pct).  
   - The user can subsequently modify the Rt values.
 
 - F.	Execute CUSTOMIZE COLAB code segment #6 (“Import All Parameters to Spreadsheet”).  
-  - This segment imports loads the rate at which COVID spreads in the **training region** (Rt values).  
+  - This segment imports loads the rate at which COVID spreads in the **training region**. 
+  - Expressed as Rt values.  
 
 - G.  Execute CUSTOMIZE COLAB code segment #7 ("Transfer Suggestion").  
-  - This segment calculates suggested transfer ratios based on hospital count data and ICU count data from the training region and target region on the first day of the training period.  
+  - This segment calculates suggested transfer ratios.
+  - The values reflect  hospital count data and ICU count data from the training region and target region on the first day of the training period.  
   - To accept the recommended values based on these ratios, respond "Y" to prompt.
   - To leave the values in the control workbook's SETTINGS sheet unchanged, respond "N" to prompt.
 
