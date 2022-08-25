@@ -172,27 +172,27 @@ Run a code segment by clicking on the square brackets to its left.
 
 In this case, the model warehouse contains an assumption set calibrated (i.e., “trained”) using data from the region to be simulated (the target region).  
 
-#### 3.3.1.1 Open control workbook 
-- See file created in Step 2.2.6.  
-- Select and open the SETTINGS sheet.
-- Select the training region.
-- Select the target region.
-- Specify the projection period.
-- Set the **transfer ratios** to 1.0 for general ward and intensive care.
+- Open control workbook 
+  - See file created in Step 2.2.6.  
+  - Select and open the SETTINGS sheet.
+  - Select the training region.
+  - Select the target region.
+  - Specify the projection period.
+  - Set the **transfer ratios** to 1.0 for general ward and intensive care.
 
-#### 3.3.1.2 Open the BASIC COLAB notebook:
-- Navigate to the Google drive folder created for this simulation (Section 2.2).
-- Click on the BASIC COLAB notebook (named “Model_Notebook(Basic).ipynb”).
-- Click on the OPEN IN COLAB button at the top of the notebook. 
+- Open the BASIC COLAB notebook
+  - Navigate to the Google drive folder created for this simulation (Section 2.2).
+  - Click on the BASIC COLAB notebook (named “Model_Notebook(Basic).ipynb”).
+  - Click on the OPEN IN COLAB button at the top of the notebook. 
 
-#### 3.3.1.3 Run the simulation:
-- A.	Execute BASIC COLAB code segment #1 (“Grant Access to User Google Drive”).
+- Run the simulation
+  - A.	Execute BASIC COLAB code segment #1 (“Grant Access to User Google Drive”).
   
-- B.	Execute BASIC COLAB code segment #2 (“Go to Simulation Folder”).  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
+  - B.	Execute BASIC COLAB code segment #2 (“Go to Simulation Folder”).  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
   
-- C.	Execute BASIC COLAB code segment #3 (“Import Simulation Packages”).  
+  - C.	Execute BASIC COLAB code segment #3 (“Import Simulation Packages”).  
   
-- D.	Execute BASIC COLAB code segment #4 (“Run model”).  This code segment executes the simulation model.  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  Note that execution of the model can take 5-10 minutes. 
+  - D.	Execute BASIC COLAB code segment #4 (“Run model”).  This code segment executes the simulation model.  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  Note that execution of the model can take 5-10 minutes. 
 
 
 ### 3.3.2  Model mode 2 – Training and target regions differ, user leaves assumptions unchanged
