@@ -195,28 +195,17 @@ Use the TRANSFER COLAB notebook (named "Model_Notebook(Transfer).ipynb".
 
 Run the simulation:
   
-- A.	Execute TRANSFER COLAB code segment #1 (“Mount Your Google Drive”).  This step grants access to the Google drive.
-  
-- B.	Execute TRANSFER COLAB code segment #2 (“Go to your model directory”).  This step directs the COLAB notebook to the user-created folder containing the simulation application.  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
-  
-- C.	Execute TRANSFER COLAB code segment #3 (“Import modules”).  This code segment loads the model into the Google COLAB notebook.
-  
-- D.	Specify the training region, target region, and date range for which the simulation will make COVID projections.  Go to the control workbook and select the SETTINGS sheet.  For example, set the training region to “Massachusetts” and the target region to “Vermont”.  The workbook will recommend transfer ratio values after execution of code segment #3.  If you want to change them, follow the instructions for Model mode 3 (below).  Set the date range for the PROJECTION PERIOD.
-  
-- E.	Execute TRANSFER COLAB code segment #4 (“Transfer the Learned Parameters to Test on a New State”).  This code segment executes the simulation model.  The notebook code will prompt for the control workbook link.  To get this link, open the control workbook, open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.  Note that execution of the model can take 5-10 minutes.
+- A.  Same as for Mode 1 - TRANSFER COLAB segment #1 ("Grant Access to User Google Drive).
 
+- B.  Same as for Mode 1 - TRANSFER COLAB segment #2 (“Go to Simulation Folder”).
 
-### 3.3.3  Model use mode 3 – User modifies assumptions
-  
-![](image/Picture7.png)
-  
-Open the CUSTOMIZE COLAB notebook:
-- Navigate to the Google drive folder created for this simulation (Section 2.2).
-- Click on the CUSTOMIZE COLAB notebook (named “Model_Notebook(Customize).ipynb”).
-- Click on the OPEN IN COLAB button at the top of the notebook. 
-Open the control workbook:
-- Navigate to the control workbook and click on it to open.
-- Select and open the SETTINGS sheet.
+- C.  Same as for Mode 1 - TRANSFER COLAB segment #3 (“Import Simulation Packages”).
+
+- D.  Execute TRANSFER COLAB code segment #4 ("Run Model").  Before executing this step, you can modify the transfer ratios in the SETTINGS sheet in the control notebook.
+
+### 3.4.3  Model use mode 3 – User modifies assumptions
+
+Use the TRANSFER COLAB notebook (named "Model_Notebook(Customize).ipynb".
   
 Run the simulation:
   
