@@ -209,25 +209,36 @@ Use the TRANSFER COLAB notebook (named "Model_Notebook(Customize).ipynb").
   
 Run the simulation:
   
-- A.	Execute CUSTOMIZE COLAB code segment #1 (“Mount Your Google Drive”).  Same as Step A for Modes 1 and 2.
+- A.	Execute CUSTOMIZE COLAB code segment #1 (“Mount Your Google Drive”).  
+  - Same as Step A for Modes 1 and 2.
 
-- B.  Execute CUSTOMIZE COLAB code segment #2 ("Go to Simulation Folder").  Same as Step B for Modes 1 and 2.
+- B.  Execute CUSTOMIZE COLAB code segment #2 ("Go to Simulation Folder").  
+  - Same as Step B for Modes 1 and 2.
 
-- C.  Execute CUSTOMIZE COLAB code segment #3 (“Import Simulation Package”).  Same as Step C for Modes 1 and 2.
+- C.  Execute CUSTOMIZE COLAB code segment #3 (“Import Simulation Package”).  
+  - Same as Step C for Modes 1 and 2.
 
-- D.  Execute CUSTOMIZE COLAB code segment #4 ("Get Location of Control Workbook").  This code segment will prompt for the control workbook link.  To get this link, open the control workbook (Section 2.2.6), open the SETTINGS sheet, and copy the link address.  Paste this address into the response box and click the ENTER button on the keyboard.
+- D.  Execute CUSTOMIZE COLAB code segment #4 ("Get Location of Control Workbook").  
+  - This code segment will prompt for the control workbook link.  To get this link, open the control workbook (Section 2.2.6), open the SETTINGS sheet, and copy the link address.  
+  - Paste this address into the response box and click the ENTER button on the keyboard.
 
-- E.  Execute CUSTOMIZE COLAB code segment #5 ("Load Default Values for COVID Rate of Spread in the Population").  This segment loads  the assumed rate at which COVID infection spreads each day (expressed as RT, the COVID reproductive constant).  See Context(Rt, Vax_Pct).  The user can subsequently modify the Rt values.
+- E.  Execute CUSTOMIZE COLAB code segment #5 ("Load Default Values for COVID Rate of Spread in the Population").  
+  - This segment loads  the rate at which COVID infection spreads in the **target region** each day (expressed as RT, the COVID reproductive constant).  See Context(Rt, Vax_Pct).  
+  - The user can subsequently modify the Rt values.
 
-- F.	Execute CUSTOMIZE COLAB code segment #6 (“Import All Parameters to Spreadsheet”).  This segment imports training region parameters (transfer ratios and Rt values) from an external json file into the workbook.  
+- F.	Execute CUSTOMIZE COLAB code segment #6 (“Import All Parameters to Spreadsheet”).  
+  - This segment imports loads the rate at which COVID spreads in the **training region** (Rt values).  
 
-- G.  Execute CUSTOMIZE COLAB code segment #7 ("Transfer Suggestion").  This segment calculates suggested transfer ratios based on hospital count data and ICU count data from the training region and target region on the first day of the training period.  
+- G.  Execute CUSTOMIZE COLAB code segment #7 ("Transfer Suggestion").  
+  - This segment calculates suggested transfer ratios based on hospital count data and ICU count data from the training region and target region on the first day of the training period.  
   - To accept the recommended values based on these ratios, respond "Y" to prompt.
   - To leave the values in the control workbook's SETTINGS sheet unchanged, respond "N" to prompt.
 
-- H.  Execute CUSTOMIZE COLAB code segment #8 ("Update AllParam").  This code segment synchronizes control workbook entries related to health state dwell time assumptions (DURATIONS(VAX) and DURATIONS(UNVAX) sheets), and transition probabilities (TRANSITIONS sheet).
+- H.  Execute CUSTOMIZE COLAB code segment #8 ("Update AllParam").  
+  - This code segment synchronizes control workbook entries related to health state dwell time assumptions (DURATIONS(VAX) and DURATIONS(UNVAX) sheets), and transition probabilities (TRANSITIONS sheet).
 
-- I  Execute CUSTOMIZE COLAB code segment #9 ("Update Learned Parameters").  This code segment genrates a new json file with the appropriate parameters.
+- I  Execute CUSTOMIZE COLAB code segment #9 ("Update Learned Parameters").  
+  - This code segment genrates a new json file with the appropriate parameters.
 
 - J  Execute CUSTOMIZE COLAB code segment #10 ("Project COVID Outcomes with User-Specified assumptions").  Generates simulation projections.
 
