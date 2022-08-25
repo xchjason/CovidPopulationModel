@@ -95,7 +95,10 @@ Running the Tufts COVID model involves these steps:
 - Adjust any of these parameters (optional - Section 3.3)
 
 ### 3.1.2 Run the simulation
-- Open the appropriate COLAB notebook and executing code embedded code segments.  These notebooks are in the Google project folder (see Section 2.2.2).  
+- Open the appropriate COLAB notebook.  
+  - Navigate Google project folder (see Section 2.2.2).  
+  - Select the notebook you will use (see introduction to Section 3.4)
+  - Click on the OPEN IN COLAB button at the top of the notebook.
 - Run code segments by clicking on the square brackets to their left. 
 - For an illustration, look at the screenshot of the BASIC COLAB notebook below.  
   - That notebook has four code segments, each of which has a set of square brackets (“[ ]”) in its left margin.  
@@ -131,7 +134,7 @@ The target region and projection period represent the geographic region and time
     - Differences in overall population size (e.g., the population of Massachusetts is about 10 times larger than the population of Vermont) or 
     - Differences in the proportion of individuals who become hospitalized or require ICU care (e.g., the proportion of individuals infected with COVID patients requiring hospital care in Florida may exceed the corresponding proportion in Oklahoma because Florida's population is older. 
 
-## 3.3 Modify model parameters
+## 3.3 Adjust model parameters
 
 You can modify many model parameters by editing their values in the control workbook (see Section 2.2.6).
 
@@ -164,15 +167,12 @@ The control workbook will recommend values for these transfer ratios based the o
 
 ## 3.4	Running the model
 
-Open the COLAB notebook.  
-- First, navigate to the Google project folder (Section 2.2).  
+Open the COLAB notebook - see Section 3.1.2.  
 
-- Second, identify and open the appropriate notebook
+Identify the appropriate notebook to open
   - Mode 1 (Section 3.4.1 - below): Training region and target region **are the same**, with no user revision of the assumptions.
   - Mode 2 (Section 3.4.2 - below): Training region and target region **differ**, with no user revision of the assumptions.
   - Mode 3 (Section 3.4.3 - below): Training region and target region are the same or differ, and the user **does** revise assumptions.
-
-- Finally, click on the OPEN IN COLAB button at the top of the notebook.
 
 ### 3.4.1  Model mode 1 – Training and target regions the same
 
