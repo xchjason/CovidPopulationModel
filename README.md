@@ -151,6 +151,7 @@ Revise values in the DURATIONS(VAX) and DURATIONS(UNVAX) sheets
 
 ### 3.2.2 Health state transition probabilities
 Revise values in the TRANSITIONS sheet.  
+
 The parameter “rho” represents the average probability that:
 - individuals infected with COVID will develop mild symptoms; 
 - individuals with mild COVID symptoms will require care in the hospital general ward; 
@@ -158,14 +159,18 @@ The parameter “rho” represents the average probability that:
 - COVID patients receiving ICU care will die.
 
 ### 3.2.3 COVID reproductive value 
-Revise values in the CONTEXT sheet.  
-This parameter controls the assumed rate at which the prevalence of COVID increases or decreases each day.  That is, it represents the average number of new COVID infections caused by each existing infection; hence when the value of this parameter exceeds 1.0, the simulation model’s assumed population COVID prevalence increases each day.  Values below 1.0 mean prevalence decreases each day.  
+Revise values in the CONTEXT sheet. 
+
+This parameter controls the assumed rate at which the prevalence of COVID increases or decreases each day.  That is, it represents the average number of new COVID infections caused by each existing infection; hence when the value of this parameter exceeds 1.0, the simulation model’s assumed population COVID prevalence increases each day.  Values below 1.0 mean prevalence decreases each day.
+
 Note that you can modify values for the training period and the projection period but not for the warmup period.  
 
 ### 3.2.4 Transfer ratios
-Revise values in the SETTINGS sheet.  
+Revise values in the SETTINGS sheet. 
+
 The general ward transfer ratio represents the ratio of the number of patients in the general ward in the target region to the corresponding number of patients in the training region, with both values taken from the first day of the training period.
 The ICU transfer ratio represents the corresponding ratio for the intensive care unit.  
+
 The control workbook will recommend values for these transfer ratios based the observed number of patients in the general ward and in the ICU in the target region at the end of the training period.  You can use the defaults or modify them.  For example, if you believe the spread of COVID in the target region lags the spread of COVID in the training region, it might be appropriate to increase the transfer ratio values in anticipation of the target region general ward and ICU counts “catching up” to the corresponding counts in the training region.
 
 ## 3.3	Running the model
