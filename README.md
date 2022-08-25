@@ -89,14 +89,15 @@ Thiw workbook contains parameter values that control the simulation (see Section
 
 Running the Tufts COVID model involves these steps: 
 
-### 3.1.1 Opening the control workbook (file created in Step 2.2.6)
-- Selecting a **training region** (Section 3.1.1)
-- Selecting a **target region** and **projection period** (Section 3.1.2) 
-- Optionally adjusting any of these parameters (Section 3.1.3 and 3.2)
+### 3.1.1 Open the control workbook (file created in Step 2.2.6)
+- Select a **training region** (Section 3.2.1)
+- Select a **target region** and **projection period** (Section 3.2.2) 
+- Adjust any of these parameters (optional - Section 3.3)
 
-### 3.1.2 Running the simulation by 
-- Selecting and opening the appropriate COLAB notebook and executing code embedded code segments.  These notebooks are in the Google project folder (see Section 2.2.2).  
-- Running code segments by clicking on the square brackets to their left. For an illustration, look at the screenshot of the BASIC COLAB notebook below.  
+### 3.1.2 Run the simulation
+- Open the appropriate COLAB notebook and executing code embedded code segments.  These notebooks are in the Google project folder (see Section 2.2.2).  
+- Run code segments by clicking on the square brackets to their left. 
+- For an illustration, look at the screenshot of the BASIC COLAB notebook below.  
   - That notebook has four code segments, each of which has a set of square brackets (“[ ]”) in its left margin.  
   - To execute a code segment, click on the square brackets.  
   - Note that when you mouse over the square brackets, a right-pointing arrow appears.
@@ -105,12 +106,9 @@ Running the Tufts COVID model involves these steps:
 
 ![](image/Picture4.png)
 
+## 3.2 Select the training region, target region, and projection period
 
-
-
-
-
-### 3.1.1 Selecting a training region
+### 3.2.1 Training region
 
 Select the **training region** by going to the SETTINGS sheet in the control workbook (Section 2.2.6) and modifying the green cell labeled "Trained State" (cell B7).
 
@@ -123,7 +121,7 @@ The training region represents the geographical source of the data that the mode
 - Proportion in the general ward who transfer to the ICU
 - Proprtion in the ICU who die
 
-### 3.1.2 Selecting a target region and projection period
+### 3.2.2 Target region and projection period
 
 Select the **target region** by going to the SETTINGS sheet in the control workbook (Section 2.2.6) and modifying the green cell to the right of "Target State/Region.  Select the **projection period** by specifying a duration (in days) and a start date in the green cells to the right of "Projection Period".
 
@@ -133,21 +131,14 @@ The target region and projection period represent the geographic region and time
     - Differences in overall population size (e.g., the population of Massachusetts is about 10 times larger than the population of Vermont) or 
     - Differences in the proportion of individuals who become hospitalized or require ICU care (e.g., the proportion of individuals infected with COVID patients requiring hospital care in Florida may exceed the corresponding proportion in Oklahoma because Florida's population is older. 
 
-### 3.1.3 Adjusting parameters (optional)
-
-Procedures for running the model depend on (1) whether the training region and target region differ, and (2) whether you wish to modify any of the parameters the model identifies.  There are three model modes:
-- Mode 1 (Section 3.1 - below): Training region and target region **are the same**, with no user revision of the assumptions.
-- Mode 2 (Section 3.2 - below): Training region and target region **differ**, with no user revision of the assumptions.
-- Mode 3 (Section 3.3 - below): Training region and target region are the same or differ, and the user **does** revise assumptions.
-
-## 3.2 Modifying model parameters
+## 3.3 Modify model parameters
 
 You can modify many model parameters by editing their values in the control workbook (see Section 2.2.6).
 
-### 3.2.1 Health state dwell tie distributions
+### 3.3.1 Health state dwell tie distributions
 Revise values in the DURATIONS(VAX) and DURATIONS(UNVAX) sheets
 
-### 3.2.2 Health state transition probabilities
+### 3.3.2 Health state transition probabilities
 Revise values in the TRANSITIONS sheet.  
 
 The parameter “rho” represents the average probability that:
@@ -156,14 +147,14 @@ The parameter “rho” represents the average probability that:
 - COVID patients receiving care in the hospital general ward will require ICU care, and 
 - COVID patients receiving ICU care will die.
 
-### 3.2.3 COVID reproductive value 
+### 3.3.3 COVID reproductive value 
 Revise values in the CONTEXT sheet. 
 
 This parameter controls the assumed rate at which the prevalence of COVID increases or decreases each day.  That is, it represents the average number of new COVID infections caused by each existing infection; hence when the value of this parameter exceeds 1.0, the simulation model’s assumed population COVID prevalence increases each day.  Values below 1.0 mean prevalence decreases each day.
 
 Note that you can modify values for the training period and the projection period but not for the warmup period.  
 
-### 3.2.4 Transfer ratios
+### 3.3.4 Transfer ratios
 Revise values in the SETTINGS sheet. 
 
 The general ward transfer ratio represents the ratio of the number of patients in the general ward in the target region to the corresponding number of patients in the training region, with both values taken from the first day of the training period.
@@ -171,20 +162,25 @@ The ICU transfer ratio represents the corresponding ratio for the intensive care
 
 The control workbook will recommend values for these transfer ratios based the observed number of patients in the general ward and in the ICU in the target region at the end of the training period.  You can use the defaults or modify them.  For example, if you believe the spread of COVID in the target region lags the spread of COVID in the training region, it might be appropriate to increase the transfer ratio values in anticipation of the target region general ward and ICU counts “catching up” to the corresponding counts in the training region.
 
-## 3.3	Running the model
+## 3.4	Running the model
 
-- Open the BASIC COLAB notebook
-  - Navigate to the Google drive folder created for this simulation (Section 2.2).
-  - Click on the BASIC COLAB notebook (named “Model_Notebook(Basic).ipynb”).
-  - Click on the OPEN IN COLAB button at the top of the notebook. 
+Open the COLAB notebook.  
+- First, navigate to the Google project folder (Section 2.2).  
 
+- Second, identify and open the appropriate notebook
+  - Mode 1 (Section 3.4.1 - below): Training region and target region **are the same**, with no user revision of the assumptions.
+  - Mode 2 (Section 3.4.2 - below): Training region and target region **differ**, with no user revision of the assumptions.
+  - Mode 3 (Section 3.4.3 - below): Training region and target region are the same or differ, and the user **does** revise assumptions.
 
-  
-### 3.3.1  Model mode 1 – Training and target regions the same
+- Finally, click on the OPEN IN COLAB button at the top of the notebook.
 
+### 3.4.1  Model mode 1 – Training and target regions the same
 
+Use the BASIC COLAB notebook (named “Model_Notebook(Basic).ipynb”).  
 
-- Run the simulation
+Note - The transfer ratios in the control workbook should both be set to 1.
+
+Run the simulation as follows:
   - A.	Execute BASIC COLAB code segment #1 (“Grant Access to User Google Drive”).
   
   - B.	Execute BASIC COLAB code segment #2 (“Go to Simulation Folder”).  If named as suggested (BayesianCovidPopulationModel), this code segment will run without any further user-provided information.  Otherwise, the code segment will prompt for the folder location.  To provide this location, navigate to the folder in the browser, copy the browser web address, and paste it into the response box when prompted.
