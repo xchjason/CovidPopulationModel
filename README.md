@@ -206,6 +206,14 @@ Run the simulation:
 ### 3.4.3  Model use mode 3 – User modifies assumptions
 
 Use the TRANSFER COLAB notebook (named "Model_Notebook(Customize).ipynb").
+
+Overview
+- You can run the four **CODE SETUP** steps once (assuming that you do not change switch to a different control workbook).
+- Next, execute the three **ADD TO WORKBOOK** steps.
+- Now you can customize parameters (in green cells inn the control workbook).
+- Run the **UPDATE WORKBOOK** code segment after customizing control workbook parameters.
+- Run the **UPDATE JSON** code segment after updating the workbook.
+- Finally, you can execute **RUN MODEL**.
   
 Run the simulation:
   
@@ -230,8 +238,11 @@ Run the simulation:
   - The user can subsequently modify the Rt values.
 
 - **ADD TO WORKBOOK 2**.	Execute CUSTOMIZE COLAB code segment #6 (“Import All Parameters to Spreadsheet”).  
-  - This segment loads COVID infection spread rates into the control workbook for the **training region**. 
-  - Expressed as Rt values.  
+  - This segment loads COVID infection all parameters into the control workbook for the **training region**. 
+  - Parameters loaded include:
+    - Infection spread rates (Rt values)
+    - Dwell time distributions
+    - Transfer probabilities
 
 - **ADD TO WORKBOOK 3**.  Execute CUSTOMIZE COLAB code segment #7 ("Transfer Suggestion").  
   - This segment calculates recommended transfer ratios.
