@@ -190,15 +190,7 @@ Run the simulation as follows:
 
 ### 3.3.2  Model mode 2 – Training and target regions differ, user leaves assumptions unchanged
 
-
-
-Open the TRANSFER COLAB notebook:
-- Navigate to the Google drive folder created for this simulation (Section 2.2).
-- Click on the TRANSFER COLAB notebook (named “Model_Notebook(Transfer).ipynb”).
-- Click on the OPEN IN COLAB button at the top of the notebook. 
-Open the control workbook:
-- Navigate to the control workbook and click on it to open.
-- Select and open the SETTINGS sheet.
+Use the TRANSFER COLAB notebook:
 
 Run the simulation:
   
