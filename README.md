@@ -142,17 +142,6 @@ Procedures for running the model depend on (1) whether the training region and t
 - Mode 2 (Section 3.2 - below): Training region and target region **differ**, with no user revision of the assumptions.
 - Mode 3 (Section 3.3 - below): Training region and target region are the same or differ, and the user **does** revise assumptions.
 
-## 3.1	Selecting an assumption set
-
-
-
-### 3.1.2  If the training region dropdown list does NOT contain the target region
-In this case, the model warehouse does not contain an assumption set calibrated using data from the region to be simulated (the target region).
-
-- Select a training region proxy.  For example, if the target region is Vermont and the training region dropdown list does not contain Vermont, you might select a nearby state that does appear in the training region dropdown list (such as Massachusetts).
-- The control workbook will recommend transfer ratios for the general ward and intensive care unit.  You can adjust these values to help the model produce projections that best match empirical observations.
-
-
 
 ## 3.2	Adjusting assumption set values
 After selecting an assumption set (Section 3.1), you can alter its values by editing values in cells that are shaded green in control workbook:
