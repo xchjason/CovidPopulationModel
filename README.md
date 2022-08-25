@@ -225,23 +225,9 @@ Run the simulation:
   - To accept the recommended values based on these ratios, respond "Y" to prompt.
   - To leave the values in the control workbook's SETTINGS sheet unchanged, respond "N" to prompt.
 
-- H.  Execute CUSTOMIZE COLAB code segment #8 ("Update AllParam").  This code segment synchronizes control workbook entries related to health state dwell time assumptions (durations), and transition probabilities.
+- H.  Execute CUSTOMIZE COLAB code segment #8 ("Update AllParam").  This code segment synchronizes control workbook entries related to health state dwell time assumptions (DURATIONS(VAX) and DURATIONS(UNVAX) sheets), and transition probabilities (TRANSITIONS sheet).
 
 - I  Execute CUSTOMIZE COLAB code segment #9 ("Update Learned Parameters").  This code segment genrates a new json file with the appropriate parameters.
 
 - J  Execute CUSTOMIZE COLAB code segment #10 ("Project COVID Outcomes with User-Specified assumptions").  Generates simulation projections.
 
- 
-  
-- H.	Execute CUSTOMIZE COLAB code segment #7 (“Transfer suggestion”) if you want to reset the transfer ratios to their simulation-recommended values.  In response to the prompt (“Do you want to update with recommended ratios for your selected state (Y/N)?”  
-  -  Answering “Y” updates the values as described;
-  - Answering “N” makes no change to the values
-  
-- I.	Modify user-accessible assumptions in the model.  These assumptions appear in cells that are shaded green in any sheet.
-  
-- J.	Execute CUSTOMIZE COLAB segment #8 (“Update AllParam”).  This code segment incorporates user-specified revisions to the DURATIONS and TRANSITIONS sheets.  Always run this code segment before running the simulation.
-  
-- K.	Execute CUSTOMIZE COLAB segment #9 (“Update learned parameters”).  This code segment creates a new json file.
-  
-- L.	Execute CUSTOMIZE COLAB segment #10 (“Project COVID Outcomes with User-Specified Assumptions”).
-After running the model, the user can modify assumptions and proceed to run the model again.  The user can make modifications at steps D, H, and I in this list.  Be sure to execute all subsequent steps.  For example, following modification of the training region (part of Step D), follow steps E, F, and so forth.
