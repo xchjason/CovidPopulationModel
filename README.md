@@ -142,10 +142,15 @@ Procedures for running the model depend on (1) whether the training region and t
 - Mode 2 (Section 3.2 - below): Training region and target region **differ**, with no user revision of the assumptions.
 - Mode 3 (Section 3.3 - below): Training region and target region are the same or differ, and the user **does** revise assumptions.
 
+## 3.2 Modifying model parameters
 
-## 3.2	Adjusting assumption set values
-After selecting an assumption set (Section 3.1), you can alter its values by editing values in cells that are shaded green in control workbook:
-- Health state dwell time distributions – Revise values in the DURATIONS(VAX) and DURATIONS(UNVAX) sheets.  
+You can modify many model parameters by editing their values in the control workbook (see Section 2A.2.6).
+
+### 3.2.1 Health state dwell tie distributions
+Revise values in the DURATIONS(VAX) and DURATIONS(UNVAX) sheets
+
+
+
 - Health state transition probabilities – Revise values in the TRANSITIONS sheet.  The parameter “rho” represents the average probability that (1) individuals infected with COVID will develop mild symptoms; (2) individuals with mild COVID symptoms will require care in the hospital general ward, (3) COVID patients receiving care in the hospital general ward will require ICU care, and (4) COVID patients receiving ICU care will die.
 - COVID reproductive value – Revise values in the CONTEXT sheet.  This parameter controls the assumed rate at which the prevalence of COVID increases or decreases each day.  This parameter’s value represents the average number of new COVID infections caused by each existing infection; hence when the value of this parameter exceeds 1.0, the simulation model’s assumed population COVID prevalence increases each day.  Values below 1.0 mean prevalence decreases each day.  You can modify values for the training period and the projection period but not for the warmup period.  
 - Transfer ratios – Revise values in the SETTINGS sheet.  The general ward transfer ratio represents the anticipated ratio of the number of patients in the general ward in the target region to the corresponding number of patients in the training region.  The ICU transfer ratio represents the corresponding ratio for the intensive care unit.  The control workbook will recommend values for these transfer ratios based the observed number of patients in the general ward and in the ICU in the target region at the end of the training period.  You can use the defaults or modify them.  For example, if you believe the spread of COVID in the target region lags the spread of COVID in the training region, it might be appropriate to increase the transfer ratio values in anticipation of the target region general ward and ICU counts “catching up” to the corresponding counts in the training region.
