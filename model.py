@@ -58,7 +58,7 @@ class CovidModel(tf.keras.Model):
         self.vax_statuses = vax_statuses
         self.compartments = compartments
         self.posterior_samples = posterior_samples
-        
+
         self.config = config
 
         self.scale_transform = tfp.bijectors.Softplus()
@@ -100,11 +100,11 @@ class CovidModel(tf.keras.Model):
         prev_count_I = {}
         for day in range(forecast_days):
             for vax_status in [status.value for status in self.vax_statuses]:
-                if day-1 < 0:
-                    yesterday_asymp_no = self.warmup_A_samples_constrained[Vax.no.value][day-1]
+                if day - 1 < 0:
+                    yesterday_asymp_no = self.warmup_A_samples_constrained[Vax.no.value][day - 1]
                     yesterday_asymp_yes = self.warmup_A_samples_constrained[Vax.yes.value][day - 1]
                 else:
-                    yesterday_asymp_no = forecasted_fluxes[Comp.A.value][Vax.no.value].read(day-1)
+                    yesterday_asymp_no = forecasted_fluxes[Comp.A.value][Vax.no.value].read(day - 1)
                     yesterday_asymp_yes = forecasted_fluxes[Comp.A.value][Vax.yes.value].read(day - 1)
 
                 if vax_status == Vax.yes.value:
@@ -112,12 +112,13 @@ class CovidModel(tf.keras.Model):
                     # I worried that the end of the forecast was too sensitive to changes here
                     # So I added 1e-6 to T_serial
                     today_asymp = (yesterday_asymp_no +
-                                   self.epsilon_samples_constrained[Vax.total.value]*yesterday_asymp_yes) * \
-                    self.delta_samples_constrained[Vax.yes.value]*r_t[day] ** (1/(self.T_serial_samples_constrained[Vax.total.value] + 1e-6))
+                                   self.epsilon_samples_constrained[Vax.total.value] * yesterday_asymp_yes) * \
+                                  self.delta_samples_constrained[Vax.yes.value] * r_t[day] ** (
+                                              1 / (self.T_serial_samples_constrained[Vax.total.value] + 1e-6))
                 else:
                     today_asymp = (yesterday_asymp_no +
                                    self.epsilon_samples_constrained[Vax.total.value] * yesterday_asymp_yes) * \
-                                   r_t[day] ** (1 / self.T_serial_samples_constrained[Vax.total.value])
+                                  r_t[day] ** (1 / self.T_serial_samples_constrained[Vax.total.value])
 
                 forecasted_fluxes[Comp.A.value][vax_status] = \
                     forecasted_fluxes[Comp.A.value][vax_status].write(day, today_asymp)
@@ -129,38 +130,41 @@ class CovidModel(tf.keras.Model):
                     prev_count_G[vax_status] = self.init_count_G_samples_constrained[vax_status]
                     prev_count_I[vax_status] = self.init_count_I_samples_constrained[vax_status]
                 else:
-                    prev_count_G[vax_status] = forecasted_counts[Comp.G.value][vax_status].read(day-1)
-                    prev_count_I[vax_status] = forecasted_counts[Comp.I.value][vax_status].read(day-1)
+                    prev_count_G[vax_status] = forecasted_counts[Comp.G.value][vax_status].read(day - 1)
+                    prev_count_I[vax_status] = forecasted_counts[Comp.I.value][vax_status].read(day - 1)
 
                 previously_asymptomatic_tensor, previously_mild_tensor, previously_gen_tensor, previously_icu_tensor = \
                     self._get_prev_tensors(forecasted_fluxes, vax_status, day)
 
                 # Today's A->M = sum of last J day of A * rho * pi
-                if  vax_status == Vax.no.value:
+                if vax_status == Vax.no.value:
                     rho_M_eff = self.rho_M_samples_constrained[vax_status]
                     rho_G_eff = self.rho_G_samples_constrained[vax_status]
                     rho_I_eff = self.rho_I_samples_constrained[vax_status]
                     rho_D_eff = self.rho_D_samples_constrained[vax_status]
                 elif vax_status == Vax.yes.value:
-                    rho_M_eff = self.rho_M_samples_constrained[vax_status] * self.eff_M_samples_constrained[vax_status]
-                    rho_G_eff = self.rho_G_samples_constrained[vax_status] * self.eff_G_samples_constrained[vax_status]
-                    rho_I_eff = self.rho_I_samples_constrained[vax_status] * self.eff_I_samples_constrained[vax_status]
-                    rho_D_eff = self.rho_D_samples_constrained[vax_status] * self.eff_D_samples_constrained[vax_status]
+                    rho_M_eff = self.rho_M_samples_constrained[Vax.no.value] * self.eff_M_samples_constrained[
+                        Vax.yes.value]
+                    rho_G_eff = self.rho_G_samples_constrained[Vax.no.value] * self.eff_G_samples_constrained[
+                        Vax.yes.value]
+                    rho_I_eff = self.rho_I_samples_constrained[Vax.no.value] * self.eff_I_samples_constrained[
+                        Vax.yes.value]
+                    rho_D_eff = self.rho_D_samples_constrained[Vax.no.value] * self.eff_D_samples_constrained[
+                        Vax.yes.value]
                 else:
                     raise ValueError('never happens')
 
-
                 forecasted_fluxes[Comp.M.value][vax_status] = \
                     forecasted_fluxes[Comp.M.value][vax_status].write(day,
-                                                                     tf.reduce_sum(
-                                                                         previously_asymptomatic_tensor *
-                                                                         rho_M_eff * self.pi_M_samples[vax_status],
-                                                                         axis=0)
-                                                                     )
+                                                                      tf.reduce_sum(
+                                                                          previously_asymptomatic_tensor *
+                                                                          rho_M_eff * self.pi_M_samples[vax_status],
+                                                                          axis=0)
+                                                                      )
 
                 current_G_in = tf.reduce_sum(previously_mild_tensor *
-                                               rho_G_eff * self.pi_G_samples[vax_status],
-                                               axis=0)
+                                             rho_G_eff * self.pi_G_samples[vax_status],
+                                             axis=0)
                 current_I_in = tf.reduce_sum(previously_gen_tensor *
                                              rho_I_eff * self.pi_I_samples[vax_status],
                                              axis=0)
@@ -168,32 +172,29 @@ class CovidModel(tf.keras.Model):
                                              rho_D_eff * self.pi_D_samples[vax_status],
                                              axis=0)
 
-
                 forecasted_fluxes[Comp.G.value][vax_status] = \
-                    forecasted_fluxes[Comp.G.value][vax_status].write(day, current_G_in )
-                
+                    forecasted_fluxes[Comp.G.value][vax_status].write(day, current_G_in)
+
                 # People who recover from G = people who used to be in G * (1-prob moving to I) * I recovery duration
                 current_GR = tf.reduce_sum(previously_gen_tensor *
-                                              (1-rho_I_eff) *
-                                              self.pi_I_bar_samples[vax_status],
-                                              axis=0)
+                                           (1 - rho_I_eff) *
+                                           self.pi_I_bar_samples[vax_status],
+                                           axis=0)
 
                 # Make sure GR doesn't go negative. I don't think that first maximum(0, is necessary
                 current_GR = tf.math.maximum(0,
                                              tf.math.minimum(current_GR,
-                                                             prev_count_G[vax_status]+current_G_in-current_I_in)
+                                                             prev_count_G[vax_status] + current_G_in - current_I_in)
                                              )
-                    
-                
+
                 forecasted_fluxes[Comp.GR.value][vax_status] = \
                     forecasted_fluxes[Comp.GR.value][vax_status].write(day, current_GR)
 
                 forecasted_counts[Comp.G.value][vax_status] = \
-                    forecasted_counts[Comp.G.value][vax_status].write(day,tf.math.maximum(0,
-                                                                      prev_count_G[vax_status] + \
-                                                                      current_G_in - \
-                                                                      current_GR - current_I_in))
-
+                    forecasted_counts[Comp.G.value][vax_status].write(day, tf.math.maximum(0,
+                                                                                           prev_count_G[vax_status] + \
+                                                                                           current_G_in - \
+                                                                                           current_GR - current_I_in))
 
                 forecasted_fluxes[Comp.I.value][vax_status] = \
                     forecasted_fluxes[Comp.I.value][vax_status].write(day, current_I_in)
@@ -203,37 +204,38 @@ class CovidModel(tf.keras.Model):
                                            self.pi_D_bar_samples[vax_status],
                                            axis=0)
 
-                current_IR = tf.math.maximum(0,tf.math.minimum(current_IR, prev_count_I[vax_status]+current_I_in-current_D_in))
+                current_IR = tf.math.maximum(0, tf.math.minimum(current_IR,
+                                                                prev_count_I[vax_status] + current_I_in - current_D_in))
 
                 forecasted_fluxes[Comp.IR.value][vax_status] = \
                     forecasted_fluxes[Comp.IR.value][vax_status].write(day, current_IR)
 
                 forecasted_counts[Comp.I.value][vax_status] = \
-                    forecasted_counts[Comp.I.value][vax_status].write(day,tf.math.maximum(0,
-                                                                      prev_count_I[vax_status] + \
-                                                                      current_I_in - \
-                                                                      current_IR - current_D_in))
+                    forecasted_counts[Comp.I.value][vax_status].write(day, tf.math.maximum(0,
+                                                                                           prev_count_I[vax_status] + \
+                                                                                           current_I_in - \
+                                                                                           current_IR - current_D_in))
 
                 forecasted_fluxes[Comp.D.value][vax_status] = \
                     forecasted_fluxes[Comp.D.value][vax_status].write(day, current_D_in)
 
-
         if not debug_disable_prior:
             self._callable_losses.clear()
             self._add_prior_loss()
-
-
-
 
         # Re-combine vaccinated and unvaxxed for our output
         if return_all:
             result = forecasted_fluxes, forecasted_counts
         else:
             result = {}
-            result['G_count'] = forecasted_counts[Comp.G.value][Vax.yes.value].stack() + forecasted_counts[Comp.G.value][Vax.no.value].stack()
-            result['G_in'] = forecasted_fluxes[Comp.G.value][Vax.yes.value].stack() + forecasted_fluxes[Comp.G.value][Vax.no.value].stack()
-            result['I_count'] = forecasted_counts[Comp.I.value][Vax.yes.value].stack() + forecasted_counts[Comp.I.value][Vax.no.value].stack()
-            result['D_in'] = forecasted_fluxes[Comp.D.value][Vax.yes.value].stack() + forecasted_fluxes[Comp.D.value][Vax.no.value].stack()
+            result['G_count'] = forecasted_counts[Comp.G.value][Vax.yes.value].stack() + \
+                                forecasted_counts[Comp.G.value][Vax.no.value].stack()
+            result['G_in'] = forecasted_fluxes[Comp.G.value][Vax.yes.value].stack() + forecasted_fluxes[Comp.G.value][
+                Vax.no.value].stack()
+            result['I_count'] = forecasted_counts[Comp.I.value][Vax.yes.value].stack() + \
+                                forecasted_counts[Comp.I.value][Vax.no.value].stack()
+            result['D_in'] = forecasted_fluxes[Comp.D.value][Vax.yes.value].stack() + forecasted_fluxes[Comp.D.value][
+                Vax.no.value].stack()
             result = tf.expand_dims((result['G_count'], result['G_in'], result['I_count'], result['D_in']), axis=0)
 
         # Tensorflow thinks we didn't use every array, so we gotta mark them as used
@@ -390,7 +392,6 @@ class CovidModel(tf.keras.Model):
                         name=f'eff_D_scale_{Vax.yes.value}', trainable=train_variance)
 
         for vax_status in [status.value for status in self.vax_statuses]:
-
             self.unconstrained_lambda_M[vax_status] = {}
             self.unconstrained_lambda_M[vax_status]['loc'] = \
                 tf.Variable(config.lambda_M.value[vax_status]['loc'], dtype=tf.float32,
@@ -574,7 +575,7 @@ class CovidModel(tf.keras.Model):
                 tf.Variable(tf.cast(config.warmup_IR.value[vax_status]['scale'],
                                     dtype=tf.float32), dtype=tf.float32,
                             name=f'warmup_IR_scale_{vax_status}', trainable=train_variance)
-                
+
             self.unconstrained_init_count_G_params[vax_status]['loc'] = \
                 tf.Variable(tf.cast(config.init_count_G.value[vax_status]['loc'],
                                     dtype=tf.float32), dtype=tf.float32,
@@ -596,11 +597,11 @@ class CovidModel(tf.keras.Model):
             self.previously_asymptomatic[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window,
                                                                       clear_after_read=False, name=f'prev_asymp')
             self.previously_mild[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window,
-                                                                      clear_after_read=False, name=f'prev_mild')
+                                                              clear_after_read=False, name=f'prev_mild')
             self.previously_gen[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window,
-                                                              clear_after_read=False, name=f'prev_gen')
+                                                             clear_after_read=False, name=f'prev_gen')
             self.previously_icu[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window,
-                                                              clear_after_read=False, name=f'prev_icu')
+                                                             clear_after_read=False, name=f'prev_icu')
 
         return
 
@@ -712,7 +713,7 @@ class CovidModel(tf.keras.Model):
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(config.lambda_G.mean_transform)
             )
-            
+
             self.prior_distros[Comp.I.value][vax_status]['lambda_I'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
                     config.lambda_I.prior[vax_status]['loc'],
@@ -728,7 +729,7 @@ class CovidModel(tf.keras.Model):
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(config.lambda_I_bar.mean_transform)
             )
-            
+
             self.prior_distros[Comp.D.value][vax_status]['lambda_D'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
                     config.lambda_D.prior[vax_status]['loc'],
@@ -752,7 +753,7 @@ class CovidModel(tf.keras.Model):
                     0, np.inf),
                 bijector=tfp.bijectors.Invert(config.nu_M.mean_transform)
             )
-            
+
             self.prior_distros[Comp.G.value][vax_status]['nu_G'] = tfp.distributions.TransformedDistribution(
                 tfp.distributions.TruncatedNormal(
                     config.nu_G.prior[vax_status]['loc'],
@@ -799,9 +800,9 @@ class CovidModel(tf.keras.Model):
                 self.prior_distros[Comp.A.value][vax_status]['warmup_A'].append(
                     tfp.distributions.TransformedDistribution(
                         tfp.distributions.TruncatedNormal(
-                            tf.cast(config.warmup_A.prior[vax_status]['intercept'],dtype=tf.float32) +
-                            tf.cast(day * config.warmup_A.prior[vax_status]['slope'],dtype=tf.float32),
-                            tf.cast(config.warmup_A.prior[vax_status]['scale'],dtype=tf.float32),
+                            tf.cast(config.warmup_A.prior[vax_status]['intercept'], dtype=tf.float32) +
+                            tf.cast(day * config.warmup_A.prior[vax_status]['slope'], dtype=tf.float32),
+                            tf.cast(config.warmup_A.prior[vax_status]['scale'], dtype=tf.float32),
                             0, tf.float32.max),
                         bijector=tfp.bijectors.Invert(config.warmup_A.mean_transform)
                     )
@@ -883,7 +884,7 @@ class CovidModel(tf.keras.Model):
 
         return
 
-    def  _constrain_parameters(self):
+    def _constrain_parameters(self):
         """Helper function to make sure all of our posterior variance parameters are positive
 
         Note: We don't constrain the means here, the means are still real numbers
@@ -933,12 +934,13 @@ class CovidModel(tf.keras.Model):
         self.rho_D_params[Vax.no.value] = {}
         self.eff_D_params[Vax.yes.value] = {}
 
-
         self.T_serial_params[Vax.total.value]['loc'] = self.unconstrained_T_serial['loc']
-        self.T_serial_params[Vax.total.value]['scale'] = self.scale_transform.forward(self.unconstrained_T_serial['scale'])
+        self.T_serial_params[Vax.total.value]['scale'] = self.scale_transform.forward(
+            self.unconstrained_T_serial['scale'])
 
         self.epsilon_params[Vax.total.value]['loc'] = self.unconstrained_epsilon['loc']
-        self.epsilon_params[Vax.total.value]['scale'] = self.scale_transform.forward(self.unconstrained_epsilon['scale'])
+        self.epsilon_params[Vax.total.value]['scale'] = self.scale_transform.forward(
+            self.unconstrained_epsilon['scale'])
 
         self.delta_params[Vax.yes.value]['loc'] = self.unconstrained_delta['loc']
         self.delta_params[Vax.yes.value]['scale'] = self.scale_transform.forward(self.unconstrained_delta['scale'])
@@ -972,7 +974,6 @@ class CovidModel(tf.keras.Model):
             self.unconstrained_eff_D[Vax.yes.value]['scale'])
 
         for vax_status in [status.value for status in self.vax_statuses]:
-
             self.lambda_M_params[vax_status] = {}
             self.nu_M_params[vax_status] = {}
 
@@ -997,22 +998,21 @@ class CovidModel(tf.keras.Model):
             self.warmup_IR_params[vax_status] = {}
             self.init_count_I_params[vax_status] = {}
 
-            
-
             self.lambda_M_params[vax_status]['loc'] = self.unconstrained_lambda_M[vax_status]['loc']
-            self.lambda_M_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_lambda_M[vax_status]['scale'])
+            self.lambda_M_params[vax_status]['scale'] = self.scale_transform.forward(
+                self.unconstrained_lambda_M[vax_status]['scale'])
 
             self.nu_M_params[vax_status]['loc'] = self.unconstrained_nu_M[vax_status]['loc']
-            self.nu_M_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_nu_M[vax_status]['scale'])
-
+            self.nu_M_params[vax_status]['scale'] = self.scale_transform.forward(
+                self.unconstrained_nu_M[vax_status]['scale'])
 
             self.lambda_G_params[vax_status]['loc'] = self.unconstrained_lambda_G[vax_status]['loc']
-            self.lambda_G_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_lambda_G[vax_status]['scale'])
+            self.lambda_G_params[vax_status]['scale'] = self.scale_transform.forward(
+                self.unconstrained_lambda_G[vax_status]['scale'])
 
             self.nu_G_params[vax_status]['loc'] = self.unconstrained_nu_G[vax_status]['loc']
-            self.nu_G_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_nu_G[vax_status]['scale'])
-
-
+            self.nu_G_params[vax_status]['scale'] = self.scale_transform.forward(
+                self.unconstrained_nu_G[vax_status]['scale'])
 
             self.lambda_I_params[vax_status]['loc'] = self.unconstrained_lambda_I[vax_status]['loc']
             self.lambda_I_params[vax_status]['scale'] = self.scale_transform.forward(
@@ -1023,11 +1023,12 @@ class CovidModel(tf.keras.Model):
                 self.unconstrained_lambda_I_bar[vax_status]['scale'])
 
             self.nu_I_params[vax_status]['loc'] = self.unconstrained_nu_I[vax_status]['loc']
-            self.nu_I_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_nu_I[vax_status]['scale'])
+            self.nu_I_params[vax_status]['scale'] = self.scale_transform.forward(
+                self.unconstrained_nu_I[vax_status]['scale'])
 
             self.nu_I_bar_params[vax_status]['loc'] = self.unconstrained_nu_I_bar[vax_status]['loc']
-            self.nu_I_bar_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_nu_I_bar[vax_status]['scale'])
-
+            self.nu_I_bar_params[vax_status]['scale'] = self.scale_transform.forward(
+                self.unconstrained_nu_I_bar[vax_status]['scale'])
 
             self.lambda_D_params[vax_status]['loc'] = self.unconstrained_lambda_D[vax_status]['loc']
             self.lambda_D_params[vax_status]['scale'] = self.scale_transform.forward(
@@ -1038,10 +1039,12 @@ class CovidModel(tf.keras.Model):
                 self.unconstrained_lambda_D_bar[vax_status]['scale'])
 
             self.nu_D_params[vax_status]['loc'] = self.unconstrained_nu_D[vax_status]['loc']
-            self.nu_D_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_nu_D[vax_status]['scale'])
+            self.nu_D_params[vax_status]['scale'] = self.scale_transform.forward(
+                self.unconstrained_nu_D[vax_status]['scale'])
 
             self.nu_D_bar_params[vax_status]['loc'] = self.unconstrained_nu_D_bar[vax_status]['loc']
-            self.nu_D_bar_params[vax_status]['scale'] = self.scale_transform.forward(self.unconstrained_nu_D_bar[vax_status]['scale'])
+            self.nu_D_bar_params[vax_status]['scale'] = self.scale_transform.forward(
+                self.unconstrained_nu_D_bar[vax_status]['scale'])
 
             self.warmup_A_params[vax_status]['slope'] = \
                 self.unconstrained_warmup_A_params[vax_status]['slope']
@@ -1099,13 +1102,12 @@ class CovidModel(tf.keras.Model):
 
     def _sample_and_reparameterize(self):
         """Here we again constrain, and our prior distribution will fix it"""
-        
-        self._create_sample_tensor_dicts()
 
+        self._create_sample_tensor_dicts()
 
         (self.T_serial_samples[Vax.total.value],
          self.T_serial_samples_constrained[Vax.total.value],
-         self.T_serial_probs[Vax.total.value])  = \
+         self.T_serial_probs[Vax.total.value]) = \
             self._sample_reparam_single(self.T_serial_params[Vax.total.value], self.config.T_serial.mean_transform)
 
         (self.epsilon_samples[Vax.total.value],
@@ -1121,17 +1123,17 @@ class CovidModel(tf.keras.Model):
         (self.rho_M_samples[Vax.no.value],
          self.rho_M_samples_constrained[Vax.no.value],
          self.rho_M_probs[Vax.no.value]) = self._sample_reparam_single(self.rho_M_params[Vax.no.value],
-                                                                     self.config.rho_M.mean_transform)
+                                                                       self.config.rho_M.mean_transform)
 
         (self.rho_G_samples[Vax.no.value],
          self.rho_G_samples_constrained[Vax.no.value],
          self.rho_G_probs[Vax.no.value]) = self._sample_reparam_single(self.rho_G_params[Vax.no.value],
-                                                                     self.config.rho_G.mean_transform)
+                                                                       self.config.rho_G.mean_transform)
 
         (self.rho_I_samples[Vax.no.value],
          self.rho_I_samples_constrained[Vax.no.value],
          self.rho_I_probs[Vax.no.value]) = self._sample_reparam_single(self.rho_I_params[Vax.no.value],
-                                                                     self.config.rho_I.mean_transform)
+                                                                       self.config.rho_I.mean_transform)
 
         (self.rho_D_samples[Vax.no.value],
          self.rho_D_samples_constrained[Vax.no.value],
@@ -1141,7 +1143,7 @@ class CovidModel(tf.keras.Model):
         (self.eff_M_samples[Vax.yes.value],
          self.eff_M_samples_constrained[Vax.yes.value],
          self.eff_M_probs[Vax.yes.value]) = self._sample_reparam_single(self.eff_M_params[Vax.yes.value],
-                                                                       self.config.eff_M.mean_transform)
+                                                                        self.config.eff_M.mean_transform)
 
         (self.eff_G_samples[Vax.yes.value],
          self.eff_G_samples_constrained[Vax.yes.value],
@@ -1159,7 +1161,6 @@ class CovidModel(tf.keras.Model):
                                                                         self.config.eff_D.mean_transform)
 
         for vax_status in [status.value for status in self.vax_statuses]:
-
 
             (self.lambda_M_samples[vax_status],
              self.lambda_M_samples_constrained[vax_status],
@@ -1219,14 +1220,12 @@ class CovidModel(tf.keras.Model):
              self.nu_D_bar_samples_constrained[vax_status],
              self.nu_D_bar_probs[vax_status]) = self._sample_reparam_single(self.nu_D_bar_params[vax_status],
                                                                             self.config.nu_D_bar.mean_transform)
-            
-            
+
             for day in range(self.transition_window):
-                
                 (samples,
                  samples_constrained,
                  probs) = \
-                    self._sample_reparam_single(self.warmup_A_params[vax_status], 
+                    self._sample_reparam_single(self.warmup_A_params[vax_status],
                                                 self.config.warmup_A.mean_transform,
                                                 warmup=True, day=day)
                 self.warmup_A_samples[vax_status].append(samples)
@@ -1295,63 +1294,66 @@ class CovidModel(tf.keras.Model):
                 self._sample_reparam_single(self.init_count_I_params[vax_status],
                                             self.config.init_count_I.mean_transform)
 
-
             poisson_M_dist_samples = [tfp.distributions.Poisson(rate=lambda_M)
                                       for lambda_M in self.lambda_M_samples_constrained[vax_status]]
-    
+
             poisson_G_dist_samples = [tfp.distributions.Poisson(rate=lambda_G)
                                       for lambda_G in self.lambda_G_samples_constrained[vax_status]]
             poisson_I_dist_samples = [tfp.distributions.Poisson(rate=lambda_I)
                                       for lambda_I in self.lambda_I_samples_constrained[vax_status]]
             poisson_I_bar_dist_samples = [tfp.distributions.Poisson(rate=lambda_I_bar)
-                                      for lambda_I_bar in self.lambda_I_bar_samples_constrained[vax_status]]
+                                          for lambda_I_bar in self.lambda_I_bar_samples_constrained[vax_status]]
             poisson_D_dist_samples = [tfp.distributions.Poisson(rate=lambda_D)
                                       for lambda_D in self.lambda_D_samples_constrained[vax_status]]
             poisson_D_bar_dist_samples = [tfp.distributions.Poisson(rate=lambda_D_bar)
-                                      for lambda_D_bar in self.lambda_D_bar_samples_constrained[vax_status]]
+                                          for lambda_D_bar in self.lambda_D_bar_samples_constrained[vax_status]]
 
             self.pi_M_samples[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window,
                                                            clear_after_read=False, name='pi_M_samples')
-    
-            self.pi_G_samples[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window, clear_after_read=False,
-                                               name='pi_G_samples')
+
+            self.pi_G_samples[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window,
+                                                           clear_after_read=False,
+                                                           name='pi_G_samples')
             self.pi_I_samples[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window,
                                                            clear_after_read=False,
                                                            name='pi_I_samples')
             self.pi_I_bar_samples[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window,
-                                                           clear_after_read=False,
-                                                           name='pi_I_bar_samples')
+                                                               clear_after_read=False,
+                                                               name='pi_I_bar_samples')
             self.pi_D_samples[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window,
                                                            clear_after_read=False,
                                                            name='pi_D_samples')
             self.pi_D_bar_samples[vax_status] = tf.TensorArray(tf.float32, size=self.transition_window,
-                                                           clear_after_read=False,
-                                                           name='pi_D_bar_samples')
-    
+                                                               clear_after_read=False,
+                                                               name='pi_D_bar_samples')
+
             for j in range(self.transition_window):
-                self.pi_M_samples[vax_status] = self.pi_M_samples[vax_status].write(j, np.array([dist.log_prob(j + 1) for dist in poisson_M_dist_samples]) /
-                                                               self.nu_M_samples_constrained[vax_status])
-    
+                self.pi_M_samples[vax_status] = self.pi_M_samples[vax_status].write(j, np.array(
+                    [dist.log_prob(j + 1) for dist in poisson_M_dist_samples]) /
+                                                                                    self.nu_M_samples_constrained[
+                                                                                        vax_status])
+
                 self.pi_G_samples[vax_status] = self.pi_G_samples[vax_status].write(j, np.array(
                     [dist.log_prob(j + 1) for dist in poisson_G_dist_samples]) /
-                                                            self.nu_G_samples_constrained[vax_status])
+                                                                                    self.nu_G_samples_constrained[
+                                                                                        vax_status])
                 self.pi_I_samples[vax_status] = self.pi_I_samples[vax_status].write(j, np.array(
                     [dist.log_prob(j + 1) for dist in poisson_I_dist_samples]) /
                                                                                     self.nu_I_samples_constrained[
                                                                                         vax_status])
                 self.pi_I_bar_samples[vax_status] = self.pi_I_bar_samples[vax_status].write(j, np.array(
                     [dist.log_prob(j + 1) for dist in poisson_I_bar_dist_samples]) /
-                                                                                    self.nu_I_bar_samples_constrained[
-                                                                                        vax_status])
+                                                                                            self.nu_I_bar_samples_constrained[
+                                                                                                vax_status])
                 self.pi_D_samples[vax_status] = self.pi_D_samples[vax_status].write(j, np.array(
                     [dist.log_prob(j + 1) for dist in poisson_D_dist_samples]) /
                                                                                     self.nu_D_samples_constrained[
                                                                                         vax_status])
                 self.pi_D_bar_samples[vax_status] = self.pi_D_bar_samples[vax_status].write(j, np.array(
                     [dist.log_prob(j + 1) for dist in poisson_D_bar_dist_samples]) /
-                                                                                    self.nu_D_bar_samples_constrained[
-                                                                                        vax_status])
-    
+                                                                                            self.nu_D_bar_samples_constrained[
+                                                                                                vax_status])
+
             self.pi_M_samples[vax_status] = self.pi_M_samples[vax_status].stack()
             self.pi_G_samples[vax_status] = self.pi_G_samples[vax_status].stack()
             self.pi_I_samples[vax_status] = self.pi_I_samples[vax_status].stack()
@@ -1397,10 +1399,12 @@ class CovidModel(tf.keras.Model):
         """Helper function for adding loss from model prior"""
 
         # Flip the signs from our elbo equation because tensorflow minimizes
-        T_serial_prior_probs = [self.prior_distros[Comp.A.value][Vax.total.value]['T_serial'].log_prob(self.T_serial_samples_constrained[Vax.total.value]) + \
-                                self.config.T_serial.mean_transform.forward_log_det_jacobian(self.T_serial_samples[Vax.total.value]) for status in self.vax_statuses]
+        T_serial_prior_probs = [self.prior_distros[Comp.A.value][Vax.total.value]['T_serial'].log_prob(
+            self.T_serial_samples_constrained[Vax.total.value]) + \
+                                self.config.T_serial.mean_transform.forward_log_det_jacobian(
+                                    self.T_serial_samples[Vax.total.value]) for status in self.vax_statuses]
         T_serial_posterior_probs = self.T_serial_probs[Vax.total.value]
-        self.add_loss(lambda:  -tf.reduce_sum(tf.reduce_mean(T_serial_prior_probs- T_serial_posterior_probs ,axis=-1)))
+        self.add_loss(lambda: -tf.reduce_sum(tf.reduce_mean(T_serial_prior_probs - T_serial_posterior_probs, axis=-1)))
 
         delta_prior_prob = self.prior_distros[Comp.A.value][Vax.yes.value]['delta'].log_prob(
             self.delta_samples_constrained[Vax.yes.value]) + \
@@ -1410,13 +1414,14 @@ class CovidModel(tf.keras.Model):
 
         epsilon_prior_prob = self.prior_distros[Comp.A.value][Vax.total.value]['epsilon'].log_prob(
             self.epsilon_samples_constrained[Vax.total.value]) + \
-                           self.config.epsilon.mean_transform.forward_log_det_jacobian(self.epsilon_samples[Vax.total.value])
+                             self.config.epsilon.mean_transform.forward_log_det_jacobian(
+                                 self.epsilon_samples[Vax.total.value])
         epsilon_posterior_prob = self.epsilon_probs[Vax.total.value]
         self.add_loss(lambda: -tf.reduce_sum(tf.reduce_mean(epsilon_prior_prob - epsilon_posterior_prob, axis=-1)))
 
         rho_M_prior_prob = self.prior_distros[Comp.M.value][Vax.no.value]['rho_M'].log_prob(
             self.rho_M_samples_constrained[Vax.no.value]) + \
-                             self.config.rho_M.mean_transform.forward_log_det_jacobian(self.rho_M_samples[Vax.no.value])
+                           self.config.rho_M.mean_transform.forward_log_det_jacobian(self.rho_M_samples[Vax.no.value])
         rho_M_posterior_prob = self.rho_M_probs[Vax.no.value]
         self.add_loss(lambda: -tf.reduce_sum(tf.reduce_mean(rho_M_prior_prob - rho_M_posterior_prob, axis=-1)))
 
@@ -1462,18 +1467,21 @@ class CovidModel(tf.keras.Model):
         eff_D_posterior_prob = self.eff_D_probs[Vax.yes.value]
         self.add_loss(lambda: -tf.reduce_sum(tf.reduce_mean(eff_D_prior_prob - eff_D_posterior_prob, axis=-1)))
 
-        
         lambda_M_prior_probs = [
-            self.prior_distros[Comp.M.value][status.value]['lambda_M'].log_prob(self.lambda_M_samples_constrained[status.value]) + \
-            self.config.lambda_M.mean_transform.forward_log_det_jacobian(self.lambda_M_samples[status.value]) for status in self.vax_statuses]
+            self.prior_distros[Comp.M.value][status.value]['lambda_M'].log_prob(
+                self.lambda_M_samples_constrained[status.value]) + \
+            self.config.lambda_M.mean_transform.forward_log_det_jacobian(self.lambda_M_samples[status.value]) for status
+            in self.vax_statuses]
         lambda_M_posterior_probs = self.lambda_M_probs
         self.add_loss(lambda: tf.reduce_sum([-tf.reduce_sum(
             tf.reduce_mean(lambda_M_prior_probs[status.value] - lambda_M_posterior_probs[status.value], axis=-1))
                                              for status in self.vax_statuses]))
 
         lambda_G_prior_probs = [
-            self.prior_distros[Comp.G.value][status.value]['lambda_G'].log_prob(self.lambda_G_samples_constrained[status.value]) + \
-            self.config.lambda_G.mean_transform.forward_log_det_jacobian(self.lambda_G_samples[status.value]) for status in self.vax_statuses]
+            self.prior_distros[Comp.G.value][status.value]['lambda_G'].log_prob(
+                self.lambda_G_samples_constrained[status.value]) + \
+            self.config.lambda_G.mean_transform.forward_log_det_jacobian(self.lambda_G_samples[status.value]) for status
+            in self.vax_statuses]
         lambda_G_posterior_probs = self.lambda_G_probs
         self.add_loss(lambda: tf.reduce_sum([-tf.reduce_sum(
             tf.reduce_mean(lambda_G_prior_probs[status.value] - lambda_G_posterior_probs[status.value], axis=-1))
@@ -1481,7 +1489,8 @@ class CovidModel(tf.keras.Model):
         lambda_I_prior_probs = [
             self.prior_distros[Comp.I.value][status.value]['lambda_I'].log_prob(
                 self.lambda_I_samples_constrained[status.value]) + \
-            self.config.lambda_I.mean_transform.forward_log_det_jacobian(self.lambda_I_samples[status.value]) for status in
+            self.config.lambda_I.mean_transform.forward_log_det_jacobian(self.lambda_I_samples[status.value]) for status
+            in
             self.vax_statuses]
         lambda_I_posterior_probs = self.lambda_I_probs
         self.add_loss(lambda: tf.reduce_sum([-tf.reduce_sum(
@@ -1490,17 +1499,20 @@ class CovidModel(tf.keras.Model):
         lambda_I_bar_prior_probs = [
             self.prior_distros[Comp.IR.value][status.value]['lambda_I_bar'].log_prob(
                 self.lambda_I_bar_samples_constrained[status.value]) + \
-            self.config.lambda_I_bar.mean_transform.forward_log_det_jacobian(self.lambda_I_bar_samples[status.value]) for status in
+            self.config.lambda_I_bar.mean_transform.forward_log_det_jacobian(self.lambda_I_bar_samples[status.value])
+            for status in
             self.vax_statuses]
         lambda_I_bar_posterior_probs = self.lambda_I_bar_probs
         self.add_loss(lambda: tf.reduce_sum([-tf.reduce_sum(
-            tf.reduce_mean(lambda_I_bar_prior_probs[status.value] - lambda_I_bar_posterior_probs[status.value], axis=-1))
+            tf.reduce_mean(lambda_I_bar_prior_probs[status.value] - lambda_I_bar_posterior_probs[status.value],
+                           axis=-1))
                                              for status in self.vax_statuses]))
 
         lambda_D_prior_probs = [
             self.prior_distros[Comp.D.value][status.value]['lambda_D'].log_prob(
                 self.lambda_D_samples_constrained[status.value]) + \
-            self.config.lambda_D.mean_transform.forward_log_det_jacobian(self.lambda_D_samples[status.value]) for status in
+            self.config.lambda_D.mean_transform.forward_log_det_jacobian(self.lambda_D_samples[status.value]) for status
+            in
             self.vax_statuses]
         lambda_D_posterior_probs = self.lambda_D_probs
         self.add_loss(lambda: tf.reduce_sum([-tf.reduce_sum(
@@ -1509,24 +1521,30 @@ class CovidModel(tf.keras.Model):
         lambda_D_bar_prior_probs = [
             self.prior_distros[Comp.D.value][status.value]['lambda_D_bar'].log_prob(
                 self.lambda_D_bar_samples_constrained[status.value]) + \
-            self.config.lambda_D_bar.mean_transform.forward_log_det_jacobian(self.lambda_D_bar_samples[status.value]) for status in
+            self.config.lambda_D_bar.mean_transform.forward_log_det_jacobian(self.lambda_D_bar_samples[status.value])
+            for status in
             self.vax_statuses]
         lambda_D_bar_posterior_probs = self.lambda_D_bar_probs
         self.add_loss(lambda: tf.reduce_sum([-tf.reduce_sum(
-            tf.reduce_mean(lambda_D_bar_prior_probs[status.value] - lambda_D_bar_posterior_probs[status.value], axis=-1))
+            tf.reduce_mean(lambda_D_bar_prior_probs[status.value] - lambda_D_bar_posterior_probs[status.value],
+                           axis=-1))
                                              for status in self.vax_statuses]))
 
         nu_M_prior_probs = [
-            self.prior_distros[Comp.M.value][status.value]['nu_M'].log_prob(self.nu_M_samples_constrained[status.value]) + \
-            self.config.nu_M.mean_transform.forward_log_det_jacobian(self.nu_M_samples[status.value]) for status in self.vax_statuses]
+            self.prior_distros[Comp.M.value][status.value]['nu_M'].log_prob(
+                self.nu_M_samples_constrained[status.value]) + \
+            self.config.nu_M.mean_transform.forward_log_det_jacobian(self.nu_M_samples[status.value]) for status in
+            self.vax_statuses]
         nu_M_posterior_probs = self.nu_M_probs
         self.add_loss(lambda: tf.reduce_sum([-tf.reduce_sum(
             tf.reduce_mean(nu_M_prior_probs[status.value] - nu_M_posterior_probs[status.value], axis=-1))
                                              for status in self.vax_statuses]))
 
         nu_G_prior_probs = [
-            self.prior_distros[Comp.G.value][status.value]['nu_G'].log_prob(self.nu_G_samples_constrained[status.value]) + \
-            self.config.nu_G.mean_transform.forward_log_det_jacobian(self.nu_G_samples[status.value]) for status in self.vax_statuses]
+            self.prior_distros[Comp.G.value][status.value]['nu_G'].log_prob(
+                self.nu_G_samples_constrained[status.value]) + \
+            self.config.nu_G.mean_transform.forward_log_det_jacobian(self.nu_G_samples[status.value]) for status in
+            self.vax_statuses]
         nu_G_posterior_probs = self.nu_G_probs
         self.add_loss(lambda: tf.reduce_sum([-tf.reduce_sum(
             tf.reduce_mean(nu_G_prior_probs[status.value] - nu_G_posterior_probs[status.value], axis=-1))
@@ -1543,7 +1561,8 @@ class CovidModel(tf.keras.Model):
         nu_I_bar_prior_probs = [
             self.prior_distros[Comp.IR.value][status.value]['nu_I_bar'].log_prob(
                 self.nu_I_bar_samples_constrained[status.value]) + \
-            self.config.nu_I_bar.mean_transform.forward_log_det_jacobian(self.nu_I_bar_samples[status.value]) for status in
+            self.config.nu_I_bar.mean_transform.forward_log_det_jacobian(self.nu_I_bar_samples[status.value]) for status
+            in
             self.vax_statuses]
         nu_I_bar_posterior_probs = self.nu_I_bar_probs
         self.add_loss(lambda: tf.reduce_sum([-tf.reduce_sum(
@@ -1561,7 +1580,8 @@ class CovidModel(tf.keras.Model):
         nu_D_bar_prior_probs = [
             self.prior_distros[Comp.D.value][status.value]['nu_D_bar'].log_prob(
                 self.nu_D_bar_samples_constrained[status.value]) + \
-            self.config.nu_D_bar.mean_transform.forward_log_det_jacobian(self.nu_D_bar_samples[status.value]) for status in
+            self.config.nu_D_bar.mean_transform.forward_log_det_jacobian(self.nu_D_bar_samples[status.value]) for status
+            in
             self.vax_statuses]
         nu_D_bar_posterior_probs = self.nu_D_bar_probs
         self.add_loss(lambda: tf.reduce_sum([-tf.reduce_sum(
@@ -1576,7 +1596,8 @@ class CovidModel(tf.keras.Model):
             self.vax_statuses]
         init_count_G_posterior_probs = self.init_count_G_probs
         self.add_loss(lambda: tf.reduce_sum([-tf.reduce_sum(
-            tf.reduce_mean(init_count_G_prior_probs[status.value] - init_count_G_posterior_probs[status.value], axis=-1))
+            tf.reduce_mean(init_count_G_prior_probs[status.value] - init_count_G_posterior_probs[status.value],
+                           axis=-1))
                                              for status in self.vax_statuses]))
 
         init_count_I_prior_probs = [
@@ -1593,11 +1614,12 @@ class CovidModel(tf.keras.Model):
 
         # open bug about adding loss inisde a for loop: https://github.com/tensorflow/tensorflow/issues/44590
         # sum over status, mean over days, sum over nothing, mean over draws
-        self.add_loss(lambda:  tf.reduce_sum([tf.reduce_mean([-tf.reduce_sum(tf.reduce_mean(
-                self.prior_distros[Comp.A.value][status.value]['warmup_A'][day].log_prob(
-                    self.warmup_A_samples[status.value][day]) + \
-                self.config.warmup_A.mean_transform.forward_log_det_jacobian(self.warmup_A_samples[status.value][day])
-                - self.warmup_A_probs[status.value][day],axis=-1)) for day in range(self.transition_window)])for status in self.vax_statuses]))
+        self.add_loss(lambda: tf.reduce_sum([tf.reduce_mean([-tf.reduce_sum(tf.reduce_mean(
+            self.prior_distros[Comp.A.value][status.value]['warmup_A'][day].log_prob(
+                self.warmup_A_samples[status.value][day]) + \
+            self.config.warmup_A.mean_transform.forward_log_det_jacobian(self.warmup_A_samples[status.value][day])
+            - self.warmup_A_probs[status.value][day], axis=-1)) for day in range(self.transition_window)]) for status in
+                                             self.vax_statuses]))
 
         self.add_loss(lambda: tf.reduce_sum([tf.reduce_mean([-tf.reduce_sum(tf.reduce_mean(
             self.prior_distros[Comp.M.value][status.value]['warmup_M'][day].log_prob(
@@ -1617,7 +1639,8 @@ class CovidModel(tf.keras.Model):
                 self.warmup_GR_samples[status.value][day]) + \
             self.config.warmup_GR.mean_transform.forward_log_det_jacobian(
                 self.warmup_GR_samples[status.value][day])
-            - self.warmup_GR_probs[status.value][day], axis=-1)) for day in range(self.transition_window)]) for status in
+            - self.warmup_GR_probs[status.value][day], axis=-1)) for day in range(self.transition_window)]) for status
+                                             in
                                              self.vax_statuses]))
         self.add_loss(lambda: tf.reduce_sum([tf.reduce_mean([-tf.reduce_sum(tf.reduce_mean(
             self.prior_distros[Comp.I.value][status.value]['warmup_I'][day].log_prob(
@@ -1631,9 +1654,9 @@ class CovidModel(tf.keras.Model):
                 self.warmup_IR_samples[status.value][day]) + \
             self.config.warmup_IR.mean_transform.forward_log_det_jacobian(
                 self.warmup_IR_samples[status.value][day])
-            - self.warmup_IR_probs[status.value][day], axis=-1)) for day in range(self.transition_window)]) for status in
+            - self.warmup_IR_probs[status.value][day], axis=-1)) for day in range(self.transition_window)]) for status
+                                             in
                                              self.vax_statuses]))
-
 
         if debug:
             print(f'Rho M loss {vax_status}: {rho_M_loss}')
@@ -1645,7 +1668,6 @@ class CovidModel(tf.keras.Model):
             print(f'nu M loss {vax_status}: {nu_M_loss}')
             print(f'nu X loss {vax_status}: {nu_X_loss}')
             print(f'nu G loss {vax_status}: {nu_G_loss}')
-
 
     def _mark_arrays_used(self, forecasted_fluxes):
         """Helper function that supresses noisy error about not using all arrays"""
@@ -1663,7 +1685,6 @@ class CovidModel(tf.keras.Model):
             self.previously_icu[vax_status].mark_used()
 
         return
-
 
     def _get_prev_tensors(self, forecasted_fluxes, vax_status, day):
         """Build a tensor with the last j days of each compartment we can multiply this by pi
@@ -1710,7 +1731,6 @@ class CovidModel(tf.keras.Model):
         previously_icu_tensor = self.previously_icu[vax_status].stack()
 
         return (previously_asymptomatic_tensor, previously_mild_tensor, previously_gen_tensor, previously_icu_tensor)
-
 
     def _create_sample_tensor_dicts(self):
         self.T_serial_samples = defaultdict(int)
@@ -1854,7 +1874,6 @@ class CovidModel(tf.keras.Model):
 
         return
 
-
     def _sample_reparam_single(self, params, bijector, warmup=False, day=None):
         """Create samples and reparameterize a single variable.
 
@@ -1868,16 +1887,16 @@ class CovidModel(tf.keras.Model):
             probs (tf.Tensor): Tensor (or list) for storing posterior probabilities
         """
 
-        noise = tf.random.normal((self.posterior_samples, ))
+        noise = tf.random.normal((self.posterior_samples,))
 
         if warmup:
-            assert(day is not None)
-            mean = params['slope']*(day-self.transition_window) + params['intercept']
+            assert (day is not None)
+            mean = params['slope'] * (day - self.transition_window) + params['intercept']
         else:
             mean = params['loc']
 
         # Create samples, mean is still on real numbers
-        samples = mean + params['scale']*noise
+        samples = mean + params['scale'] * noise
 
         # get samples in interpretable space
         samples_constrained = bijector.forward(samples)
@@ -1891,21 +1910,21 @@ class CovidModel(tf.keras.Model):
 
         return samples, samples_constrained, probs
 
+
 # Custom LogPoisson Probability Loss function
 def calc_poisson(inputs):
     predicted_rate, true_rate = inputs
-    poisson = tfp.distributions.Poisson(rate=predicted_rate+1e-6)
+    poisson = tfp.distributions.Poisson(rate=predicted_rate + 1e-6)
     return poisson.log_prob(true_rate)
 
 
 class LogPoissonProb(tf.keras.losses.Loss):
 
     def call(self, y_true, y_pred, debug=False):
-        if len(y_true.shape)==3:
+        if len(y_true.shape) == 3:
             # we got a batch
             y_true = y_true[0]
             y_pred = y_pred[0]
-
 
         y_t = {}
         y_t['G_count'] = y_true[0]
@@ -1922,17 +1941,17 @@ class LogPoissonProb(tf.keras.losses.Loss):
         log_probs_G_count = tf.map_fn(calc_poisson, (y_p['G_count'], y_t['G_count']),
                                       fn_output_signature=tf.float32)
         log_probs_G_in = tf.map_fn(calc_poisson, (tf.squeeze(y_p['G_in']), y_t['G_in']),
-                                      fn_output_signature=tf.float32)
+                                   fn_output_signature=tf.float32)
         log_probs_I_count = tf.map_fn(calc_poisson, (y_p['I_count'], y_t['I_count']),
                                       fn_output_signature=tf.float32)
         log_probs_D_in = tf.map_fn(calc_poisson, (tf.squeeze(y_p['D_in']), y_t['D_in']),
                                    fn_output_signature=tf.float32)
 
         # mean over days, mean over draws
-        G_count_log_likelihood = tf.reduce_mean(tf.reduce_mean(log_probs_G_count,axis=1))
-        G_in_log_likelihood = tf.reduce_mean(tf.reduce_mean(log_probs_G_in, axis=1))
-        I_count_log_likelihood = tf.reduce_mean(tf.reduce_mean(log_probs_I_count, axis=1))
-        D_in_log_likelihood = tf.reduce_mean(tf.reduce_mean(log_probs_D_in, axis=1))
+        G_count_log_likelihood = tf.reduce_sum(tf.reduce_mean(log_probs_G_count, axis=1))
+        G_in_log_likelihood = tf.reduce_sum(tf.reduce_mean(log_probs_G_in, axis=1))
+        I_count_log_likelihood = tf.reduce_sum(tf.reduce_mean(log_probs_I_count, axis=1))
+        D_in_log_likelihood = tf.reduce_sum(tf.reduce_mean(log_probs_D_in, axis=1))
 
         if True:
             print(f'G count: {G_count_log_likelihood}')
@@ -1946,6 +1965,7 @@ class LogPoissonProb(tf.keras.losses.Loss):
                -I_count_log_likelihood + \
                -D_in_log_likelihood
 
+
 class ConfigCallback(tf.keras.callbacks.Callback):
 
     def __init__(self, config_outpath, every_nth_epoch=10):
@@ -1953,7 +1973,6 @@ class ConfigCallback(tf.keras.callbacks.Callback):
         self.config_outpath = config_outpath
 
     def on_epoch_end(self, epoch, logs):
-
         if epoch % self.every_nth_epoch != 0:
             return
 
@@ -1961,13 +1980,13 @@ class ConfigCallback(tf.keras.callbacks.Callback):
         self.model.config.to_json(self.config_outpath.format(epoch=epoch))
 
 
-
 class GraphCallback(tf.keras.callbacks.Callback):
 
-    def __init__(self, log_dir, df, x_test, y_test, state_abbrev, train_start, train_end, test_start, test_end, every_nth_epoch=25):
+    def __init__(self, log_dir, df, x_test, y_test, state_abbrev, train_start, train_end, test_start, test_end,
+                 every_nth_epoch=25):
         self.every_nth_epoch = every_nth_epoch
         self.log_dir = log_dir
-        self.df  = df
+        self.df = df
         self.x_test = x_test
         self.y_test = y_test
         self.state_abbrev = state_abbrev
@@ -1977,7 +1996,6 @@ class GraphCallback(tf.keras.callbacks.Callback):
         self.test_end = test_end
 
     def on_epoch_end(self, epoch, logs):
-
         if epoch % self.every_nth_epoch != 0:
             return
 
@@ -2011,11 +2029,13 @@ class GraphCallback(tf.keras.callbacks.Callback):
         plt.figure(figsize=(20, 12))
         plt.plot(self.df.loc[self.train_start:self.test_end].index.values, pred_G_count_mean, label='Predicted Mean')
         plt.plot(self.df.loc[self.train_start:self.test_end].index.values, self.y_test['G_count'], label='Data')
-        plt.fill_between(self.df.loc[self.train_start:self.test_end].index.values, pred_G_count_lower, pred_G_count_upper,
+        plt.fill_between(self.df.loc[self.train_start:self.test_end].index.values, pred_G_count_lower,
+                         pred_G_count_upper,
                          label='95% CI', alpha=0.3)
 
         max_y = max(max(pred_G_count_upper), max(self.y_test['G_count']))
-        plt.plot([self.df.loc[self.train_end:self.train_end].index.values, self.df.loc[self.train_end:self.train_end].index.values], [0, max_y],
+        plt.plot([self.df.loc[self.train_end:self.train_end].index.values,
+                  self.df.loc[self.train_end:self.train_end].index.values], [0, max_y],
                  '--', color='red', linewidth=5, alpha=0.15, label='Train/Test Split')
 
         month_ticks = matplotlib.dates.MonthLocator(interval=1)
@@ -2033,7 +2053,8 @@ class GraphCallback(tf.keras.callbacks.Callback):
                          label='95% CI', alpha=0.3)
 
         max_y = max(max(pred_G_in_upper), max(self.y_test['G_in']))
-        plt.plot([self.df.loc[self.train_end:self.train_end].index.values, self.df.loc[self.train_end:self.train_end].index.values], [0, max_y],
+        plt.plot([self.df.loc[self.train_end:self.train_end].index.values,
+                  self.df.loc[self.train_end:self.train_end].index.values], [0, max_y],
                  '--', color='red', linewidth=5, alpha=0.15, label='Train/Test Split')
 
         month_ticks = matplotlib.dates.MonthLocator(interval=1)
@@ -2047,11 +2068,13 @@ class GraphCallback(tf.keras.callbacks.Callback):
         plt.figure(figsize=(20, 12))
         plt.plot(self.df.loc[self.train_start:self.test_end].index.values, pred_I_count_mean, label='Predicted Mean')
         plt.plot(self.df.loc[self.train_start:self.test_end].index.values, self.y_test['I_count'], label='Data')
-        plt.fill_between(self.df.loc[self.train_start:self.test_end].index.values, pred_I_count_lower, pred_I_count_upper,
+        plt.fill_between(self.df.loc[self.train_start:self.test_end].index.values, pred_I_count_lower,
+                         pred_I_count_upper,
                          label='95% CI', alpha=0.3)
 
         max_y = max(max(pred_I_count_upper), max(self.y_test['I_count']))
-        plt.plot([self.df.loc[self.train_end:self.train_end].index.values, self.df.loc[self.train_end:self.train_end].index.values], [0, max_y],
+        plt.plot([self.df.loc[self.train_end:self.train_end].index.values,
+                  self.df.loc[self.train_end:self.train_end].index.values], [0, max_y],
                  '--', color='red', linewidth=5, alpha=0.15, label='Train/Test Split')
 
         month_ticks = matplotlib.dates.MonthLocator(interval=1)
@@ -2069,7 +2092,8 @@ class GraphCallback(tf.keras.callbacks.Callback):
                          label='95% CI', alpha=0.3)
 
         max_y = max(max(pred_D_in_upper), max(self.y_test['D_in']))
-        plt.plot([self.df.loc[self.train_end:self.train_end].index.values, self.df.loc[self.train_end:self.train_end].index.values], [0, max_y],
+        plt.plot([self.df.loc[self.train_end:self.train_end].index.values,
+                  self.df.loc[self.train_end:self.train_end].index.values], [0, max_y],
                  '--', color='red', linewidth=5, alpha=0.15, label='Train/Test Split')
 
         month_ticks = matplotlib.dates.MonthLocator(interval=1)
@@ -2079,7 +2103,6 @@ class GraphCallback(tf.keras.callbacks.Callback):
         plt.ylabel('Patients')
         plt.title(f'Daily Deaths {self.state_abbrev}, {epoch}')
         plt.savefig(D_in_plot_loc)
-
 
 
 class VarLogCallback(tf.keras.callbacks.Callback):
@@ -2166,9 +2189,6 @@ class VarLogCallback(tf.keras.callbacks.Callback):
                           step=epoch)
 
         for vax_status in [status.value for status in self.model.vax_statuses]:
-
-            
-
             tf.summary.scalar(f'lambda_M_mean_{vax_status}',
                               data=tf.squeeze(tf.math.softplus(self.model.unconstrained_lambda_M[vax_status]['loc'])),
                               step=epoch)
@@ -2195,10 +2215,12 @@ class VarLogCallback(tf.keras.callbacks.Callback):
                               data=tf.squeeze(tf.math.softplus(self.model.unconstrained_nu_G[vax_status]['scale'])),
                               step=epoch)
             tf.summary.scalar(f'lambda_I_bar_mean_{vax_status}',
-                              data=tf.squeeze(tf.math.softplus(self.model.unconstrained_lambda_I_bar[vax_status]['loc'])),
+                              data=tf.squeeze(
+                                  tf.math.softplus(self.model.unconstrained_lambda_I_bar[vax_status]['loc'])),
                               step=epoch)
             tf.summary.scalar(f'lambda_I_bar_scale_{vax_status}',
-                              data=tf.squeeze(tf.math.softplus(self.model.unconstrained_lambda_I_bar[vax_status]['scale'])),
+                              data=tf.squeeze(
+                                  tf.math.softplus(self.model.unconstrained_lambda_I_bar[vax_status]['scale'])),
                               step=epoch)
             tf.summary.scalar(f'nu_I_bar_mean_{vax_status}',
                               data=tf.squeeze(tf.math.softplus(self.model.unconstrained_nu_I_bar[vax_status]['loc'])),
@@ -2247,9 +2269,13 @@ class VarLogCallback(tf.keras.callbacks.Callback):
                               data=tf.squeeze(tf.math.softplus(self.model.unconstrained_nu_D_bar[vax_status]['scale'])),
                               step=epoch)
 
-            tf.summary.scalar(f'warmup_A_mean_{vax_status}', data=tf.squeeze(tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]).forward(self.model.unconstrained_warmup_A_params[vax_status]['intercept'])), step=epoch)
+            tf.summary.scalar(f'warmup_A_mean_{vax_status}', data=tf.squeeze(
+                tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]).forward(
+                    self.model.unconstrained_warmup_A_params[vax_status]['intercept'])), step=epoch)
             tf.summary.scalar(f'warmup_A_scale_{vax_status}',
-                              data=tf.squeeze(tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]).forward(self.model.unconstrained_warmup_A_params[vax_status]['scale'])), step=epoch)
+                              data=tf.squeeze(
+                                  tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]).forward(
+                                      self.model.unconstrained_warmup_A_params[vax_status]['scale'])), step=epoch)
             tf.summary.scalar(f'warmup_M_mean_{vax_status}', data=tf.squeeze(
                 tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]).forward(
                     self.model.unconstrained_warmup_M_params[vax_status]['intercept'])), step=epoch)
@@ -2288,26 +2314,27 @@ class VarLogCallback(tf.keras.callbacks.Callback):
 
             tf.summary.scalar(f'init_count_G_mean_{vax_status}',
                               data=tf.squeeze(
-                tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]).forward(
-                    self.model.unconstrained_init_count_G_params[vax_status]['loc'])),
+                                  tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]).forward(
+                                      self.model.unconstrained_init_count_G_params[vax_status]['loc'])),
                               step=epoch)
             tf.summary.scalar(f'init_count_G_scale_{vax_status}',
                               data=tf.squeeze(
-                tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]).forward(
-                    self.model.unconstrained_init_count_G_params[vax_status]['scale'])),
+                                  tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]).forward(
+                                      self.model.unconstrained_init_count_G_params[vax_status]['scale'])),
                               step=epoch)
             tf.summary.scalar(f'init_count_I_mean_{vax_status}',
                               data=tf.squeeze(
-                tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]).forward(
-                    self.model.unconstrained_init_count_I_params[vax_status]['loc'])),
+                                  tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]).forward(
+                                      self.model.unconstrained_init_count_I_params[vax_status]['loc'])),
                               step=epoch)
             tf.summary.scalar(f'init_count_I_scale_{vax_status}',
                               data=tf.squeeze(
-                tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]).forward(
-                    self.model.unconstrained_init_count_I_params[vax_status]['scale'])),
+                                  tfp.bijectors.Chain([tfp.bijectors.Scale(100), tfp.bijectors.Softplus()]).forward(
+                                      self.model.unconstrained_init_count_I_params[vax_status]['scale'])),
                               step=epoch)
 
         return
+
 
 def get_logging_callbacks(log_dir, df, x_test, y_test, state_abbrev, train_start, train_end, test_start, test_end):
     """Get tensorflow callbacks to write tensorboard logs to given log_dir"""
@@ -2316,6 +2343,7 @@ def get_logging_callbacks(log_dir, df, x_test, y_test, state_abbrev, train_start
     logging_callback = VarLogCallback()
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
     config_callback = ConfigCallback(log_dir + "/saved_config_{epoch}.json")
-    graph_callback = GraphCallback(log_dir, df, x_test, y_test, state_abbrev, train_start, train_end, test_start, test_end)
+    graph_callback = GraphCallback(log_dir, df, x_test, y_test, state_abbrev, train_start, train_end, test_start,
+                                   test_end)
     return [logging_callback, tensorboard_callback, config_callback, graph_callback]
 
